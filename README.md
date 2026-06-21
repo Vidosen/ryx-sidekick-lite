@@ -73,13 +73,18 @@ Omit `#v2.4.0` to track the default branch.
 </details>
 
 <details>
-<summary><b>Option B — .unitypackage</b></summary>
+<summary><b>Option B — .unitypackage installer</b></summary>
 
 <br/>
 
-Download `RyxSidekick-Lite-Plain-2.4.0.unitypackage` from the
+Download `RyxSidekick-Lite-OSS-2.4.0.unitypackage` from the
 [latest release](https://github.com/Vidosen/ryx-sidekick-lite/releases/latest) and import it via
-**Assets → Import Package → Custom Package…**
+**Assets → Import Package → Custom Package…**. It runs a one-time installer that places the
+package under `Packages/`, cleanly replaces any previous version (with rollback on failure),
+and then removes itself.
+
+> Use **one** install method — the git URL **or** the `.unitypackage`, not both (mixing them
+> leaves two copies of the package).
 
 </details>
 
