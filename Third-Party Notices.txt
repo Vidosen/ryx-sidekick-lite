@@ -1,0 +1,37 @@
+Ryx Sidekick - Third-Party Notices
+==================================
+
+This package includes third-party components listed below.
+
+1) Markdig (version 0.44.0)
+---------------------------
+Files:
+- ThirdParty/Markdig.0.44.0/lib/netstandard2.1/Markdig.dll
+- ThirdParty/Markdig.0.44.0/lib/netstandard2.1/Markdig.xml
+
+License:
+- BSD-2-Clause
+- License text: ThirdParty/Licenses/Markdig-BSD-2-Clause.txt
+- Upstream: https://github.com/xoofx/markdig
+
+2) Roboto Mono font files
+-------------------------
+Files:
+- Assets/RobotoMono-wght.ttf
+- Assets/RobotoMono-Italic-wght.ttf
+
+License:
+- SIL Open Font License 1.1
+- License text: ThirdParty/Licenses/RobotoMono-OFL-1.1.txt
+- Upstream: https://github.com/googlefonts/roboto-2
+
+3) Proprietary Ryx Interactive assets
+-------------------------------------
+The following icon assets are proprietary Ryx Interactive assets:
+- Assets/copy-icon.svg
+- Assets/copy-icon.png
+- Assets/chevron-up.svg
+- Assets/chevron-up.png
+- Assets/chevron-down.svg
+- Assets/chevron-down.png
+

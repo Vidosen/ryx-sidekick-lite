@@ -1,0 +1,310 @@
+/* ============================================
+   Permission Overlay
+   VS Code-like bottom-anchored panel
+   ============================================ */
+
+/* Container that holds the overlay (must stretch to fill window) */
+#permission-overlay-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.sk-perm-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.sk-perm-overlay__backdrop {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--sk-overlay-dark-border);
+}
+
+.sk-perm-overlay__panel {
+    background-color: var(--sk-bg-secondary);
+    border-top-width: 1px;
+    border-color: var(--sk-border-light);
+    max-height: 60%;
+    min-height: 220px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    flex-direction: column;
+}
+
+/* Header */
+.sk-perm-overlay__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+    background-color: var(--sk-bg-tertiary);
+    flex-shrink: 0;
+}
+
+.sk-perm-overlay__header-left {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.sk-perm-overlay__header-right {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.sk-perm-overlay__icon {
+    font-size: 18px;
+    margin-right: 10px;
+    color: var(--sk-text-secondary);
+}
+
+.sk-perm-overlay__title {
+    font-size: 14px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+}
+
+.sk-perm-overlay__counter {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+    margin-right: 12px;
+    padding: 3px 8px;
+    background-color: var(--sk-bg-hover);
+    border-radius: 10px;
+}
+
+/* Close button */
+.sk-perm-overlay__close {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: transparent;
+    border-width: 0;
+    color: var(--sk-text-secondary);
+    font-size: 18px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+}
+
+.sk-perm-overlay__close:hover {
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+}
+
+/* Content area */
+.sk-perm-overlay__content {
+    padding: 16px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+/* Tool name badge */
+.sk-perm-overlay__tool-name {
+    font-size: 11px;
+    color: var(--sk-accent);
+    padding: 4px 10px;
+    background-color: var(--sk-accent-subtle);
+    border-radius: 4px;
+    -unity-font-style: bold;
+    align-self: flex-start;
+    margin-bottom: 12px;
+}
+
+/* Path row */
+.sk-perm-overlay__path-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.sk-perm-overlay__path-icon {
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.sk-perm-overlay__path {
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    white-space: normal;
+    -unity-font-style: bold;
+}
+
+/* Command row (for Bash) */
+.sk-perm-overlay__command-row {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background-color: var(--sk-terminal-bg);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+.sk-perm-overlay__command-icon {
+    font-size: 13px;
+    color: var(--sk-terminal-accent);
+    margin-right: 8px;
+    flex-shrink: 0;
+    -unity-font-style: bold;
+}
+
+.sk-perm-overlay__command {
+    font-size: 12px;
+    color: var(--sk-terminal-text);
+    white-space: normal;
+    -unity-font: url("project://database/Packages/com.ryxinteractive.sidekick/Assets/RobotoMono-wght.ttf");
+}
+
+/* Preview scroll area */
+.sk-perm-overlay__preview-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 60px;
+    max-height: 200px;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+.sk-perm-overlay__preview-scroll > #unity-content-container {
+    padding: 10px 12px;
+}
+
+.sk-perm-overlay__preview {
+    flex-direction: column;
+}
+
+/* Content preview (for Write) */
+.sk-perm-preview__content {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+    -unity-font: url("project://database/Packages/com.ryxinteractive.sidekick/Assets/RobotoMono-wght.ttf");
+}
+
+/* Show more button */
+.sk-perm-overlay__show-more {
+    align-self: flex-start;
+    margin-top: 8px;
+    padding: 4px 10px;
+    background-color: transparent;
+    border-width: 0;
+    color: var(--sk-accent);
+    font-size: 11px;
+}
+
+.sk-perm-overlay__show-more:hover {
+    color: var(--sk-accent-hover);
+    background-color: var(--sk-bg-hover);
+    border-radius: 4px;
+}
+
+/* Footer */
+.sk-perm-overlay__footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    background-color: var(--sk-bg-tertiary);
+    flex-shrink: 0;
+}
+
+.sk-perm-overlay__reason {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+    max-width: 40%;
+}
+
+.sk-perm-overlay__actions {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Action buttons */
+.sk-perm-overlay__btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border-width: 0;
+    font-size: 13px;
+    margin-left: 8px;
+    -unity-font-style: bold;
+}
+
+.sk-perm-overlay__btn:disabled {
+    opacity: 0.5;
+}
+
+/* Deny button */
+.sk-perm-overlay__btn-deny {
+    background-color: transparent;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    color: var(--sk-text-secondary);
+}
+
+.sk-perm-overlay__btn-deny:hover {
+    background-color: var(--sk-error-overlay);
+    border-color: var(--sk-error-emphasis);
+    color: var(--sk-error-emphasis);
+}
+
+.sk-perm-overlay__btn-deny-remember {
+    background-color: var(--sk-error-overlay);
+    border-width: 1px;
+    border-color: var(--sk-error-emphasis);
+    color: var(--sk-error-emphasis);
+}
+
+.sk-perm-overlay__btn-deny-remember:hover {
+    background-color: var(--sk-error-overlay);
+}
+
+/* Allow button */
+.sk-perm-overlay__btn-allow {
+    background-color: var(--sk-accent);
+    color: white;
+}
+
+.sk-perm-overlay__btn-allow:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+/* Remember button */
+.sk-perm-overlay__btn-remember {
+    background-color: var(--sk-success-overlay-heavy);
+    color: var(--sk-success-emphasis);
+    border-width: 1px;
+    border-color: var(--sk-success-emphasis);
+}
+
+.sk-perm-overlay__btn-remember:hover {
+    background-color: var(--sk-success-overlay-hover);
+}

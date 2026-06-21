@@ -1,0 +1,173 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:appui="Unity.AppUI.UI" editor-extension-mode="True">
+    <Style src="SidekickWindow.uss" />
+    <Style src="Styles/SidekickWindow.Markdown.uss" />
+    <Style src="Styles/SidekickWindow.InlineTools.uss" />
+    <Style src="Styles/SidekickWindow.Misc.uss" />
+    <Style src="Styles/SidekickWindow.Auth.uss" />
+    <Style src="Styles/SidekickWindow.AskUserQuestion.uss" />
+    <Style src="Styles/SidekickWindow.Permission.uss" />
+    <Style src="Styles/SidekickWindow.Context.uss" />
+    <Style src="Styles/SidekickWindow.CommandPalette.uss" />
+    <Style src="Styles/SidekickWindow.Onboarding.uss" />
+    <Style src="Styles/SidekickWindow.ConfirmDialog.uss" />
+    
+    <ui:VisualElement name="main-container" class="sk-main-container">
+        
+        <!-- Center - Chat Panel (now full width) -->
+        <ui:VisualElement name="chat-panel" class="sk-chat-panel">
+            
+            <!-- Chat Header -->
+            <ui:VisualElement name="chat-header" class="sk-chat-header">
+                <!-- Left: Conversation Dropdown -->
+                <ui:VisualElement class="sk-header-left">
+                    <ui:Button name="conversation-dropdown-btn" class="sk-conversation-dropdown-btn">
+                        <ui:Label name="dropdown-title" text="Past Conversations" class="sk-dropdown-title" />
+                        <ui:Label text="▾" class="sk-dropdown-arrow" />
+                    </ui:Button>
+                </ui:VisualElement>
+                
+                <!-- Right: Actions -->
+                <ui:VisualElement class="sk-chat-actions">
+                    <ui:Button name="new-chat-btn" text="+" tooltip="New Chat" class="sk-icon-btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Welcome Screen (shown when no messages) -->
+            <ui:VisualElement name="welcome-screen" class="sk-welcome">
+                <!-- Header with Claude branding -->
+                <ui:VisualElement class="sk-welcome-header">
+                    <ui:Image name="welcome-logo-icon" class="sk-welcome-logo-icon" />
+                    <ui:Label text="Ryx Sidekick" class="sk-welcome-title" />
+                </ui:VisualElement>
+                
+                <ui:Label name="welcome-subtitle" text="You've come to the absolutely right place!" class="sk-welcome-subtitle" />
+            </ui:VisualElement>
+            
+            <!-- Message List -->
+            <ui:VisualElement name="message-scroll-container" class="sk-message-scroll-container">
+                <!-- Virtualized ListView timeline -->
+                <ui:ListView name="message-list-view" class="sk-message-list-view" virtualization-method="DynamicHeight" selection-type="None" show-border="false" style="display: none;" />
+
+                <!-- History load status (sibling, shown only when there are no messages) -->
+                <ui:VisualElement name="history-status-host" class="sk-history-status-host" />
+
+                <!-- Permission banners (sibling, never virtualized) -->
+                <ui:VisualElement name="permission-banner-host" class="sk-permission-banner-host" />
+
+                <ui:VisualElement name="scroll-to-bottom-container" class="sk-scroll-to-bottom-container" style="display: none;">
+                    <ui:Button name="scroll-to-bottom-btn" class="sk-scroll-to-bottom-btn" tooltip="Scroll to latest messages">
+                        <ui:Label text="↓" class="sk-scroll-to-bottom-icon" />
+                        <ui:Label text="More" class="sk-scroll-to-bottom-text" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Input Area -->
+            <ui:VisualElement class="sk-input-area">
+                <ui:VisualElement class="sk-input-wrapper">
+                    <!-- Context chips area (shown when context attachments exist) -->
+                    <ui:VisualElement name="context-chips-area" class="sk-context-chips-area" />
+                    <ui:ScrollView name="input-scroll" vertical-scroller-visibility="Auto" horizontal-scroller-visibility="Hidden" class="sk-input-scroll">
+                        <ui:TextField name="input-field" multiline="true" class="sk-input-field" style="flex-wrap: wrap;" />
+                    </ui:ScrollView>
+                    <ui:VisualElement name="attachments-preview" class="sk-attachments-preview" style="display: none;" />
+                    
+                    <!-- Bottom toolbar -->
+                    <ui:VisualElement class="sk-input-toolbar">
+                        <!-- Left side: edit mode toggle (horizontally scrollable on overflow) -->
+                        <ui:ScrollView name="input-toolbar-scroll"
+                                       mode="Horizontal"
+                                       horizontal-scroller-visibility="Auto"
+                                       vertical-scroller-visibility="Hidden"
+                                       class="sk-input-toolbar-scroll">
+                            <ui:VisualElement class="sk-input-toolbar-left">
+                                <ui:Button name="collaboration-mode-btn" class="sk-edit-mode-btn">
+                                    <ui:Label text="" class="sk-edit-mode-icon" />
+                                    <ui:Label name="collaboration-mode-label" text="Default mode" class="sk-edit-mode-text" />
+                                </ui:Button>
+                                <ui:Button name="edit-mode-btn" class="sk-edit-mode-btn">
+                                    <ui:Label text="" class="sk-edit-mode-icon" />
+                                    <ui:Label name="edit-mode-label" text="Ask before edits" class="sk-edit-mode-text" />
+                                </ui:Button>
+
+                                <!-- Context usage indicator (hidden by default) -->
+                                <ui:VisualElement name="context-usage" class="sk-context-usage" style="display: none;">
+                                    <ui:VisualElement name="context-usage-pie" class="sk-context-usage-pie" />
+                                    <ui:Label name="context-usage-text" class="sk-context-usage-text" />
+                                </ui:VisualElement>
+
+                                <!-- Context indicator -->
+                                <ui:VisualElement name="context-indicator" class="sk-context-indicator">
+                                    <ui:Label text="◇" class="sk-context-icon" />
+                                    <ui:Label name="context-text" class="sk-context-text" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:ScrollView>
+
+                        <!-- Right side: controls (pinned, never scrolls) -->
+                        <ui:VisualElement class="sk-input-toolbar-right">
+                            <appui:Button name="add-context-btn" title="+" size="S" variant="Default" class="sk-toolbar-icon-btn" />
+                            <ui:Label text="/" class="sk-slash-indicator" />
+                            <appui:Button name="send-btn" title="↑" size="S" variant="Default" class="sk-send-btn" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    
+                    <!-- Drop zone overlay (shown during drag) -->
+                    <ui:VisualElement name="drop-zone-overlay" class="sk-drop-zone-overlay">
+                        <ui:Label text="" class="sk-drop-zone-icon" />
+                        <ui:Label text="Drop files here" class="sk-drop-zone-text" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Status Bar -->
+            <ui:VisualElement name="status-bar" class="sk-status-bar">
+                <!-- MCP for Unity Section -->
+                <ui:VisualElement name="mcp-section" class="sk-mcp-section">
+                    <ui:VisualElement name="mcp-indicator" class="sk-status-indicator sk-mcp-indicator disconnected" />
+                    <ui:Label name="mcp-status-text" text="MCP: Off" class="sk-mcp-status-text" />
+                    <appui:Button name="mcp-btn" title="Start" size="S" variant="Default" class="sk-statusbar-btn sk-mcp-btn" />
+                </ui:VisualElement>
+
+                <!-- Provider Selector Button -->
+                <appui:Button name="provider-btn" title="claude" size="S" variant="Default" class="sk-statusbar-btn sk-provider-btn" />
+
+                <!-- Model Selector Button -->
+                <appui:Button name="model-btn" title="sonnet" size="S" variant="Default" class="sk-statusbar-btn sk-model-btn-status" />
+
+                <!-- Pro upgrade chip (hidden until wired by T17) -->
+                <appui:Button name="pro-upgrade-chip" title="★ Upgrade to Pro" size="S" variant="Default" class="sk-pro-chip" style="display: none;" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+    
+    <!-- Conversation Dropdown Popup (hidden by default) -->
+    <ui:VisualElement name="conversation-popup" class="sk-conversation-popup" style="display: none;">
+        <ui:VisualElement class="sk-popup-content">
+            <!-- Search -->
+            <ui:TextField name="conversation-search" class="sk-conversation-search" text="" />
+            
+            <!-- Conversation List -->
+            <ui:ScrollView name="popup-conversation-list" class="sk-popup-conversation-list" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+
+    <!-- Image overlay with zoom/pan support -->
+    <ui:VisualElement name="image-overlay" class="sk-image-overlay" style="display: none;">
+        <ui:VisualElement name="image-overlay-backdrop" class="sk-image-overlay__backdrop" />
+        <ui:VisualElement name="image-overlay-content" class="sk-image-overlay__content">
+            <ui:VisualElement name="image-overlay-viewport" class="sk-image-overlay__viewport">
+                <ui:Image name="image-overlay-img" class="sk-image-overlay__img" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement picking-mode="Ignore" class="sk-image-overlay__close-layer">
+            <ui:Button name="image-overlay-close" text="×" class="sk-image-overlay__close" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="permission-overlay-container" picking-mode="Ignore" style="display: none;" />
+    <ui:VisualElement name="ask-user-question-container" picking-mode="Ignore" style="display: none;" />
+    <ui:VisualElement name="login-overlay-container" style="display: none;" />
+
+</ui:UXML>

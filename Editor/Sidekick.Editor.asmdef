@@ -1,0 +1,21 @@
+{
+    "name": "Sidekick.Editor",
+    "rootNamespace": "Ryx.Sidekick",
+    "references": [
+        "Sidekick.Editor.Domain",
+        "Sidekick.Editor.Application",
+        "Sidekick.Editor.Infrastructure",
+        "Sidekick.Editor.Presentation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

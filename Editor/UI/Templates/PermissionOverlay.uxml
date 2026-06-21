@@ -1,0 +1,65 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <!-- Permission Overlay - VS Code-like bottom-anchored panel -->
+    <ui:VisualElement name="permission-overlay" class="sk-perm-overlay" style="display: none;" picking-mode="Ignore">
+        <!-- Backdrop (visual-only, picking-mode Ignore — no click handler) -->
+        <ui:VisualElement name="perm-overlay-backdrop" class="sk-perm-overlay__backdrop" picking-mode="Ignore" />
+
+        <!-- Panel (anchored bottom, VS Code-like) -->
+        <ui:VisualElement name="perm-overlay-panel" class="sk-perm-overlay__panel" picking-mode="Position">
+            <!-- Header with title + counter + close -->
+            <ui:VisualElement class="sk-perm-overlay__header">
+                <!-- Left: Icon + Title -->
+                <ui:VisualElement class="sk-perm-overlay__header-left">
+                    <ui:Label name="perm-icon" text="" class="sk-perm-overlay__icon" />
+                    <ui:Label name="perm-title" text="Permission Required" class="sk-perm-overlay__title" />
+                </ui:VisualElement>
+
+                <!-- Right: Counter + Close -->
+                <ui:VisualElement class="sk-perm-overlay__header-right">
+                    <ui:Label name="perm-counter" text="1/1" class="sk-perm-overlay__counter" />
+                    <ui:Button name="perm-close-btn" text="×" tooltip="Deny (Esc)" class="sk-perm-overlay__close" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Content area -->
+            <ui:VisualElement name="perm-content" class="sk-perm-overlay__content">
+                <!-- Tool name badge -->
+                <ui:Label name="perm-tool-name" text="Write" class="sk-perm-overlay__tool-name" />
+
+                <!-- Target path (for file operations) -->
+                <ui:VisualElement name="perm-path-row" class="sk-perm-overlay__path-row">
+                    <ui:Label text="" class="sk-perm-overlay__path-icon" />
+                    <ui:Label name="perm-path" text="/path/to/file.cs" class="sk-perm-overlay__path" />
+                </ui:VisualElement>
+
+                <!-- Command (for Bash) -->
+                <ui:VisualElement name="perm-command-row" class="sk-perm-overlay__command-row" style="display: none;">
+                    <ui:Label text="$" class="sk-perm-overlay__command-icon" />
+                    <ui:Label name="perm-command" text="npm install" class="sk-perm-overlay__command" />
+                </ui:VisualElement>
+
+                <!-- Preview container (for diffs/content) -->
+                <ui:ScrollView name="perm-preview-scroll" class="sk-perm-overlay__preview-scroll">
+                    <ui:VisualElement name="perm-preview" class="sk-perm-overlay__preview" />
+                </ui:ScrollView>
+
+                <!-- Toggle show more -->
+                <ui:Button name="perm-show-more-btn" text="Show more ▼" class="sk-perm-overlay__show-more" style="display: none;" />
+            </ui:VisualElement>
+
+            <!-- Footer with action buttons -->
+            <ui:VisualElement class="sk-perm-overlay__footer">
+                <!-- Left: decision reason if available -->
+                <ui:Label name="perm-reason" text="" class="sk-perm-overlay__reason" />
+
+                <!-- Right: Action buttons -->
+                <ui:VisualElement class="sk-perm-overlay__actions">
+                    <ui:Button name="perm-deny-btn" text="Deny" class="sk-perm-overlay__btn sk-perm-overlay__btn-deny" />
+                    <ui:Button name="perm-deny-remember-btn" text="Deny &amp; Remember" tooltip="Deny and remember this choice for the rest of session" class="sk-perm-overlay__btn sk-perm-overlay__btn-deny-remember" style="display: none;" />
+                    <ui:Button name="perm-allow-btn" text="Allow" class="sk-perm-overlay__btn sk-perm-overlay__btn-allow" />
+                    <ui:Button name="perm-remember-btn" text="Allow &amp; Remember" tooltip="Allow and auto-accept this tool for the rest of session" class="sk-perm-overlay__btn sk-perm-overlay__btn-remember" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

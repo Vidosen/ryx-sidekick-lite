@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="code-block" class="sk-code-block">
+        <ui:VisualElement class="sk-code-header">
+            <ui:Label name="language" class="sk-code-language" />
+            <ui:Button name="copy-btn" text="Copy" class="sk-code-copy-btn" />
+        </ui:VisualElement>
+        <ui:Label name="code" class="sk-code-content" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,1912 @@
+/* ============================================
+   Ryx Sidekick - Main Stylesheet
+   Production-ready dark theme
+   ============================================ */
+
+:root {
+    --sk-bg-primary: #181818;
+    --sk-bg-secondary: #1f1f1f;
+    --sk-bg-tertiary: #262626;
+    --sk-bg-hover: #2e2e2e;
+    --sk-bg-active: #3a3a3a;
+    --sk-border: #2e2e2e;
+    --sk-border-light: #3a3a3a;
+    --sk-text-primary: #e3e3e3;
+    --sk-text-secondary: #a0a0a0;
+    --sk-text-muted: #6e6e6e;
+    --sk-accent: #4A9EFF;
+    --sk-accent-hover: #6DB3FF;
+    --sk-accent-subtle: rgba(74, 158, 255, 0.15);
+    --sk-accent-border: rgba(74, 158, 255, 0.3);
+    --sk-accent-border-hover: rgba(74, 158, 255, 0.4);
+    --sk-error: #FF6B6B;
+    --sk-success: #89d185;
+    --sk-warning: #e9c46a;
+    --sk-info: #64b5f6;
+    --sk-code-bg: #141414;
+    --sk-scrollbar: #3a3a3a;
+    --sk-scrollbar-hover: #4a4a4a;
+    --sk-user-bubble: #2a3f5f;
+    --sk-assistant-bubble: #232323;
+    --sk-link: #61afef;
+    --sk-link-hover: #8fcfff;
+    --sk-link-accent: #4fc3f7;
+    --sk-link-bg-subtle: rgba(79, 195, 247, 0.1);
+    --sk-link-bg-hover: rgba(79, 195, 247, 0.2);
+    --sk-gameobject-accent: #e5c07b;
+    --sk-overlay-dark-subtle: rgba(0, 0, 0, 0.15);
+    --sk-overlay-dark-soft: rgba(0, 0, 0, 0.2);
+    --sk-overlay-dark-border: rgba(0, 0, 0, 0.3);
+    --sk-overlay-dark-chip: rgba(0, 0, 0, 0.25);
+    --sk-overlay-backdrop: rgba(0, 0, 0, 0.85);
+    --sk-danger-surface: rgba(220, 38, 38, 0.9);
+    --sk-danger-surface-active: rgba(185, 28, 28, 1);
+    --sk-warning-bg-soft: rgba(204, 167, 0, 0.08);
+    --sk-warning-bg-subtle: rgba(204, 167, 0, 0.1);
+    --sk-warning-bg: rgba(204, 167, 0, 0.12);
+    --sk-warning-bg-strong: rgba(204, 167, 0, 0.15);
+    --sk-warning-bg-heavy: rgba(204, 167, 0, 0.2);
+    --sk-warning-border: rgba(204, 167, 0, 0.25);
+    --sk-success-bg-soft: rgba(137, 209, 133, 0.1);
+    --sk-success-bg: rgba(137, 209, 133, 0.12);
+    --sk-success-bg-strong: rgba(137, 209, 133, 0.15);
+    --sk-success-bg-heavy: rgba(137, 209, 133, 0.2);
+    --sk-success-border: rgba(137, 209, 133, 0.25);
+    --sk-success-hover: #9be097;
+    --sk-success-emphasis: #3fb950;
+    --sk-success-overlay: rgba(46, 160, 67, 0.15);
+    --sk-success-overlay-heavy: rgba(46, 160, 67, 0.2);
+    --sk-success-overlay-hover: rgba(46, 160, 67, 0.35);
+    --sk-error-bg: rgba(255, 107, 107, 0.12);
+    --sk-error-bg-strong: rgba(255, 107, 107, 0.15);
+    --sk-error-bg-heavy: rgba(255, 107, 107, 0.2);
+    --sk-error-border: rgba(255, 107, 107, 0.25);
+    --sk-error-hover: #FF8A8A;
+    --sk-error-emphasis: #EF4444;
+    --sk-error-overlay: rgba(239, 68, 68, 0.15);
+    --sk-info-action: #5c9ce6;
+    --sk-info-action-hover: #7ab1ed;
+    --sk-terminal-bg: #1e1e1e;
+    --sk-terminal-accent: #4ec9b0;
+    --sk-terminal-text: #d4d4d4;
+    --sk-dropzone-accent: #4ade80;
+    --sk-dropzone-bg: rgba(74, 222, 128, 0.08);
+    --sk-dropzone-bg-hover: rgba(74, 222, 128, 0.12);
+    --sk-code-inline-text: #9cdcfe;
+    --sk-code-inline-bg: rgba(110, 118, 129, 0.2);
+    --sk-quote-bg: rgba(74, 158, 255, 0.06);
+    --sk-surface-overlay-05: rgba(255, 255, 255, 0.05);
+    --sk-pro-gold: #e9c46a;
+}
+
+/* Main Container */
+.sk-main-container {
+    flex-grow: 1;
+    flex-direction: row;
+    background-color: var(--sk-bg-primary);
+}
+
+/* ============================================
+   Header Left - Conversation Dropdown
+   ============================================ */
+
+.sk-header-left {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-conversation-dropdown-btn {
+    flex-direction: row;
+    align-items: center;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-right: 4px;
+}
+
+.sk-conversation-dropdown-btn:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-dropdown-title {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    -unity-font-style: normal;
+}
+
+.sk-dropdown-arrow {
+    font-size: 9px;
+    color: var(--sk-text-muted);
+    margin-left: 4px;
+}
+
+/* ============================================
+   Conversation Dropdown Popup
+   ============================================ */
+
+.sk-conversation-popup {
+    position: absolute;
+    left: 12px;
+    top: 42px;
+    width: 360px;
+    max-height: 450px;
+    background-color: var(--sk-bg-secondary);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sk-popup-content {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.sk-conversation-search {
+    margin: 10px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--sk-text-primary);
+    font-size: 12px;
+}
+
+.sk-conversation-search > .unity-text-element {
+    color: var(--sk-text-primary);
+}
+
+.sk-conversation-search .unity-base-text-field__input {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    color: var(--sk-text-primary);
+}
+
+.sk-conversation-search:focus {
+    border-color: var(--sk-accent);
+}
+
+.sk-popup-conversation-list {
+    flex-grow: 1;
+    max-height: 320px;
+    padding: 0 6px;
+}
+
+.sk-popup-date-group {
+    padding: 8px 8px 4px 8px;
+    color: var(--sk-text-muted);
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 0.5px;
+}
+
+.sk-popup-conversation-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    margin-bottom: 2px;
+    border-radius: 5px;
+    background-color: transparent;
+    border-width: 0;
+}
+
+.sk-popup-conversation-item:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-popup-conversation-item.selected {
+    background-color: var(--sk-bg-active);
+}
+
+.sk-popup-conversation-title {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sk-popup-conversation-time {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    margin-left: 10px;
+}
+
+
+/* Model trigger — pushed to the right edge (chrome lives on .sk-statusbar-btn) */
+.sk-model-btn-status {
+    margin-left: auto;
+}
+
+/* Model Dropdown Popup */
+.sk-model-popup-content {
+    min-width: 280px;
+    /* Long model descriptions must wrap instead of stretching the popover off-screen. */
+    max-width: 420px;
+    padding: 8px 0;
+}
+
+.sk-model-popup-title {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    padding: 8px 14px 4px 14px;
+    -unity-font-style: bold;
+}
+
+.sk-model-option {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 14px;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 0;
+}
+
+.sk-model-option:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sk-model-option.active {
+    background-color: var(--sk-accent-subtle);
+}
+
+.sk-model-option-name {
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+}
+
+.sk-model-option-desc {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    margin-top: 1px;
+    white-space: normal;
+}
+
+.sk-reasoning-effort-section {
+    padding: 10px 14px;
+    margin-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+}
+
+.sk-reasoning-efforts {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.sk-reasoning-effort-option {
+    min-width: 44px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--sk-text-primary);
+    background-color: transparent;
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 4px;
+}
+
+.sk-reasoning-effort-option:hover {
+    border-color: var(--sk-accent);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sk-reasoning-effort-option.active {
+    color: white;
+    border-color: var(--sk-accent);
+    background-color: var(--sk-accent-subtle);
+}
+
+.sk-model-custom-section {
+    padding: 10px 14px;
+    margin-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+}
+
+.sk-model-custom-label {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-bottom: 6px;
+}
+
+.sk-model-custom-input {
+    margin-bottom: 8px;
+}
+
+.sk-model-custom-input > .unity-text-field__input {
+    font-size: 11px;
+    padding: 6px 8px;
+    background-color: var(--sk-bg-primary);
+    border-color: var(--sk-border);
+    border-radius: 4px;
+    color: var(--sk-text-primary);
+}
+
+.sk-model-custom-input > .unity-text-field__input:focus {
+    border-color: var(--sk-accent);
+}
+
+.sk-model-custom-apply {
+    font-size: 11px;
+    padding: 6px 12px;
+    background-color: var(--sk-accent);
+    border-width: 0;
+    border-radius: 4px;
+    color: white;
+    align-self: flex-end;
+}
+
+.sk-model-custom-apply:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+/* Thinking Toggle */
+.sk-thinking-toggle-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sk-thinking-toggle-label {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+}
+
+.sk-thinking-toggle {
+    width: 40px;
+    height: 22px;
+    cursor: link;
+}
+
+.sk-thinking-toggle-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    transition-duration: 0.15s;
+    padding: 2px;
+}
+
+.sk-thinking-toggle.active .sk-thinking-toggle-track {
+    background-color: var(--sk-accent);
+    border-color: var(--sk-accent);
+}
+
+.sk-thinking-toggle-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: var(--sk-text-muted);
+    transition-duration: 0.15s;
+    translate: 0 0;
+}
+
+.sk-thinking-toggle.active .sk-thinking-toggle-thumb {
+    background-color: white;
+    translate: 18px 0;
+}
+
+.sk-thinking-toggle:hover .sk-thinking-toggle-track {
+    border-color: var(--sk-accent);
+}
+
+.sk-thinking-section {
+    padding: 10px 14px;
+    margin-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+}
+
+/* ============================================
+   Provider Button & Popup
+   ============================================ */
+
+/* Provider trigger — extra spacing before model (chrome lives on .sk-statusbar-btn) */
+.sk-provider-btn {
+    margin-right: 4px;
+}
+
+.sk-provider-options {
+    /* Container for dynamically created provider option buttons */
+}
+
+/* Pro section header inside the provider popover */
+.sk-pro-section {
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sk-text-secondary);
+    padding: 6px 14px 2px 14px;
+    opacity: 0.7;
+}
+
+/* Locked provider row: horizontal (name left, PRO badge right) — overrides
+   the column layout of .sk-model-option so the badge sits inline, not stacked. */
+.sk-model-option--locked {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Gold "PRO" badge on locked provider rows */
+.sk-pro-badge {
+    background-color: var(--sk-pro-gold);
+    color: #181818;
+    font-size: 9px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    flex-shrink: 0;
+}
+
+/* Ghost-gold "★ Upgrade to Pro" chip in the status bar */
+.sk-pro-chip {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 1px;
+    border-color: rgba(233, 196, 106, 0.35);
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-left: 6px;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+.sk-pro-chip .appui-button__title {
+    font-size: 11px;
+    color: var(--sk-pro-gold);
+    -unity-font-style: bold;
+}
+
+.sk-pro-chip:hover {
+    background-color: rgba(233, 196, 106, 0.08);
+}
+
+.sk-pro-chip:hover .appui-button__title {
+    color: var(--sk-pro-gold);
+}
+
+.sk-model-presets {
+    /* Container for dynamically created model preset buttons */
+}
+
+/* Attachment Menu Popup ("+ Add context") */
+.sk-attachment-options {
+    /* Container for dynamically created attachment option buttons */
+}
+
+.sk-attachment-option {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 0;
+}
+
+.sk-attachment-option:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sk-attachment-option.disabled {
+    opacity: 0.45;
+}
+
+.sk-attachment-option.disabled:hover {
+    background-color: transparent;
+}
+
+.sk-attachment-option-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+
+/* ============================================
+   Chat Panel - Center
+   ============================================ */
+
+.sk-chat-panel {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--sk-bg-primary);
+}
+
+.sk-chat-header {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+    background-color: var(--sk-bg-primary);
+}
+
+.sk-chat-actions {
+    flex-direction: row;
+}
+
+.sk-icon-btn {
+    width: 32px;
+    height: 32px;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 4px;
+    color: var(--sk-text-secondary);
+    font-size: 14px;
+    margin-left: 4px;
+    -unity-text-align: middle-center;
+}
+
+.sk-icon-btn:hover {
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+}
+
+.sk-icon-btn:active {
+    background-color: var(--sk-bg-active);
+}
+
+.sk-icon-btn.stop-btn {
+    color: var(--sk-error);
+}
+
+/* Message List */
+.sk-message-list {
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 16px;
+    overflow: hidden; /* Prevent horizontal overflow */
+    transition-property: padding-bottom;
+    transition-duration: 0.15s;
+}
+
+/* Extra bottom padding when modal is visible to allow scrolling past it */
+.sk-message-list.sk-modal-padding {
+    padding-bottom: 280px;
+}
+
+.sk-message-scroll-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    position: relative;
+    min-height: 0;
+}
+
+.sk-message-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+/* Hide horizontal scrollbar - content should wrap */
+.sk-message-scroll > .unity-scroller--horizontal {
+    display: none;
+}
+
+/* Virtualized ListView path */
+.sk-message-list-view {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+/* Pad the inner content container (not the ListView itself) so message content is inset
+   on both sides while the vertical scrollbar stays flush to the window edge. */
+.sk-message-list-view .unity-scroll-view__content-container {
+    padding: 16px;
+}
+
+/* Hide horizontal scrollbar - content should wrap */
+.sk-message-list-view .unity-scroller--horizontal {
+    display: none;
+}
+
+/* Messages are not selectable rows — selectionType=None drops the logic, this drops
+   the theme's hover/selected background on the collection item. */
+.sk-message-list-view .unity-collection-view__item:hover,
+.sk-message-list-view .unity-collection-view__item--selected {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+/* Sibling chrome layers around the timeline (never virtualized) */
+.sk-history-status-host {
+    flex-shrink: 0;
+}
+
+.sk-permission-banner-host {
+    flex-shrink: 0;
+}
+
+.sk-scroll-to-bottom-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.sk-scroll-to-bottom-btn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    background-color: rgba(58, 58, 58, 0.96);
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.55);
+    border-radius: 16px;
+    color: var(--sk-text-primary);
+    scale: 1;
+    transition-property: background-color, border-color, scale;
+    transition-duration: 0.14s;
+    transition-timing-function: ease-out;
+}
+
+.sk-scroll-to-bottom-btn:hover {
+    background-color: rgba(72, 72, 72, 0.98);
+    border-color: rgba(255, 255, 255, 0.08);
+    scale: 1.05;
+}
+
+.sk-scroll-to-bottom-btn:active {
+    background-color: rgba(82, 82, 82, 1);
+    scale: 0.96;
+}
+
+.sk-scroll-to-bottom-icon {
+    font-size: 14px;
+    color: var(--sk-text-primary);
+    margin-right: 0;
+}
+
+.sk-scroll-to-bottom-text {
+    display: none;
+}
+
+/* Message Bubbles */
+.sk-message {
+    margin-bottom: 14px;
+    flex-direction: column;
+    max-width: 90%;
+}
+
+.sk-message.user {
+    align-self: flex-end;
+}
+
+.sk-message.assistant {
+    /* Note: avoid align-self as it breaks height calculation in UI Toolkit */
+    margin-right: auto;
+    max-width: 100%;
+}
+
+.sk-message-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.sk-message-role {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    -unity-font-style: bold;
+    letter-spacing: 0.3px;
+}
+
+.sk-message-time {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    margin-left: 8px;
+}
+
+/* Copy button - hidden by default, shown on hover */
+.sk-message-copy-btn {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    margin-left: auto;
+    padding: 0;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.15s, background-color 0.15s, scale 0.1s;
+    -unity-background-scale-mode: scale-to-fit;
+    scale: 1;
+}
+
+.sk-message:hover .sk-message-copy-btn {
+    opacity: 0.4;
+}
+
+.sk-message-copy-btn:hover {
+    opacity: 1;
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-message-copy-btn:active {
+    scale: 0.85;
+    opacity: 1;
+    background-color: var(--sk-bg-active);
+}
+
+.sk-message-content {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background-color: var(--sk-assistant-bubble);
+    flex-direction: column;
+    max-width: 100%;
+}
+
+.sk-message.user .sk-message-content {
+    background-color: var(--sk-user-bubble);
+    border-bottom-right-radius: 4px;
+}
+
+.sk-message.assistant .sk-message-content {
+    border-bottom-left-radius: 4px;
+    background-color: transparent;
+    padding: 0;
+}
+
+.sk-message-text {
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    white-space: normal;
+    -unity-text-align: upper-left;
+    flex-shrink: 0;
+}
+
+.sk-attachments {
+    margin-top: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.sk-attachment-thumb {
+    /* width/height set dynamically via inline style based on aspect ratio */
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    background-color: var(--sk-bg-secondary);
+    overflow: hidden;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.sk-attachment-thumb:hover {
+    border-color: var(--sk-accent);
+}
+
+.sk-attachment-thumb__image {
+    width: 100%;
+    height: 100%;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* Pending Attachments Preview (Input) */
+.sk-attachments-preview {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0 14px 8px 14px;
+}
+
+.sk-attachment-preview {
+    /* width/height set dynamically via inline style based on aspect ratio */
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    background-color: var(--sk-bg-secondary);
+    overflow: hidden;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.sk-attachment-preview:hover {
+    border-color: var(--sk-accent);
+}
+
+.sk-attachment-preview__image {
+    width: 100%;
+    height: 100%;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-attachment-preview__remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: rgba(0, 0, 0, 0.65);
+    border-width: 0;
+    color: white;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    display: none;
+}
+
+.sk-attachment-preview:hover .sk-attachment-preview__remove {
+    display: flex;
+}
+
+.sk-attachment-preview__remove:hover {
+    background-color: var(--sk-accent);
+}
+
+/* Code Blocks */
+.sk-code-block {
+    background-color: var(--sk-code-bg);
+    border-radius: 6px;
+    margin: 8px 0;
+    padding: 12px;
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+.sk-code-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+}
+
+.sk-code-language {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+}
+
+.sk-code-copy-btn {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    background-color: transparent;
+    border-width: 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.sk-code-copy-btn:hover {
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+}
+
+.sk-code-content {
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    white-space: pre-wrap;
+}
+
+/* Tool Calls */
+.sk-tool-call {
+    background-color: transparent;
+    border-radius: 4px;
+    margin: 4px 0;
+    overflow: hidden;
+    min-width: 0; /* Allow flex-item to shrink below content size */
+}
+
+.sk-tool-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 4px;
+    background-color: transparent;
+}
+
+
+.sk-tool-name {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+}
+
+.sk-auto-accepted-chip {
+    display: none;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    -unity-font-style: normal;
+    align-self: center;
+}
+
+.sk-tool-header-content {
+    margin-left: 8px;
+    flex-shrink: 1;
+    overflow: hidden;
+}
+
+.sk-tool-input {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    white-space: pre-wrap;
+    padding: 8px;
+    background-color: var(--sk-code-bg);
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+/* Collapsible IO for generic tools */
+.sk-tool-io-container {
+    margin-top: 4px;
+}
+
+.sk-tool-io-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 0;
+    cursor: link;
+}
+
+.sk-tool-io-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.sk-tool-io-chevron {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-tool-io-content {
+    padding-left: 14px;
+    padding-top: 4px;
+}
+
+.sk-tool-io-section {
+    margin-bottom: 8px;
+}
+
+.sk-tool-io-section-header {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-bottom: 4px;
+    -unity-font-style: bold;
+}
+
+/* Input Area */
+.sk-input-area {
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 12px 16px 16px 16px;
+    background-color: var(--sk-bg-primary);
+}
+
+.sk-input-wrapper {
+    flex-direction: column;
+    background-color: var(--sk-bg-secondary);
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--sk-accent);
+    overflow: hidden;
+    transition: border-color 0.15s ease-out, border-width 0.15s ease-out;
+}
+
+.sk-input-wrapper.sk-input-wrapper--focus {
+    border-color: var(--sk-accent-hover);
+    border-width: 2px;
+}
+
+/* Drag-over state for file drops */
+.sk-input-wrapper.sk-input-wrapper--drag-over {
+    border-color: var(--sk-dropzone-accent); /* Green accent for drop zone */
+    border-width: 2px;
+    background-color: var(--sk-dropzone-bg);
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+/* Drop zone overlay */
+.sk-drop-zone-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--sk-dropzone-bg-hover);
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    display: none;
+}
+
+.sk-input-wrapper.sk-input-wrapper--drag-over .sk-drop-zone-overlay {
+    display: flex;
+}
+
+.sk-drop-zone-icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.sk-drop-zone-text {
+    font-size: 13px;
+    color: var(--sk-dropzone-accent);
+    -unity-font-style: bold;
+}
+
+/* ScrollView wrapper - controls max height and scrolling */
+.sk-input-scroll {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-height: 40px;
+    max-height: 280px;
+}
+
+/* Hide horizontal scrollbar */
+.sk-input-scroll > .unity-scroller--horizontal {
+    display: none;
+}
+
+.sk-input-field {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-height: 40px;
+    /* No max-height - ScrollView handles overflow */
+    background-color: transparent;
+    border-width: 0;
+    color: var(--sk-text-primary);
+    font-size: 13px;
+    padding: 10px 14px 10px 14px;
+    white-space: normal;
+}
+
+.sk-input-field:focus {
+    background-color: transparent;
+}
+
+.sk-input-field > .unity-text-element {
+    color: var(--sk-text-primary);
+}
+
+.sk-input-field .unity-base-text-field__input {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    white-space: normal;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+/* Input placeholder styling */
+.sk-input-field .unity-text-element--placeholder {
+    color: var(--sk-text-muted);
+}
+
+/* Input Toolbar */
+.sk-input-toolbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    background-color: var(--sk-overlay-dark-subtle);
+}
+
+.sk-input-toolbar-left {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-input-toolbar-right {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Horizontally scrollable wrapper for the input-toolbar left chips.
+   Right-side action buttons remain pinned as a sibling, never scrolling.
+   `min-width: 0` is required so the ScrollView can collapse below its
+   intrinsic content width — without it, flex refuses to shrink the
+   wrapper and the right region gets pushed off the visible area. */
+.sk-input-toolbar-scroll {
+    flex-shrink: 1;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.sk-input-toolbar-scroll .unity-scroller--vertical {
+    display: none;
+}
+
+/* Slim minimal horizontal scrollbar — mirrors the .sk-main-container vertical
+   scroller: transparent track, slim rounded thumb in --sk-scrollbar, no
+   arrow buttons. Keeps the dense input row uncluttered. */
+.sk-input-toolbar-scroll > .unity-scroller--horizontal {
+    height: 8px;
+    min-height: 8px;
+}
+
+.sk-input-toolbar-scroll > .unity-scroller--horizontal > .unity-slider {
+    height: 8px;
+    min-height: 8px;
+}
+
+.sk-input-toolbar-scroll > .unity-scroller--horizontal .unity-base-slider__dragger {
+    background-color: var(--sk-scrollbar);
+    border-radius: 3px;
+    border-width: 0;
+    height: 4px;
+    top: 2px;
+}
+
+.sk-input-toolbar-scroll > .unity-scroller--horizontal .unity-base-slider__dragger:hover {
+    background-color: var(--sk-scrollbar-hover);
+}
+
+.sk-input-toolbar-scroll > .unity-scroller--horizontal .unity-base-slider__tracker {
+    background-color: transparent;
+    border-width: 0;
+}
+
+.sk-input-toolbar-scroll > .unity-scroller--horizontal > .unity-scroller__low-button,
+.sk-input-toolbar-scroll > .unity-scroller--horizontal > .unity-scroller__high-button {
+    display: none;
+}
+
+.sk-input-toolbar-scroll .sk-input-toolbar-left,
+.sk-input-toolbar-scroll .sk-input-toolbar-left > * {
+    flex-shrink: 0;
+}
+
+/* Edit Mode Button */
+.sk-edit-mode-btn {
+    flex-direction: row;
+    align-items: center;
+    background-color: transparent;
+    border-width: 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.sk-edit-mode-btn:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-edit-mode-icon {
+    font-size: 13px;
+    color: var(--sk-text-muted);
+    margin-right: 6px;
+}
+
+.sk-edit-mode-text {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+}
+
+/* Context indicator styles moved to Styles/SidekickWindow.Context.uss */
+
+/* ============================================
+   Toolbar Action Buttons (standardized)
+   Used for: add context (+), slash indicator (/), etc.
+   ============================================ */
+
+/* Base toolbar action button - shared by + and / buttons */
+.sk-toolbar-action-btn {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: transparent;
+    border-radius: 6px;
+    color: var(--sk-text-secondary);
+    font-size: 14px;
+    margin-right: 6px;
+    -unity-text-align: middle-center;
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.sk-toolbar-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--sk-border-light);
+    color: var(--sk-text-primary);
+}
+
+.sk-toolbar-action-btn:active {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--sk-border-light);
+}
+
+/* Sidekick chrome for the App UI Button used as the add-context icon trigger.
+   Outer element owns sizing/background/border; .appui-button__title owns text. */
+.sk-toolbar-icon-btn {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: transparent;
+    border-radius: 6px;
+    margin-right: 6px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.12s, border-color 0.12s;
+}
+
+.sk-toolbar-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--sk-border-light);
+}
+
+.sk-toolbar-icon-btn:active {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--sk-border-light);
+}
+
+.sk-toolbar-icon-btn .appui-button__title {
+    font-size: 14px;
+    color: var(--sk-text-secondary);
+    -unity-text-align: middle-center;
+    transition: color 0.12s;
+}
+
+.sk-toolbar-icon-btn:hover .appui-button__title {
+    color: var(--sk-text-primary);
+}
+
+.sk-toolbar-icon-btn:disabled .appui-button__title {
+    color: var(--sk-text-muted);
+}
+
+/* Slash Indicator - now styled as action button */
+.sk-slash-indicator {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    font-size: 14px;
+    color: var(--sk-text-secondary);
+    margin-right: 6px;
+    -unity-text-align: middle-center;
+    padding: 0;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: rgba(255, 255, 255, 0.06);
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+    cursor: link;
+}
+
+.sk-slash-indicator:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--sk-border-light);
+    color: var(--sk-text-primary);
+}
+
+/* Send Button — Sidekick chrome over the App UI Button.
+   Outer element owns sizing/background/border; .appui-button__title owns text. */
+.sk-send-btn {
+    width: 28px;
+    height: 28px;
+    min-height: 0;
+    min-width: 0;
+    background-color: var(--sk-accent);
+    border-width: 0;
+    border-radius: 6px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.12s;
+}
+
+.sk-send-btn:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+.sk-send-btn:disabled {
+    background-color: var(--sk-bg-tertiary);
+}
+
+.sk-send-btn.stop-mode {
+    background-color: var(--sk-error);
+}
+
+.sk-send-btn.stop-mode:hover {
+    background-color: var(--sk-error-hover);
+}
+
+/* When stop mode empties the title, App UI adds .appui-button--icon-only.
+   Its .appui-button--icon-only.appui-button--size-s rule sets width/height
+   to 32px with specificity (0,2,0); we match the specificity here to keep
+   the Sidekick 28x28 box in stop mode. */
+.sk-send-btn.appui-button--icon-only {
+    width: 28px;
+    height: 28px;
+    min-height: 0;
+    min-width: 0;
+}
+
+.sk-send-btn .appui-button__title {
+    font-size: 14px;
+    color: #ffffff;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.sk-send-btn:disabled .appui-button__title {
+    color: var(--sk-text-muted);
+}
+
+/* Injected stop-icon child (added by ComposerView.SetSendButtonMode).
+   Sits next to the (now empty) .appui-button__title; pickingMode=Ignore
+   so clicks pass through to the button itself. */
+.sk-send-btn__stop-icon {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    border-radius: 1px;
+}
+
+/* ============================================
+   Welcome Screen
+   ============================================ */
+
+.sk-welcome {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+}
+
+.sk-welcome-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 48px;
+}
+
+.sk-welcome-logo-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-welcome-title {
+    font-size: 18px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    letter-spacing: 0.3px;
+}
+
+.sk-welcome-subtitle {
+    font-size: 15px;
+    color: var(--sk-text-primary);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 0;
+    max-width: 400px;
+    -unity-font-style: normal;
+}
+
+.sk-welcome-hint {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+    -unity-text-align: middle-center;
+    margin-top: 24px;
+}
+
+/* ============================================
+   Status Bar
+   ============================================ */
+
+.sk-status-bar {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 12px;
+    background-color: var(--sk-bg-secondary);
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    min-height: 22px;
+}
+
+.sk-status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+}
+
+.sk-status-indicator.connected {
+    background-color: var(--sk-success);
+}
+
+.sk-status-indicator.disconnected {
+    background-color: var(--sk-text-muted);
+}
+
+.sk-status-indicator.connecting {
+    background-color: var(--sk-warning);
+}
+
+/* Legacy status text and MCP-specific styles moved to modular USS files */
+
+/* ============================================
+   Scrollbars
+   ============================================ */
+
+.sk-main-container .unity-scroller--vertical {
+    width: 10px;
+}
+
+.sk-main-container .unity-scroller--vertical > .unity-slider {
+    width: 10px;
+    min-width: 10px;
+}
+
+.sk-main-container .unity-scroller--vertical .unity-base-slider__dragger {
+    background-color: var(--sk-scrollbar);
+    border-radius: 5px;
+    width: 6px;
+    left: 2px;
+}
+
+.sk-main-container .unity-scroller--vertical .unity-base-slider__dragger:hover {
+    background-color: var(--sk-scrollbar-hover);
+}
+
+.sk-main-container .unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: transparent;
+    border-width: 0;
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+
+.sk-loading {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.sk-loading-spinner {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+}
+
+.sk-loading-text {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+}
+
+/* Typing indicator */
+.sk-typing-indicator {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 12px;
+}
+
+.sk-typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--sk-text-muted);
+    margin-right: 4px;
+    opacity: 0.4;
+    transition-property: opacity, scale;
+    transition-duration: 150ms;
+}
+
+.sk-typing-dot--active {
+    opacity: 1;
+    scale: 1.3 1.3;
+    background-color: var(--sk-accent);
+}
+
+/* ============================================
+   Thinking Block (VS Code style)
+   ============================================ */
+
+.sk-thinking-container {
+    margin-bottom: 4px;
+    background-color: transparent;
+    border-width: 0;
+}
+
+/* Header row: • Thinking v */
+.sk-thinking-header-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 0;
+    cursor: link;
+}
+
+.sk-thinking-header-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+/* Bullet point */
+.sk-thinking-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--sk-text-muted);
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+/* "Thinking" label - italic */
+.sk-thinking-label {
+    flex-grow: 1;
+    font-size: 13px;
+    color: var(--sk-text-muted);
+    -unity-font-style: italic;
+}
+
+/* Chevron icon on right */
+.sk-thinking-chevron {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* Content when expanded */
+.sk-thinking-content {
+    padding-left: 14px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    max-height: 120px;
+    overflow: hidden;
+}
+
+.sk-thinking-text {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+    opacity: 0.85;
+}
+
+
+/* ============================================
+   Context Usage Widget
+   VS Code-style context window indicator
+   ============================================ */
+
+.sk-context-usage {
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+    margin-right: 8px;
+    cursor: link;
+    transition: background-color 0.15s;
+}
+
+.sk-context-usage:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sk-context-usage-pie {
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    margin-right: 6px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 2px;
+    border-color: var(--sk-warning);
+    /* Pie chart uses border trick - filled portion via background gradient */
+}
+
+.sk-context-usage-pie.high-usage {
+    border-color: var(--sk-error);
+}
+
+.sk-context-usage-text {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+}
+
+/* ============================================
+   MCP for Unity Section Styles
+   ============================================ */
+
+.sk-mcp-section {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.sk-mcp-indicator {
+    margin-right: 4px;
+}
+
+.sk-mcp-indicator.connected {
+    background-color: var(--sk-success);
+}
+
+.sk-mcp-indicator.disconnected {
+    background-color: var(--sk-text-muted);
+}
+
+.sk-mcp-indicator.starting {
+    background-color: var(--sk-warning);
+}
+
+.sk-mcp-indicator.error {
+    background-color: var(--sk-error);
+}
+
+.sk-mcp-indicator.success {
+    background-color: var(--sk-success);
+}
+
+.sk-mcp-indicator.checking {
+    background-color: var(--sk-warning);
+}
+
+.sk-mcp-status-text {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Status bar App UI Button shared style.
+   MCP / provider / model triggers share this so the row reads as a
+   consistent set of small chips on the dense Sidekick palette. App UI
+   Button's size-S min-height is overridden because the status bar is 22 px.
+   ============================================ */
+
+.sk-statusbar-btn {
+    padding: 2px 8px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 4px;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+.sk-statusbar-btn:hover {
+    background-color: var(--sk-bg-hover);
+    border-color: var(--sk-border-light);
+}
+
+.sk-statusbar-btn:disabled {
+    background-color: var(--sk-bg-tertiary);
+}
+
+.sk-statusbar-btn .appui-button__title {
+    font-size: 10px;
+    color: var(--sk-text-secondary);
+    -unity-font-style: normal;
+}
+
+.sk-statusbar-btn:hover .appui-button__title {
+    color: var(--sk-text-primary);
+}
+
+.sk-statusbar-btn:disabled .appui-button__title {
+    color: var(--sk-text-muted);
+}
+
+/* ============================================
+   Paywall Modal (layout A1)
+   ============================================ */
+
+.sk-paywall-modal {
+    /* Width cap is owned by the .sk-modal-paywall-content wrapper below; the card
+       fills it (width: 100%) so App UI's own modal-content background never peeks
+       around our card (the "double backdrop"). */
+    width: 100%;
+    padding: 24px;
+    background-color: var(--sk-bg-secondary);
+    border-radius: 12px;
+    flex-direction: column;
+}
+
+/* App UI's .appui-modal__content wrapper (tagged in PaywallModalView). Owns the
+   width cap so the card fills it exactly and the feature grid's %-children resolve
+   against a definite parent (same pattern as confirm/onboarding modals). */
+.sk-modal-paywall-content {
+    width: 100%;
+    max-width: 560px;
+}
+
+.sk-paywall-pro-pill {
+    align-self: flex-start;
+    background-color: var(--sk-pro-gold);
+    color: #181818;
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    padding: 2px 7px;
+    margin-bottom: 10px;
+}
+
+.sk-paywall-headline {
+    color: var(--sk-text-primary);
+    font-size: 20px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.sk-paywall-subhead {
+    color: var(--sk-text-secondary);
+    font-size: 13px;
+    white-space: normal;
+    margin-bottom: 14px;
+}
+
+.sk-paywall-onetime-pill {
+    align-self: flex-start;
+    color: var(--sk-success);
+    background-color: var(--sk-success-bg);
+    border-width: 1px;
+    border-color: var(--sk-success-border);
+    font-size: 11px;
+    -unity-font-style: normal;
+    border-radius: 3px;
+    padding: 2px 7px;
+    margin-bottom: 16px;
+}
+
+.sk-paywall-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+.sk-paywall-feature {
+    flex-basis: 45%;
+    flex-grow: 1;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 4px;
+    flex-direction: column;
+}
+
+.sk-paywall-feature.highlighted {
+    border-color: var(--sk-pro-gold);
+    background-color: rgba(233, 196, 106, 0.06);
+}
+
+.sk-paywall-feature-icon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    margin-bottom: 6px;
+}
+
+.sk-paywall-feature-name {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 3px;
+}
+
+.sk-paywall-feature-desc {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+}
+
+.sk-paywall-cta {
+    background-color: var(--sk-pro-gold);
+    border-width: 0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 10px;
+    align-items: center;
+    /* UnityEngine.UIElements.Button is a TextElement — paint the label on the
+       button itself; child selectors (#unity-text-input/.unity-button__text/Label)
+       match nothing here, so they left the text inheriting the light Editor colour. */
+    color: #181818;
+    font-size: 14px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.sk-paywall-cta:hover {
+    background-color: rgba(233, 196, 106, 0.85);
+}
+
+.sk-paywall-cta:disabled {
+    background-color: rgba(233, 196, 106, 0.4);
+}
+
+.sk-paywall-footer {
+    color: var(--sk-text-muted);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ============================================
+   Paywall — Install variant (owns Pro)
+   ============================================ */
+
+/* Wrapper for the install card; the card fills it and the absolute-positioned
+   close button anchors to this element's top-right corner. */
+.sk-paywall-install-screen {
+    flex-direction: column;
+}
+
+.sk-paywall-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 0;
+    border-radius: 13px;
+    align-items: center;
+    justify-content: center;
+    /* Button is a TextElement — colour the glyph on the element itself. */
+    color: var(--sk-text-secondary);
+    font-size: 13px;
+    -unity-text-align: middle-center;
+}
+
+.sk-paywall-close:hover {
+    background-color: var(--sk-border);
+}
+
+.sk-paywall-install-status {
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin-top: 2px;
+}

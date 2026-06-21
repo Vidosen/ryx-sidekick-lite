@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI">
+  <ui:VisualElement class="sk-model-popup-content">
+    <ui:Label text="Model" class="sk-model-popup-title" />
+
+    <!-- Dynamic model preset buttons (populated from the active model catalog) -->
+    <ui:VisualElement name="model-presets-container" class="sk-model-presets" />
+    <ui:Label name="model-catalog-status" class="sk-model-custom-label" />
+    <ui:Button name="model-catalog-retry" text="Retry refresh" class="sk-model-custom-apply" />
+
+    <ui:VisualElement name="reasoning-effort-section" class="sk-reasoning-effort-section">
+      <ui:Label text="Reasoning effort" class="sk-model-custom-label" />
+      <ui:VisualElement name="reasoning-efforts-container" class="sk-reasoning-efforts" />
+    </ui:VisualElement>
+
+    <!-- Custom model input -->
+    <ui:VisualElement class="sk-model-custom-section">
+      <ui:Label text="Custom Model ID" class="sk-model-custom-label" />
+      <ui:TextField name="model-custom-input" class="sk-model-custom-input" />
+      <ui:Button name="model-custom-apply" text="Apply" class="sk-model-custom-apply" />
+    </ui:VisualElement>
+
+    <!-- Thinking toggle (hidden for providers that don't support it) -->
+    <ui:VisualElement name="thinking-section" class="sk-thinking-section">
+      <ui:VisualElement name="thinking-toggle-row" class="sk-thinking-toggle-row">
+        <ui:Label text="Extended Thinking" class="sk-thinking-toggle-label" />
+        <ui:VisualElement name="thinking-toggle" class="sk-thinking-toggle">
+          <ui:VisualElement name="thinking-toggle-track" class="sk-thinking-toggle-track">
+            <ui:VisualElement name="thinking-toggle-thumb" class="sk-thinking-toggle-thumb" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+      </ui:VisualElement>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

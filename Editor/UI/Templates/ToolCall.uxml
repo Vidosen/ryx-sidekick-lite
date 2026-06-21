@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="tool-call" class="sk-tool-call">
+        <ui:VisualElement class="sk-tool-header">
+            <ui:VisualElement name="status-dot" class="sk-tool-status-dot" />
+            <ui:Label name="name" class="sk-tool-name" />
+            <ui:Label name="auto-accepted-chip" class="sk-auto-accepted-chip" text="auto-accepted" />
+            <ui:VisualElement name="header-content" class="sk-tool-header-content" />
+        </ui:VisualElement>
+        <ui:VisualElement name="tool-body" class="sk-tool-content">
+            <ui:VisualElement name="io-container" class="sk-tool-io-container" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
+

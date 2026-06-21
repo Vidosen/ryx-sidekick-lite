@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <!-- AskUserQuestion Overlay - VS Code style bottom card -->
+    <ui:VisualElement name="ask-user-question-overlay" class="sk-ask-overlay" style="display: none;" picking-mode="Ignore">
+        <!-- Backdrop disabled - allow scrolling/clicking content behind the panel -->
+        <ui:VisualElement name="ask-overlay-backdrop" class="sk-ask-overlay__backdrop" picking-mode="Ignore" />
+
+        <!-- Panel (anchored bottom, VS Code-like compact card) -->
+        <ui:VisualElement name="ask-overlay-panel" class="sk-ask-overlay__panel" picking-mode="Position">
+            <!-- Header with title + close -->
+            <ui:VisualElement class="sk-ask-overlay__header">
+                <!-- Title area (header text, dynamically set) -->
+                <ui:VisualElement class="sk-ask-overlay__title-area">
+                    <ui:Label name="ask-header-text" text="Accept this plan?" class="sk-ask-overlay__header-text" />
+                    <!-- Tab row for multi-question (hidden for single question) -->
+                    <ui:VisualElement name="ask-tabs" class="sk-ask-overlay__tabs" />
+                </ui:VisualElement>
+
+                <!-- Close button -->
+                <ui:Button name="ask-close-btn" text="×" tooltip="Cancel" class="sk-ask-overlay__close" />
+            </ui:VisualElement>
+
+            <!-- Question content area -->
+            <ui:VisualElement name="ask-content" class="sk-ask-overlay__content">
+                <!-- Question/subtitle text -->
+                <ui:Label name="ask-question-text" class="sk-ask-overlay__question" />
+
+                <!-- Options container (radio/checkbox items with numbers) -->
+                <ui:ScrollView name="ask-options-scroll" class="sk-ask-overlay__options-scroll">
+                    <ui:VisualElement name="ask-options" class="sk-ask-overlay__options" />
+                </ui:ScrollView>
+
+                <!-- Other (custom answer) text field - "Describe what to do instead" -->
+                <ui:VisualElement name="ask-other-container" class="sk-ask-overlay__other-container">
+                    <ui:TextField name="ask-other-input" multiline="false" class="sk-ask-overlay__other-input" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Footer (hidden if single question with no submit needed) -->
+            <ui:VisualElement name="ask-footer" class="sk-ask-overlay__footer" style="display: none;">
+                <!-- Answered count badge -->
+                <ui:Label name="ask-count-badge" text="0/0 answered" class="sk-ask-overlay__count-badge" />
+
+                <!-- Submit button -->
+                <ui:Button name="ask-submit-btn" text="Submit answers" class="sk-ask-overlay__submit" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

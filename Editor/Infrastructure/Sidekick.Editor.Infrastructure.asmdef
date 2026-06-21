@@ -1,0 +1,34 @@
+{
+    "name": "Sidekick.Editor.Infrastructure",
+    "rootNamespace": "Ryx.Sidekick.Editor.Infrastructure",
+    "references": [
+        "Sidekick.Editor.Domain",
+        "Sidekick.Editor.Application",
+        "MCPForUnity.Editor",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "Markdig.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.coplaydev.unity-mcp",
+            "expression": "1.0.0",
+            "define": "HAS_UNITY_MCP"
+        },
+        {
+            "name": "com.ryxinteractive.sidekick.pro",
+            "expression": "1.0.0",
+            "define": "SIDEKICK_PRO"
+        }
+    ],
+    "noEngineReferences": false
+}

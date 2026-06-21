@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI" editor-extension-mode="True">
+    <!-- APPUI-T01-04: Smoke template verifying App UI UXML namespace in the Sidekick package.
+         Not used in production UI. Seed for future App UI views (APPUI-T08-01+). -->
+    <ui:VisualElement name="appui-smoke-root" class="appui-smoke">
+        <appui:Text name="smoke-text" text="App UI Smoke" size="M" primary="true" />
+    </ui:VisualElement>
+</ui:UXML>

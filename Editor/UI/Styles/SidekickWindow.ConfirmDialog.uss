@@ -1,0 +1,92 @@
+/* ============================================
+   Sidekick Confirm Dialog
+   --------------------------------------------
+   Skin App UI's AlertDialog/Dialog primitive to match the rest of the
+   Sidekick modals. Scoped via the .sk-confirm-dialog class that
+   SidekickConfirmDialog.Show adds to the AlertDialog instance, plus the
+   .sk-modal-confirm-content class added to App UI's .appui-modal__content
+   wrapper for responsive sizing (see SidekickConfirmDialog).
+   ============================================ */
+
+/* Applied to App UI's .appui-modal__content wrapper. Definite, responsive
+   width so child %-widths don't cycle against an auto-sized parent. */
+.sk-modal-confirm-content {
+    width: 100%;
+    max-width: 460px;
+}
+
+/* Panel chrome — matches the rest of the Sidekick modals. */
+.sk-confirm-dialog {
+    background-color: var(--sk-bg-secondary);
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    padding: 20px;
+}
+
+/* Title row: tighten App UI's spacing, use Sidekick typography. */
+.sk-confirm-dialog .appui-dialog__heading {
+    margin-bottom: 8px;
+}
+
+.sk-confirm-dialog .appui-dialog__heading > .appui-header {
+    font-size: 14px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+}
+
+/* Description body. */
+.sk-confirm-dialog .appui-dialog__content {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+}
+
+.sk-confirm-dialog .appui-dialog__content .appui-text {
+    color: var(--sk-text-secondary);
+    white-space: normal;
+}
+
+/* Action row: keep the button group right-aligned. */
+.sk-confirm-dialog .appui-dialog__buttongroup {
+    margin-top: 4px;
+}
+
+/* Primary button — Sidekick accent. */
+.sk-confirm-dialog .appui-dialog__primary-action {
+    background-color: var(--sk-accent);
+    color: #ffffff;
+    border-width: 0;
+    border-radius: 6px;
+    padding: 8px 16px;
+    -unity-font-style: bold;
+}
+
+.sk-confirm-dialog .appui-dialog__primary-action:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+.sk-confirm-dialog .appui-dialog__primary-action:disabled {
+    background-color: var(--sk-bg-tertiary);
+    color: var(--sk-text-muted);
+}
+
+/* Cancel button — Sidekick secondary. */
+.sk-confirm-dialog .appui-dialog__cancel-action {
+    background-color: var(--sk-bg-tertiary);
+    color: var(--sk-text-primary);
+    border-width: 0;
+    border-radius: 6px;
+    padding: 8px 16px;
+}
+
+.sk-confirm-dialog .appui-dialog__cancel-action:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+/* No semantic icon — keep header tight. */
+.sk-confirm-dialog .appui-dialog__icon {
+    display: none;
+}

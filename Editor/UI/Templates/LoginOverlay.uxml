@@ -1,0 +1,116 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="../SidekickWindow.uss" />
+    <Style src="../Styles/SidekickWindow.Markdown.uss" />
+    <Style src="../Styles/SidekickWindow.InlineTools.uss" />
+    <Style src="../Styles/SidekickWindow.Misc.uss" />
+    <Style src="../Styles/SidekickWindow.Auth.uss" />
+    
+    <!-- Login Overlay Container -->
+    <ui:VisualElement name="login-overlay" class="sk-login-overlay">
+        
+        <!-- Selection Screen (shown when choosing auth method) -->
+        <ui:VisualElement name="login-selection-screen" class="sk-login-screen">
+            
+            <!-- Logo + Title -->
+            <ui:VisualElement class="sk-login-brand">
+                <ui:Image name="login-sprite-logo" class="sk-login-logo" />
+                <ui:Label text="Ryx Sidekick" class="sk-login-title" />
+            </ui:VisualElement>
+
+            <!-- Divider -->
+            <ui:VisualElement class="sk-login-divider" />
+            
+            <!-- Description -->
+            <ui:Label class="sk-login-description" text="Ryx Sidekick can be used with your Claude subscription or billed based on API usage through your Console account." />
+            
+            <!-- Question -->
+            <ui:Label class="sk-login-question" text="How do you want to log in?" />
+            
+            <!-- Login Buttons -->
+            <ui:VisualElement class="sk-login-buttons">
+                <ui:Button name="login-claude-ai-btn" class="sk-login-btn sk-login-btn-primary">
+                    <ui:Label text="Claude.ai Subscription" />
+                </ui:Button>
+                <ui:Label class="sk-login-btn-hint" text="Use your Claude Pro, Team, or Enterprise subscription" />
+                
+                <ui:Button name="login-console-btn" class="sk-login-btn sk-login-btn-secondary">
+                    <ui:Label text="Anthropic Console" />
+                </ui:Button>
+                <ui:Label class="sk-login-btn-hint" text="Pay for API usage through your Console account" />
+                
+                <ui:Button name="login-third-party-btn" class="sk-login-btn sk-login-btn-secondary">
+                    <ui:VisualElement class="sk-login-btn-content">
+                        <ui:Label text="Bedrock, Foundry, or Vertex" />
+                        <ui:Label text="" class="sk-login-external-icon" />
+                    </ui:VisualElement>
+                </ui:Button>
+                <ui:Label class="sk-login-btn-hint" text="Instructions on how to use API keys or third-party providers" />
+            </ui:VisualElement>
+            
+        </ui:VisualElement>
+        
+        <!-- OAuth Code Entry Screen (shown during OAuth flow) -->
+        <ui:VisualElement name="login-oauth-screen" class="sk-login-screen" style="display: none;">
+            
+            <!-- Header -->
+            <ui:Label text="RYX SIDEKICK" class="sk-login-header-text" />
+            
+            <!-- Content -->
+            <ui:VisualElement class="sk-oauth-content">
+                <ui:Label text="Continue in browser" class="sk-oauth-title" />
+                
+                <ui:Label text="If the browser didn't open, visit this URL:" class="sk-oauth-subtitle" />
+                
+                <!-- URL display -->
+                <ui:VisualElement class="sk-oauth-url-container">
+                    <ui:TextField name="oauth-url-field" class="sk-oauth-url-field" readonly="true" />
+                    <ui:Button name="oauth-copy-btn" class="sk-oauth-copy-btn" tooltip="Copy URL">
+                        <ui:Label text="" />
+                    </ui:Button>
+                </ui:VisualElement>
+                
+                <ui:Label text="Or, paste your authorization code manually:" class="sk-oauth-code-label" />
+                
+                <!-- Code input -->
+                <ui:TextField name="oauth-code-input" class="sk-oauth-code-input" text="" />
+                
+                <!-- Buttons -->
+                <ui:Button name="oauth-continue-btn" class="sk-login-btn sk-login-btn-primary">
+                    <ui:Label text="Continue" />
+                </ui:Button>
+                
+                <ui:Button name="oauth-back-btn" class="sk-login-btn sk-login-btn-secondary">
+                    <ui:Label text="Back" />
+                </ui:Button>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- Auth lost screen (shown when the selected OAuth provider is signed out) -->
+        <ui:VisualElement name="login-auth-lost-screen" class="sk-login-screen" style="display: none;">
+
+            <ui:VisualElement class="sk-login-brand">
+                <ui:Image name="login-auth-lost-sprite-logo" class="sk-login-logo" />
+                <ui:Label text="Ryx Sidekick" class="sk-login-title" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="sk-login-divider" />
+
+            <ui:Label class="sk-login-auth-lost-title" text="Claude Code is signed out" />
+            <ui:Label class="sk-login-description" text="The selected provider needs authentication before Sidekick can continue." />
+
+            <ui:VisualElement class="sk-login-buttons">
+                <ui:Button name="login-again-btn" class="sk-login-btn sk-login-btn-primary">
+                    <ui:Label text="Log in again" />
+                </ui:Button>
+
+                <ui:Button name="login-switch-provider-btn" class="sk-login-btn sk-login-btn-secondary">
+                    <ui:Label text="Switch provider" />
+                </ui:Button>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+    
+</ui:UXML>

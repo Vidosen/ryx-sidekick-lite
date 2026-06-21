@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="message" class="sk-message">
+        <ui:VisualElement class="sk-message-header">
+            <ui:Label name="role" class="sk-message-role" />
+            <ui:Label name="time" class="sk-message-time" />
+            <ui:Button name="copy-btn" class="sk-message-copy-btn" tooltip="Copy message" />
+        </ui:VisualElement>
+        <ui:VisualElement name="content" class="sk-message-content">
+            <ui:Label name="text" class="sk-message-text" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
+

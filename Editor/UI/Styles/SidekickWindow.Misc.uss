@@ -1,0 +1,415 @@
+/* ============================================
+   Selectable Label (for copyable text)
+   ============================================ */
+
+.sk-selectable-label {
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    -unity-text-align: upper-left;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+/* Remove TextField visual styling and prevent internal scrolling */
+.sk-selectable-label > .unity-base-text-field__input,
+.sk-selectable-label > .unity-text-field__input,
+.sk-selectable-label .unity-base-text-field__input,
+.sk-selectable-label .unity-text-field__input,
+.sk-selectable-label .unity-text-input,
+.sk-selectable-label .unity-base-field__input {
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    color: var(--sk-text-primary);
+    flex-shrink: 0;
+    flex-grow: 0;
+    white-space: normal;
+    overflow: visible;
+}
+
+/* Make internal ScrollView expand to fit content instead of scrolling */
+.sk-selectable-label .unity-scroll-view {
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow: visible;
+}
+
+/* Viewport should not clip */
+.sk-selectable-label .unity-scroll-view__content-viewport {
+    overflow: visible;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.sk-selectable-label .unity-scroll-view #unity-content-container {
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow: visible;
+}
+
+/* Hide all scrollbars */
+.sk-selectable-label .unity-scroller,
+.sk-selectable-label .unity-scroller--horizontal,
+.sk-selectable-label .unity-scroller--vertical {
+    display: none;
+}
+
+/* Selection color */
+.sk-selectable-label > .unity-base-text-field__input:focus,
+.sk-selectable-label > .unity-text-field__input:focus,
+.sk-selectable-label .unity-text-input:focus,
+.sk-selectable-label .unity-base-field__input:focus {
+    border-width: 0;
+    background-color: transparent;
+}
+
+/* Text element inside SelectableLabel - wrap text properly */
+.sk-selectable-label TextElement {
+    color: var(--sk-text-primary);
+    padding: 0;
+    margin: 0;
+    white-space: normal;
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow: visible;
+}
+
+/* ============================================
+   Permission Request Banner
+   ============================================ */
+
+.sk-permission-banner {
+    background-color: var(--sk-warning-bg);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--sk-warning);
+    margin: 12px 0;
+    overflow: hidden;
+    max-width: 85%;
+    align-self: flex-start;
+}
+
+.sk-permission-banner-allowed {
+    background-color: var(--sk-success-bg);
+    border-color: var(--sk-success);
+}
+
+.sk-permission-banner-denied {
+    background-color: var(--sk-error-bg);
+    border-color: var(--sk-error);
+}
+
+.sk-permission-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: var(--sk-warning-bg-strong);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-warning-border);
+}
+
+.sk-permission-banner-allowed .sk-permission-header {
+    background-color: var(--sk-success-bg-strong);
+    border-bottom-color: var(--sk-success-border);
+}
+
+.sk-permission-banner-denied .sk-permission-header {
+    background-color: var(--sk-error-bg-strong);
+    border-bottom-color: var(--sk-error-border);
+}
+
+.sk-permission-icon {
+    font-size: 16px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.sk-permission-title {
+    font-size: 13px;
+    color: var(--sk-warning);
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.sk-permission-banner-allowed .sk-permission-title {
+    color: var(--sk-success);
+}
+
+.sk-permission-banner-denied .sk-permission-title {
+    color: var(--sk-error);
+}
+
+.sk-permission-description {
+    padding: 10px 14px;
+}
+
+.sk-permission-filepath {
+    font-size: 12px;
+    color: var(--sk-link);
+    margin-bottom: 8px;
+    white-space: normal;
+}
+
+.sk-permission-preview {
+    background-color: var(--sk-code-bg);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-top: 8px;
+    max-height: 120px;
+    overflow: hidden;
+}
+
+.sk-permission-preview-text {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    white-space: pre-wrap;
+}
+
+.sk-permission-diff-removed {
+    font-size: 11px;
+    color: var(--sk-error);
+    background-color: var(--sk-error-bg-strong);
+    padding: 4px 8px;
+    border-radius: 3px;
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+}
+
+.sk-permission-diff-added {
+    font-size: 11px;
+    color: var(--sk-success);
+    background-color: var(--sk-success-bg-strong);
+    padding: 4px 8px;
+    border-radius: 3px;
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+}
+
+.sk-permission-buttons {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 14px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    background-color: var(--sk-bg-tertiary);
+}
+
+.sk-permission-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    border-width: 0;
+    margin-left: 8px;
+    -unity-font-style: bold;
+}
+
+.sk-permission-btn:hover {
+    opacity: 0.85;
+}
+
+.sk-permission-btn:disabled {
+    opacity: 0.5;
+}
+
+.sk-permission-btn-deny {
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+}
+
+.sk-permission-btn-deny:hover {
+    background-color: var(--sk-bg-active);
+}
+
+.sk-permission-btn-allow {
+    background-color: var(--sk-success);
+    color: var(--sk-bg-primary);
+}
+
+.sk-permission-btn-allow:hover {
+    background-color: var(--sk-success-hover);
+}
+
+.sk-permission-btn-allow-remember {
+    background-color: var(--sk-info-action);
+    color: var(--sk-bg-primary);
+}
+
+.sk-permission-btn-allow-remember:hover {
+    background-color: var(--sk-info-action-hover);
+}
+
+.sk-permission-reason {
+    -unity-font-style: italic;
+    margin-top: 4px;
+}
+
+.sk-permission-status {
+    font-size: 12px;
+    margin-left: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    -unity-font-style: bold;
+}
+
+.sk-permission-status-allowed {
+    color: var(--sk-success);
+    background-color: var(--sk-success-bg-heavy);
+}
+
+.sk-permission-status-denied {
+    color: var(--sk-error);
+    background-color: var(--sk-error-bg-heavy);
+}
+
+/* ============================================
+   System Banner (Domain Reload, Info, etc.)
+   ============================================ */
+
+.sk-system-banner {
+    flex-direction: row;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+.sk-system-banner__content {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-success-bg-soft);
+    border-radius: 14px;
+    padding: 6px 14px;
+    border-width: 1px;
+    border-color: var(--sk-success-border);
+}
+
+.sk-system-banner__icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-system-banner__text {
+    font-size: 11px;
+    color: var(--sk-success);
+    -unity-font-style: italic;
+}
+
+/* Image overlay with zoom/pan support */
+.sk-image-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.sk-image-overlay__backdrop {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--sk-overlay-backdrop);
+}
+
+.sk-image-overlay__content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    background-color: var(--sk-bg-secondary);
+    overflow: visible;
+}
+
+.sk-image-overlay__close-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.sk-image-overlay__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    color: var(--sk-text-primary);
+    font-size: 18px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.sk-image-overlay__close:hover {
+    background-color: var(--sk-accent);
+    border-color: var(--sk-accent);
+    color: white;
+}
+
+.sk-image-overlay__viewport {
+    overflow: hidden;
+    border-radius: 6px;
+    min-width: 100px;
+    min-height: 100px;
+}
+
+.sk-image-overlay__img {
+    /* Size/transform controlled by code for zoom/pan */
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* ============================================
+   Asset Link Element (inline asset references)
+   ============================================ */
+
+.md-asset-link {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-link-bg-subtle);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 1px 2px;
+    cursor: link;
+    flex-shrink: 0;
+}
+
+.md-asset-link:hover {
+    background-color: var(--sk-link-bg-hover);
+}
+
+.md-asset-link__icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.md-asset-link__name {
+    color: var(--sk-link-accent);
+    font-size: 12px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+}
+
+/* Flow layout for paragraphs with inline asset links */
+.md-p-flow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.md-p-segment {
+    margin: 0;
+    padding: 0;
+}

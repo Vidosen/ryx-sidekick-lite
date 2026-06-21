@@ -1,0 +1,342 @@
+/* MCP-only settings styles. Shared Sidekick settings page chrome and controls
+   live in SidekickSettings.uss under .sk-settings-page. */
+
+/* ---- section group card (config-source, servers) ---------------------------- */
+.sk-mcpset-group {
+    background-color: var(--sk-bg-secondary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 10px;
+    padding: 12px 14px 14px 14px;
+    margin-bottom: 12px;
+}
+
+/* nested sub-headers inside a server card body (Args / Env / Headers) */
+.sk-mcpset-card-body .sk-settings-header {
+    margin-top: 8px;
+    margin-bottom: 6px;
+    opacity: 0.85;
+}
+
+/* primary / accent button (Apply) */
+.sk-mcpset-page .sk-mcpset-primary {
+    background-color: var(--sk-accent);
+    border-color: var(--sk-accent);
+    color: #ffffff;
+    -unity-font-style: bold;
+}
+
+.sk-mcpset-page .sk-mcpset-primary:hover {
+    background-color: var(--sk-accent-hover);
+    border-color: var(--sk-accent-hover);
+    color: #ffffff;
+}
+
+.sk-mcpset-page .sk-mcpset-primary:disabled {
+    background-color: var(--sk-bg-tertiary);
+    border-color: var(--sk-border);
+    color: var(--sk-text-muted);
+}
+
+/* ---- Form/JSON panels: fade + slide-in transition on switch ----------------- */
+.sk-mcpset-page .sk-mcpset-panel {
+    transition: opacity 0.18s ease-out, translate 0.18s ease-out;
+}
+
+.sk-mcpset-page .sk-mcpset-panel--enter {
+    opacity: 0;
+    translate: 0 8px;
+}
+
+/* ---- server card ------------------------------------------------------------ */
+.sk-mcpset-card {
+    margin-bottom: 8px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-left-width: 3px;
+    border-left-color: var(--sk-accent);
+    border-radius: 8px;
+    transition: border-color 0.12s;
+}
+
+.sk-mcpset-card:hover {
+    border-color: var(--sk-border-light);
+    border-left-color: var(--sk-accent);
+}
+
+.sk-mcpset-card-header {
+    padding: 6px 10px;
+}
+
+.sk-mcpset-chevron {
+    color: var(--sk-text-muted);
+    opacity: 0.8;
+}
+
+.sk-mcpset-card-name {
+    color: var(--sk-text-primary);
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 8px;
+}
+
+.sk-mcpset-card-body {
+    padding: 2px 10px 10px 10px;
+}
+
+.sk-mcpset-card--disabled .sk-mcpset-card-header {
+    opacity: 0.45;
+}
+
+/* ---- transport badge -------------------------------------------------------- */
+.sk-mcpset-badge {
+    font-size: 9px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 9px;
+    margin-right: 8px;
+}
+
+.sk-mcpset-badge--http {
+    color: var(--sk-accent);
+    background-color: var(--sk-accent-subtle);
+    border-width: 1px;
+    border-color: var(--sk-accent-border);
+}
+
+.sk-mcpset-badge--stdio {
+    color: var(--sk-text-secondary);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+/* ---- empty placeholder ------------------------------------------------------ */
+.sk-mcpset-empty {
+    padding: 18px 0;
+    color: var(--sk-text-muted);
+    -unity-font-style: italic;
+    font-size: 12px;
+}
+
+/* ---- list / key-value editor rows (args, env, headers) ---------------------- */
+.sk-mcpset-list-row,
+.sk-mcpset-kv-row {
+    margin-bottom: 4px;
+}
+
+.sk-mcpset-list-row > .unity-text-field,
+.sk-mcpset-kv-row > .unity-text-field {
+    margin-right: 6px;
+}
+
+.sk-mcpset-remove-button {
+    -unity-font-style: bold;
+    color: var(--sk-text-muted);
+}
+
+.sk-mcpset-remove-button:hover {
+    color: var(--sk-text-primary);
+}
+
+/* ---- JSON editor → dark code surface ---------------------------------------- */
+.sk-mcpset-json-editor {
+    margin-bottom: 10px;
+}
+
+.sk-mcpset-json-editor .unity-base-text-field__input {
+    background-color: var(--sk-code-bg);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--sk-text-primary);
+    font-size: 12px;
+    /* pre-wrap keeps the Newtonsoft indentation + newlines (normal collapses them) and still wraps. */
+    white-space: pre-wrap;
+}
+
+.sk-mcpset-json-editor:focus .unity-base-text-field__input,
+.sk-mcpset-json-editor .unity-base-text-field:focus .unity-base-text-field__input {
+    border-color: var(--sk-accent);
+}
+
+/* ---- B4: Recommended for Unity section ------------------------------------- */
+
+.sk-mcpset-reco-subtext {
+    color: var(--sk-text-muted);
+    font-size: 11px;
+    margin: 0 0 10px 0;
+    white-space: normal;
+}
+
+.sk-mcpset-reco-card {
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+
+.sk-mcpset-reco-card:hover {
+    border-color: var(--sk-border-light);
+}
+
+.sk-mcpset-reco-logo {
+    background-color: var(--sk-accent-subtle);
+    border-width: 1px;
+    border-color: var(--sk-accent-border);
+    border-radius: 6px;
+}
+
+.sk-mcpset-reco-logo-letter {
+    color: var(--sk-accent);
+    -unity-font-style: bold;
+    font-size: 14px;
+}
+
+.sk-mcpset-reco-title {
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    font-size: 12px;
+}
+
+.sk-mcpset-reco-desc {
+    color: var(--sk-text-secondary);
+    font-size: 11px;
+    white-space: normal;
+}
+
+/* ---- B5: Pro upsell teaser — gold Pro language (mirrors the in-app paywall) ---- */
+.sk-mcpset-pro-group {
+    border-left-width: 3px;
+    border-left-color: var(--sk-pro-gold);
+}
+
+.sk-mcpset-pro-pill {
+    align-self: flex-start;
+    background-color: var(--sk-pro-gold);
+    color: #181818;
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    padding: 2px 7px;
+    margin-bottom: 10px;
+}
+
+.sk-mcpset-pro-cta {
+    background-color: var(--sk-pro-gold);
+    border-width: 0;
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #181818;
+    -unity-font-style: bold;
+    font-size: 12px;
+    transition: background-color 0.12s;
+}
+
+.sk-mcpset-pro-cta:hover {
+    background-color: rgba(233, 196, 106, 0.85);
+}
+
+/* ---- B5: External servers read-only inventory (Pro) ---------------------- */
+
+.sk-mcpset-ext-group-header {
+    color: var(--sk-text-muted);
+    font-size: 10px;
+    -unity-text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.sk-mcpset-ext-row {
+    padding: 4px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+}
+
+.sk-mcpset-ext-name {
+    color: var(--sk-text-primary);
+    font-size: 12px;
+}
+
+.sk-mcpset-ext-transport {
+    color: var(--sk-text-muted);
+    font-size: 10px;
+    margin-left: 8px;
+}
+
+.sk-mcpset-ext-auth {
+    color: var(--sk-text-muted);
+    font-size: 10px;
+    margin-left: 8px;
+}
+
+/* Status badge — shared base */
+.sk-mcpset-ext-status {
+    font-size: 9px;
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 9px;
+    padding: 2px 7px;
+    margin-right: 8px;
+}
+
+/* connected — accent green/teal */
+.sk-mcpset-ext-status--connected {
+    color: var(--sk-accent);
+    background-color: var(--sk-accent-subtle);
+    border-width: 1px;
+    border-color: var(--sk-accent-border);
+}
+
+/* failed / needs-auth — warm red */
+.sk-mcpset-ext-status--failed,
+.sk-mcpset-ext-status--needs-auth {
+    color: rgba(235, 100, 85, 1.0);
+    background-color: rgba(235, 100, 85, 0.12);
+    border-width: 1px;
+    border-color: rgba(235, 100, 85, 0.30);
+}
+
+/* pending — muted amber */
+.sk-mcpset-ext-status--pending {
+    color: var(--sk-text-secondary);
+    background-color: rgba(200, 160, 80, 0.14);
+    border-width: 1px;
+    border-color: rgba(200, 160, 80, 0.28);
+}
+
+/* disabled / unknown — neutral grey */
+.sk-mcpset-ext-status--disabled,
+.sk-mcpset-ext-status--unknown {
+    color: var(--sk-text-muted);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+/* Collision warning chip */
+.sk-mcpset-ext-collision {
+    font-size: 9px;
+    -unity-font-style: bold;
+    color: rgba(233, 196, 106, 1.0);
+    background-color: rgba(233, 196, 106, 0.12);
+    border-width: 1px;
+    border-color: rgba(233, 196, 106, 0.30);
+    border-radius: 9px;
+    padding: 2px 7px;
+    margin-left: 8px;
+}

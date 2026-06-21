@@ -1,0 +1,271 @@
+/* ============================================================================
+   Sidekick Project Settings theme.
+   Plain UI Toolkit only; structural layout stays inline in
+   SidekickSettingsSectionBuilder so SettingsProvider pages remain resilient if
+   style resolution changes. This sheet carries branded cosmetics shared by
+   General, Providers, provider child pages, and MCP.
+   ============================================================================ */
+
+.sk-settings-page {
+    --sk-bg-primary: #181818;
+    --sk-bg-secondary: #1f1f1f;
+    --sk-bg-tertiary: #262626;
+    --sk-bg-hover: #2e2e2e;
+    --sk-bg-active: #3a3a3a;
+    --sk-border: #2e2e2e;
+    --sk-border-light: #3a3a3a;
+    --sk-text-primary: #e3e3e3;
+    --sk-text-secondary: #a0a0a0;
+    --sk-text-muted: #6e6e6e;
+    --sk-accent: #4a9eff;
+    --sk-accent-hover: #6db3ff;
+    --sk-accent-subtle: rgba(74, 158, 255, 0.15);
+    --sk-accent-border: rgba(74, 158, 255, 0.3);
+    --sk-code-bg: #141414;
+    --sk-pro-gold: #e9c46a;
+
+    padding: 12px 14px 16px 10px;
+    background-color: var(--sk-bg-primary);
+}
+
+.sk-settings-root {
+    padding: 12px 14px 16px 10px;
+}
+
+.sk-settings-content {
+    padding-bottom: 16px;
+}
+
+.sk-settings-section {
+    background-color: var(--sk-bg-secondary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 10px;
+    padding: 12px 14px 14px 14px;
+    margin-bottom: 12px;
+}
+
+.sk-settings-section--compact {
+    padding: 10px 12px 12px 12px;
+}
+
+.sk-settings-header {
+    -unity-font-style: bold;
+    -unity-text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sk-text-secondary);
+    font-size: 11px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.sk-settings-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+    min-height: 34px;
+}
+
+.sk-settings-label {
+    width: 200px;
+    flex-shrink: 0;
+    -unity-text-align: middle-left;
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+}
+
+.sk-settings-control {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    min-height: 30px;
+    margin: 0;
+}
+
+.sk-settings-browse-control {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    min-height: 30px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-settings-grow {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    min-height: 30px;
+    margin: 0;
+}
+
+.sk-settings-browse-button {
+    width: 64px;
+    height: 30px;
+    margin-left: 6px;
+}
+
+.sk-settings-help {
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    color: var(--sk-text-secondary);
+    margin: 4px 0 8px 0;
+    padding: 6px 8px;
+}
+
+.sk-settings-indent {
+    margin-left: 16px;
+}
+
+.sk-settings-page .unity-base-text-field,
+.sk-settings-page .unity-base-popup-field {
+    min-height: 30px;
+}
+
+.sk-settings-page .unity-base-text-field__input {
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    min-width: 0;
+    color: var(--sk-text-primary);
+}
+
+.sk-settings-page .unity-base-text-field__input:hover {
+    border-color: var(--sk-border-light);
+}
+
+.sk-settings-page .unity-base-text-field:focus .unity-base-text-field__input {
+    border-color: var(--sk-accent);
+}
+
+.sk-settings-page .unity-base-popup-field__input {
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    color: var(--sk-text-primary);
+}
+
+.sk-settings-page .unity-base-popup-field__input:hover {
+    border-color: var(--sk-border-light);
+}
+
+.sk-settings-page .unity-toggle__checkmark {
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+}
+
+.sk-settings-page .unity-toggle:hover .unity-toggle__checkmark {
+    border-color: var(--sk-accent-border);
+}
+
+.sk-settings-page .unity-toggle:checked .unity-toggle__checkmark {
+    background-color: var(--sk-accent);
+    border-color: var(--sk-accent);
+    -unity-background-image-tint-color: #ffffff;
+}
+
+.sk-settings-page .unity-button {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    margin: 0;
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.sk-settings-page .unity-button:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--sk-border-light);
+    color: var(--sk-text-primary);
+}
+
+.sk-settings-page .unity-button:active {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.sk-settings-page .unity-button:disabled {
+    opacity: 0.45;
+}
+
+.sk-settings-actions {
+    flex-direction: row;
+    margin-top: 8px;
+    min-height: 34px;
+}
+
+.sk-settings-actions > .unity-button {
+    height: 30px;
+    margin-right: 8px;
+}
+
+.sk-settings-section > .unity-button {
+    height: 30px;
+    margin-bottom: 8px;
+}
+
+.sk-settings-tabbar {
+    flex-direction: row;
+    align-self: flex-start;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 8px;
+    padding: 2px;
+    margin: 0 0 12px 0;
+}
+
+.sk-settings-tab {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 6px;
+    padding: 4px 16px;
+    margin: 0 3px;
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+    transition: background-color 0.12s, color 0.12s;
+}
+
+.sk-settings-tab:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--sk-text-primary);
+}
+
+/* Selected tab: the sliding pill (below) is the background; the label only switches
+   to the accent colour + bold. */
+.sk-settings-tab--selected {
+    color: var(--sk-accent);
+    -unity-font-style: bold;
+}
+
+.sk-settings-tab--selected:hover {
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--sk-accent);
+}
+
+/* Sliding "pill" behind the selected tab. Position/size are set from the selected tab's
+   layout rect in code; the --anim modifier (added after first placement) enables the slide. */
+.sk-settings-tab-indicator {
+    position: absolute;
+    background-color: #2e455f;
+    border-width: 0;
+    border-radius: 6px;
+}
+
+.sk-settings-tab-indicator--anim {
+    transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+}

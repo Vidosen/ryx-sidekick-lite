@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI">
+  <ui:VisualElement class="sk-model-popup-content">
+    <ui:Label text="Provider" class="sk-model-popup-title" />
+    <ui:VisualElement name="provider-options-container" class="sk-provider-options" />
+  </ui:VisualElement>
+</ui:UXML>

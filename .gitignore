@@ -1,0 +1,27 @@
+# Unity generated (present when this package is cloned inside a Unity project)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE / generated project files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+.vs/
+.vscode/
+.idea/
+
+# OS cruft
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db

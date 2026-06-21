@@ -1,0 +1,165 @@
+/* Context Chips Area - Container for all context chips */
+.sk-context-chips-area {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 4px 8px;
+    display: none; /* Hidden when empty */
+}
+
+.sk-context-chips-area.has-items {
+    display: flex;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+}
+
+/* Individual Context Chip */
+.sk-context-chip {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 4px;
+    padding: 2px 6px 2px 4px;
+    max-width: 200px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    cursor: link;
+    transition: background-color 0.15s;
+}
+
+.sk-context-chip:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+/* Chip Icon */
+.sk-context-chip__icon {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* Chip Name Label */
+.sk-context-chip__name {
+    font-size: 11px;
+    color: var(--sk-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
+    -unity-text-align: middle-left;
+}
+
+/* Remove Button */
+.sk-context-chip__remove {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    margin-left: 4px;
+    border-radius: 8px;
+    background-color: transparent;
+    border-width: 0;
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    -unity-text-align: middle-center;
+    padding: 0;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.sk-context-chip__remove:hover {
+    background-color: var(--sk-danger-surface); /* Red background */
+    color: white;
+}
+
+.sk-context-chip__remove:active {
+    background-color: var(--sk-danger-surface-active); /* Darker red */
+}
+
+/* File Type Chip Styling */
+.sk-context-chip--file .sk-context-chip__name {
+    color: var(--sk-link); /* Blue tint for files */
+}
+
+/* GameObject Type Chip Styling */
+.sk-context-chip--gameobject .sk-context-chip__name {
+    color: var(--sk-gameobject-accent); /* Yellow tint for GameObjects */
+}
+
+/* Truncated File Indicator */
+.sk-context-chip__truncated {
+    color: var(--sk-text-secondary);
+    font-size: 9px;
+    margin-left: 2px;
+}
+
+/* Message context attachments (rendered inside chat bubbles) */
+.sk-message-context {
+    flex-direction: column;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background-color: var(--sk-bg-secondary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+.sk-message.user .sk-message-context {
+    background-color: var(--sk-overlay-dark-soft);
+    border-color: var(--sk-overlay-dark-border);
+}
+
+.sk-message-context__title {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    margin-bottom: 4px;
+    -unity-font-style: bold;
+    letter-spacing: 0.3px;
+}
+
+.sk-message-context__chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.sk-message-context .sk-context-chip {
+    background-color: var(--sk-bg-tertiary);
+}
+
+.sk-message.user .sk-message-context .sk-context-chip {
+    background-color: var(--sk-overlay-dark-chip);
+}
+
+/* Context Indicator (in toolbar) - hidden when no context */
+.sk-context-indicator {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 8px;
+    display: none;
+}
+
+.sk-context-indicator.has-context {
+    display: flex;
+}
+
+.sk-context-icon {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    margin-right: 4px;
+}
+
+.sk-context-text {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+}
+
+.sk-context-indicator.has-context .sk-context-icon {
+    color: var(--sk-link);
+}
+
+.sk-context-indicator.has-context .sk-context-text {
+    color: var(--sk-text-primary);
+}

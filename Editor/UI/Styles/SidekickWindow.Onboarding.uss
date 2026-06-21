@@ -1,0 +1,352 @@
+/* ============================================
+   Onboarding Wizard Styles
+   ============================================ */
+
+/* Modal-mounted panel — App UI Modal centers/dims its host container,
+   so we no longer ship our own #onboarding-overlay-container or
+   .sk-onboarding-overlay backdrop rules (APPUI-T08-06). */
+/* Applied via C# (OnboardingView.ShowModal) to App UI's .appui-modal__content
+   wrapper. Gives the wrapper a definite, responsive size so child %-widths
+   below resolve against a stable parent instead of cycling against an
+   auto-sized one. .appui-modal already pads 12px from the popup container,
+   so 100% here = popup width minus that padding. */
+.sk-modal-onboarding-content {
+    width: 100%;
+    max-width: 520px;
+}
+
+.sk-onboarding-modal-content {
+    /* Fills the now-definite .sk-modal-onboarding-content wrapper. */
+    width: 100%;
+}
+
+.sk-onboarding-panel {
+    flex-direction: column;
+    /* Width is owned by .sk-onboarding-modal-content (520px / max-width: 90%).
+       Pre-T08-06 the panel also set width: 90%; that conflicted with the
+       modal-content rule and caused Yoga to left-align the panel inside the
+       App UI .appui-modal__content wrapper, producing a phantom right gap. */
+    /* Fixed-size cap — Modal-centered content doesn't resolve % heights
+       against popupContainer. */
+    max-height: 640px;
+    background-color: var(--sk-bg-secondary);
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    padding: 24px;
+    overflow: hidden;
+}
+
+/* Header */
+.sk-onboarding-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.sk-onboarding-header-text {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.sk-onboarding-close {
+    width: 28px;
+    height: 28px;
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 4px;
+    font-size: 18px;
+    color: var(--sk-text-muted);
+    -unity-text-align: middle-center;
+}
+
+.sk-onboarding-close:hover {
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+}
+
+/* Progress dots */
+.sk-onboarding-progress {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.sk-progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--sk-bg-tertiary);
+    margin: 0 4px;
+    transition-duration: 0.2s;
+}
+
+.sk-progress-dot.active {
+    background-color: var(--sk-accent);
+    width: 24px;
+}
+
+.sk-progress-dot.completed {
+    background-color: var(--sk-success);
+}
+
+/* Step container */
+.sk-onboarding-step {
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 260px;
+}
+
+.sk-onboarding-step-header {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-onboarding-step-title {
+    font-size: 18px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.sk-onboarding-optional-badge {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-left: 8px;
+    margin-bottom: 8px;
+    padding: 2px 6px;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 4px;
+}
+
+.sk-onboarding-step-desc {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+    margin-bottom: 20px;
+}
+
+/* Status row */
+.sk-onboarding-status-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.sk-onboarding-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--sk-text-muted);
+    margin-right: 10px;
+}
+
+.sk-onboarding-indicator.success {
+    background-color: var(--sk-success);
+}
+
+.sk-onboarding-indicator.error {
+    background-color: var(--sk-error);
+}
+
+.sk-onboarding-indicator.warning {
+    background-color: var(--sk-warning);
+}
+
+.sk-onboarding-indicator.checking {
+    background-color: var(--sk-info);
+}
+
+.sk-onboarding-status-text {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+/* Actions */
+.sk-onboarding-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.sk-onboarding-btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border-width: 0;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.sk-onboarding-btn-primary {
+    background-color: var(--sk-accent);
+    color: #ffffff;
+}
+
+.sk-onboarding-btn-primary:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+.sk-onboarding-btn-primary:disabled {
+    background-color: var(--sk-bg-tertiary);
+    color: var(--sk-text-muted);
+}
+
+.sk-onboarding-btn-secondary {
+    background-color: var(--sk-bg-tertiary);
+    color: var(--sk-text-primary);
+}
+
+.sk-onboarding-btn-secondary:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-onboarding-btn-secondary:disabled {
+    color: var(--sk-text-muted);
+}
+
+/* MCP sections */
+.sk-onboarding-mcp-section {
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 6px;
+}
+
+.sk-onboarding-section-label {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+/* Help section */
+.sk-onboarding-help {
+    flex-direction: row;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.sk-onboarding-help-text {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+}
+
+.sk-onboarding-link-btn {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    font-size: 12px;
+    color: var(--sk-accent);
+}
+
+.sk-onboarding-link-btn:hover {
+    color: var(--sk-accent-hover);
+}
+
+/* Done step */
+.sk-onboarding-done-title {
+    font-size: 24px;
+    color: var(--sk-success);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+    -unity-text-align: upper-center;
+}
+
+.sk-onboarding-summary {
+    flex-direction: column;
+    margin-top: 20px;
+    padding: 16px;
+    background-color: var(--sk-bg-tertiary);
+    border-radius: 8px;
+}
+
+.sk-onboarding-summary-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+}
+
+.sk-onboarding-summary-item.last {
+    border-bottom-width: 0;
+}
+
+.sk-onboarding-summary-text {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+}
+
+/* Footer */
+.sk-onboarding-footer {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+}
+
+/* Loading spinner animation class */
+.sk-onboarding-indicator.loading {
+    background-color: var(--sk-info);
+}
+
+/* Provider selection cards */
+.sk-providers-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.sk-provider-card {
+    width: 140px;
+    min-height: 80px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: var(--sk-border);
+    padding: 10px;
+    margin: 6px;
+    align-items: center;
+    justify-content: center;
+    cursor: link;
+    transition-duration: 0.15s;
+}
+
+.sk-provider-card:hover {
+    border-color: var(--sk-accent);
+}
+
+.sk-provider-card.selected {
+    border-color: var(--sk-accent);
+    background-color: rgba(99, 102, 241, 0.08);
+}
+
+.sk-provider-card-name {
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+    color: var(--sk-text-primary);
+}
+
+.sk-provider-card-desc {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+    -unity-text-align: upper-center;
+}
+
+.sk-onboarding-step-title-inline {
+    margin-bottom: 0;
+}
+

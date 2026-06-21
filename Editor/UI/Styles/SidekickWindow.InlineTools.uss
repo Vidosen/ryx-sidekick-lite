@@ -1,0 +1,592 @@
+/* ============================================
+   Inline Tool Blocks (VS Code style)
+   ============================================ */
+
+.sk-inline-tool {
+    background-color: transparent;
+    border-radius: 4px;
+    margin: 4px 0;
+    overflow: hidden;
+    align-self: flex-start;
+    max-width: 100%; /* Prevent expanding beyond parent */
+}
+
+/* Status indicator dot */
+.sk-tool-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.sk-tool-status-dot.running {
+    background-color: var(--sk-warning);
+}
+
+.sk-tool-status-dot.success {
+    background-color: var(--sk-success);
+}
+
+.sk-tool-status-dot.error {
+    background-color: var(--sk-error);
+}
+
+.sk-tool-status-dot.pending {
+    background-color: var(--sk-text-muted);
+}
+
+/* ============================================
+   Edit/Write Link Element (VS Code style)
+   ============================================ */
+
+.sk-edit-link {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 6px;
+}
+
+/* Badge styled like AssetLinkElement (.md-asset-link) */
+.sk-edit-link__badge {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-link-bg-subtle);
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: link;
+    flex-shrink: 0;
+}
+
+.sk-edit-link__badge:hover {
+    background-color: var(--sk-link-bg-hover);
+}
+
+.sk-edit-link__icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.sk-edit-link__name {
+    color: var(--sk-link-accent);
+    font-size: 12px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+}
+
+.sk-edit-link__summary {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-top: 2px;
+    margin-left: 2px;
+}
+
+/* Input summary row */
+.sk-tool-input-summary {
+    padding: 8px 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--sk-border);
+    background-color: var(--sk-overlay-dark-subtle);
+}
+
+.sk-tool-cmd-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-tool-io-label {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    padding: 2px 6px;
+    background-color: var(--sk-bg-hover);
+    border-radius: 3px;
+    margin-right: 10px;
+    -unity-font-style: bold;
+}
+
+.sk-tool-cmd {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sk-tool-filepath {
+    font-size: 12px;
+    color: var(--sk-link);
+}
+
+.sk-tool-input-raw {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    white-space: normal;
+}
+
+/* Output container */
+.sk-tool-output-container {
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 10px 12px;
+    background-color: var(--sk-code-bg);
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.sk-tool-output {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    white-space: pre-wrap;
+}
+
+.sk-tool-content {
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 4px 0 0 0;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.sk-tool-content-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px 6px 12px;
+}
+
+.sk-tool-file-label {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sk-tool-wrap-toggle {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    background-color: var(--sk-bg-hover);
+    border-width: 0;
+    border-radius: 4px;
+    color: var(--sk-text-primary);
+}
+
+.sk-tool-wrap-toggle:hover {
+    background-color: var(--sk-bg-active);
+}
+
+.sk-tool-file-content {
+    flex-direction: column;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    white-space: pre-wrap;
+    background-color: var(--sk-code-bg);
+    padding: 10px 12px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    max-height: 320px;
+    overflow: scroll;
+    min-height: 40px;
+}
+
+/* ============================================
+   Todo List Styles
+   ============================================ */
+
+.sk-todo-list {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 8px 8px 8px;
+    background-color: transparent;
+}
+
+/* Progress header */
+.sk-todo-header {
+    margin-bottom: 8px;
+    padding-bottom: 0;
+}
+
+.sk-todo-progress-container {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sk-todo-progress-bar {
+    flex-grow: 1;
+    height: 4px;
+    background-color: var(--sk-warning-bg-subtle);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.sk-todo-progress-fill {
+    height: 100%;
+    background-color: var(--sk-success);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.sk-todo-progress-text {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    flex-shrink: 0;
+}
+
+.sk-todo-item {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 6px 4px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    background-color: transparent;
+    transition: background-color 0.15s;
+}
+
+.sk-todo-item:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+/* Status-specific item styles */
+.sk-todo-item.sk-todo-completed {
+    opacity: 0.7;
+}
+
+.sk-todo-item.sk-todo-in_progress {
+    background-color: var(--sk-warning-bg-soft);
+    border-radius: 4px;
+}
+
+.sk-todo-item.sk-todo-cancelled {
+    opacity: 0.45;
+}
+
+/* Checkbox */
+.sk-todo-checkbox {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin-right: 10px;
+    margin-top: 2px;
+    border-radius: 4px;
+    background-color: transparent;
+    border-width: 1px;
+    border-color: var(--sk-text-muted);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sk-todo-check-icon {
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    color: var(--sk-text-muted);
+}
+
+/* Checkbox states */
+.sk-todo-pending .sk-todo-checkbox {
+    border-color: var(--sk-text-muted);
+}
+
+.sk-todo-pending .sk-todo-check-icon {
+    color: var(--sk-text-muted);
+    opacity: 0.5;
+}
+
+.sk-todo-in_progress .sk-todo-checkbox {
+    background-color: transparent;
+    border-color: var(--sk-warning);
+}
+
+.sk-todo-in_progress .sk-todo-check-icon {
+    color: var(--sk-warning);
+    font-size: 12px;
+}
+
+.sk-todo-completed .sk-todo-checkbox {
+    background-color: transparent;
+    border-color: var(--sk-success);
+}
+
+.sk-todo-completed .sk-todo-check-icon {
+    color: var(--sk-success);
+}
+
+.sk-todo-cancelled .sk-todo-checkbox {
+    background-color: transparent;
+    border-color: var(--sk-text-muted);
+    opacity: 0.6;
+}
+
+.sk-todo-cancelled .sk-todo-check-icon {
+    color: var(--sk-text-muted);
+}
+
+/* Content area */
+.sk-todo-content {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 18px;
+}
+
+.sk-todo-text {
+    font-size: 12px;
+    color: var(--sk-text-primary);
+    white-space: normal;
+}
+
+.sk-todo-completed .sk-todo-text {
+    color: var(--sk-text-secondary);
+}
+
+.sk-todo-cancelled .sk-todo-text {
+    color: var(--sk-text-muted);
+}
+
+.sk-todo-active-form {
+    font-size: 10px;
+    color: var(--sk-warning);
+    margin-top: 2px;
+    -unity-font-style: italic;
+    opacity: 0.9;
+}
+
+/* Status badge */
+.sk-todo-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    letter-spacing: 0.2px;
+}
+
+.sk-todo-badge-pending {
+    display: none;
+}
+
+.sk-todo-badge-in_progress {
+    background-color: var(--sk-warning-bg-strong);
+    color: var(--sk-warning);
+}
+
+.sk-todo-badge-completed {
+    display: none;
+}
+
+.sk-todo-badge-cancelled {
+    display: none;
+}
+
+/* ============================================
+   Bash Tool Styles
+   ============================================ */
+
+.sk-bash-content {
+    flex-direction: column;
+    padding: 4px 8px 8px 8px;
+}
+
+.sk-bash-description {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    margin-bottom: 6px;
+    -unity-font-style: italic;
+    padding-left: 4px;
+}
+
+.sk-bash-cmd-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 4px;
+    padding: 6px 4px;
+    background-color: var(--sk-overlay-dark-subtle);
+    border-radius: 4px;
+}
+
+.sk-bash-cmd {
+    font-size: 12px;
+    color: var(--sk-success);
+    white-space: pre-wrap;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.sk-bash-out-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+}
+
+.sk-bash-out-preview {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sk-bash-out-inline {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    flex-grow: 1;
+}
+
+.sk-bash-out-running {
+    font-size: 12px;
+    color: var(--sk-warning);
+    -unity-font-style: italic;
+}
+
+.sk-bash-expand-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+    padding: 0;
+    margin-left: 6px;
+    background-color: transparent;
+    border-width: 0;
+    color: var(--sk-text-muted);
+    -unity-text-align: middle-center;
+}
+
+.sk-bash-expand-btn:hover {
+    background-color: var(--sk-bg-hover);
+    border-radius: 4px;
+}
+
+.sk-bash-output-panel {
+    flex-direction: column;
+    margin-top: 4px;
+    background-color: var(--sk-code-bg);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: var(--sk-border);
+    overflow: hidden;
+}
+
+.sk-bash-output-scroll {
+    max-height: 200px;
+    min-height: 60px;
+    padding: 8px 12px;
+}
+
+.sk-bash-output-text {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    white-space: pre-wrap;
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+}
+
+.sk-bash-output-toolbar {
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 4px 8px;
+    border-top-width: 1px;
+    border-top-color: var(--sk-border);
+    background-color: var(--sk-overlay-dark-soft);
+}
+
+.sk-bash-copy-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    background-color: var(--sk-bg-hover);
+    border-width: 0;
+    border-radius: 4px;
+    color: var(--sk-text-primary);
+}
+
+.sk-bash-copy-btn:hover {
+    background-color: var(--sk-bg-active);
+}
+
+/* ============================================
+   ExitPlanMode / Plan Styles
+   ============================================ */
+
+.sk-plan-content {
+    padding: 8px 12px;
+    overflow: hidden;    /* Contain content within bounds */
+    min-width: 0;        /* Allow flex-item to shrink below content size */
+}
+
+.sk-plan-header {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-bottom: 8px;
+    -unity-font-style: bold;
+    letter-spacing: 0.3px;
+}
+
+/* ============================================
+   AskUserQuestion Trace Styles
+   ============================================ */
+
+.sk-question-trace {
+    padding: 8px 12px;
+    min-width: 0;
+}
+
+.sk-question-trace__summary {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sk-question-trace__summary-label {
+    flex-grow: 1;
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+}
+
+.sk-question-trace__toggle {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-width: 0;
+    border-radius: 4px;
+    background-color: var(--sk-bg-hover);
+    color: var(--sk-text-primary);
+    font-size: 11px;
+}
+
+.sk-question-trace__toggle:hover {
+    background-color: var(--sk-bg-active);
+}
+
+.sk-question-trace__details {
+    flex-direction: column;
+    margin-top: 8px;
+    gap: 8px;
+}
+
+.sk-question-trace__item {
+    padding: 8px;
+    border-radius: 6px;
+    background-color: var(--sk-overlay-dark-subtle);
+    gap: 4px;
+}
+
+.sk-question-trace__item-header {
+    color: var(--sk-text-muted);
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+.sk-question-trace__question {
+    color: var(--sk-text-primary);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.sk-question-trace__answer {
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+    white-space: normal;
+}

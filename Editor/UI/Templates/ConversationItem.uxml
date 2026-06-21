@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Button name="conversation-item" class="sk-conversation-item">
+        <ui:Label name="title" class="sk-conversation-title" />
+        <ui:Label name="date" class="sk-conversation-date" />
+    </ui:Button>
+</ui:UXML>
+

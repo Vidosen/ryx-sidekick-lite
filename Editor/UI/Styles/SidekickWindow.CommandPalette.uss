@@ -1,0 +1,206 @@
+/* ============================================
+   Command Palette Styles
+   ============================================ */
+
+.sk-command-palette {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    /* bottom is set dynamically by controller based on input wrapper height */
+    bottom: 88px;
+    max-height: 360px;
+    background-color: var(--sk-bg-secondary);
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--sk-border-light);
+    overflow: hidden;
+    flex-direction: column;
+}
+
+.sk-command-palette--hidden {
+    display: none;
+}
+
+.sk-command-palette__container {
+    flex-grow: 1;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+/* Filter Field */
+.sk-command-palette__filter {
+    margin: 10px 12px 6px 12px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding: 0;
+}
+
+.sk-command-palette__filter > .unity-text-field__input {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    background-color: transparent;
+    border-width: 0;
+}
+
+.sk-command-palette__filter:focus {
+    border-color: var(--sk-accent);
+}
+
+.sk-command-palette__filter .unity-text-element--placeholder {
+    color: var(--sk-text-muted);
+}
+
+/* List */
+.sk-command-palette__list {
+    flex-grow: 1;
+    padding: 4px 8px 8px 8px;
+    max-height: 280px;
+}
+
+/* Section */
+.sk-command-palette__section {
+    margin-bottom: 8px;
+}
+
+.sk-command-palette__section-header {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    -unity-font-style: bold;
+    letter-spacing: 0.5px;
+    padding: 6px 8px 4px 8px;
+}
+
+/* ============================================
+   Item - Standardized with toolbar action buttons
+   ============================================ */
+.sk-command-palette__item {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-width: 1px;
+    border-color: transparent;
+    margin-bottom: 3px;
+    transition: background-color 0.12s, border-color 0.12s;
+}
+
+.sk-command-palette__item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--sk-border);
+}
+
+.sk-command-palette__item--selected {
+    background-color: var(--sk-accent-subtle);
+    border-color: var(--sk-accent-border);
+}
+
+.sk-command-palette__item--selected:hover {
+    background-color: var(--sk-accent-subtle);
+    border-color: var(--sk-accent-border-hover);
+}
+
+.sk-command-palette__item-label {
+    font-size: 13px;
+    color: var(--sk-text-primary);
+    flex-shrink: 0;
+    -unity-font-style: normal;
+}
+
+.sk-command-palette__item-desc {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    margin-left: 10px;
+    flex-grow: 1;
+    /* flex-shrink defaults to 0 in UI Toolkit; without it a nowrap description keeps
+       its natural width, never ellipsizes, and pushes the trailing badge off-screen. */
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sk-command-palette__item-trailing {
+    font-size: 11px;
+    color: var(--sk-text-secondary);
+    margin-left: 8px;
+    flex-shrink: 0;
+    padding: 2px 6px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+}
+
+/* ============================================
+   Pro-locked content — gold "selling" treatment
+   ============================================ */
+.sk-command-palette__section--pro .sk-command-palette__section-header {
+    color: var(--sk-pro-gold);
+}
+
+.sk-command-palette__item--locked {
+    background-color: rgba(233, 196, 106, 0.05);
+    border-color: rgba(233, 196, 106, 0.15);
+}
+
+.sk-command-palette__item--locked:hover {
+    background-color: rgba(233, 196, 106, 0.12);
+    border-color: rgba(233, 196, 106, 0.4);
+}
+
+.sk-command-palette__item--locked.sk-command-palette__item--selected {
+    background-color: rgba(233, 196, 106, 0.16);
+    border-color: rgba(233, 196, 106, 0.55);
+}
+
+.sk-command-palette__item-trailing-icon {
+    padding: 0;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    background-color: transparent;
+}
+
+/* ============================================
+   Empty State - Standardized
+   ============================================ */
+.sk-command-palette__empty {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+    padding: 20px 16px;
+    -unity-text-align: middle-center;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    margin: 8px;
+    border-width: 1px;
+    border-color: var(--sk-border);
+}
+
+/* Slash indicator - styles defined in main SidekickWindow.uss
+   Only add palette-specific overrides here if needed */
+
+/* Hide scrollbar horizontal */
+.sk-command-palette__list > .unity-scroller--horizontal {
+    display: none;
+}
+
+/* Vertical scrollbar styling */
+.sk-command-palette__list > .unity-scroller--vertical {
+    width: 8px;
+}
+
+.sk-command-palette__list > .unity-scroller--vertical > .unity-slider > .unity-base-slider__tracker {
+    background-color: transparent;
+}
+
+.sk-command-palette__list > .unity-scroller--vertical > .unity-slider > .unity-base-slider__dragger {
+    background-color: var(--sk-scrollbar);
+    border-radius: 4px;
+}
+
+.sk-command-palette__list > .unity-scroller--vertical > .unity-slider > .unity-base-slider__dragger:hover {
+    background-color: var(--sk-scrollbar-hover);
+}

@@ -1,0 +1,41 @@
+# Drafts a GitHub Release from the matching CHANGELOG.md section when a v* tag is pushed.
+# This workflow does NOT build the .unitypackage (that needs the Unity Editor and would
+# require a licensed Unity activation secret in a public repo). After the release is
+# created, attach the prebuilt package with:
+#   gh release upload v<version> RyxSidekick-Lite-Plain-<version>.unitypackage
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract changelog section
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Extracting release notes for $VERSION from CHANGELOG.md"
+          awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { capture=1; next }
+            capture && /^## \[/ { exit }
+            capture { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No changelog section found for $VERSION; using a default note."
+            echo "Release $GITHUB_REF_NAME" > release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md

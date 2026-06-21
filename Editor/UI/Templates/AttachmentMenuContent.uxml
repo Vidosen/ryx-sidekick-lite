@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI">
+  <ui:VisualElement class="sk-model-popup-content">
+    <ui:Label text="Add Context" class="sk-model-popup-title" />
+    <ui:VisualElement name="attachment-options-container" class="sk-attachment-options" />
+  </ui:VisualElement>
+</ui:UXML>

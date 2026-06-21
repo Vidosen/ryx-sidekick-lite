@@ -1,0 +1,149 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <!-- Onboarding Modal content fragment (mounted via App UI Modal). -->
+    <ui:VisualElement name="onboarding-panel" class="sk-onboarding-panel sk-onboarding-modal-content" picking-mode="Position">
+
+        <!-- Header -->
+        <ui:VisualElement class="sk-onboarding-header">
+            <ui:Label text="RYX SIDEKICK SETUP" class="sk-onboarding-header-text" />
+            <ui:Button name="onboarding-skip-btn" text="×" tooltip="Skip setup" class="sk-onboarding-close" />
+        </ui:VisualElement>
+
+        <!-- Progress dots -->
+        <ui:VisualElement name="onboarding-progress" class="sk-onboarding-progress">
+            <ui:VisualElement name="progress-dot-1" class="sk-progress-dot active" />
+            <ui:VisualElement name="progress-dot-2" class="sk-progress-dot" />
+            <ui:VisualElement name="progress-dot-3" class="sk-progress-dot" />
+            <ui:VisualElement name="progress-dot-4" class="sk-progress-dot" />
+            <ui:VisualElement name="progress-dot-5" class="sk-progress-dot" />
+        </ui:VisualElement>
+
+        <!-- Step 0: Provider Selection -->
+        <ui:VisualElement name="onboarding-step-provider" class="sk-onboarding-step">
+            <ui:Label text="Choose Your AI Provider" class="sk-onboarding-step-title" />
+            <ui:Label text="Select the CLI tool you want to use with Sidekick." class="sk-onboarding-step-desc" />
+            <ui:VisualElement name="providers-container" class="sk-providers-container" />
+        </ui:VisualElement>
+
+        <!-- Step 1: CLI Setup -->
+        <ui:VisualElement name="onboarding-step-cli" class="sk-onboarding-step" style="display: none;">
+            <ui:Label text="1. CLI Setup" class="sk-onboarding-step-title" />
+            <ui:Label text="Ryx Sidekick requires a supported CLI provider to communicate with AI models." class="sk-onboarding-step-desc" />
+
+            <ui:VisualElement class="sk-onboarding-status-row">
+                <ui:VisualElement name="cli-status-indicator" class="sk-onboarding-indicator" />
+                <ui:Label name="cli-status-text" text="Checking..." class="sk-onboarding-status-text" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="sk-onboarding-actions">
+                <ui:Button name="cli-validate-btn" text="Validate CLI" class="sk-onboarding-btn sk-onboarding-btn-secondary" />
+                <ui:Button name="cli-settings-btn" text="Open Settings" class="sk-onboarding-btn sk-onboarding-btn-secondary" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="sk-onboarding-help">
+                <ui:Label text="Need help? " class="sk-onboarding-help-text" />
+                <ui:Button name="cli-help-btn" text="Install CLI ↗" class="sk-onboarding-link-btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Step 2: Authentication -->
+        <ui:VisualElement name="onboarding-step-auth" class="sk-onboarding-step" style="display: none;">
+            <ui:Label text="2. Authentication" class="sk-onboarding-step-title" />
+            <ui:Label text="Sign in with your selected provider if it requires authentication." class="sk-onboarding-step-desc" />
+
+            <ui:VisualElement class="sk-onboarding-status-row">
+                <ui:VisualElement name="auth-status-indicator" class="sk-onboarding-indicator" />
+                <ui:Label name="auth-status-text" text="Not logged in" class="sk-onboarding-status-text" />
+            </ui:VisualElement>
+
+            <!-- OAuthBuiltIn (Claude) -->
+            <ui:VisualElement class="sk-onboarding-actions">
+                <ui:Button name="auth-login-btn" text="Login" class="sk-onboarding-btn sk-onboarding-btn-primary" />
+            </ui:VisualElement>
+
+            <!-- CliCommand (Cursor/Codex) -->
+            <ui:VisualElement name="auth-cli-section" style="display: none;">
+                <ui:Label name="auth-cli-desc" text="" class="sk-onboarding-step-desc" />
+                <ui:VisualElement class="sk-onboarding-actions">
+                    <ui:Button name="auth-cli-btn" text="Log In" class="sk-onboarding-btn sk-onboarding-btn-primary" />
+                    <ui:Button name="auth-check-status-btn" text="Check Status" class="sk-onboarding-btn sk-onboarding-btn-secondary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- ExternalUrl (future) -->
+            <ui:VisualElement name="auth-url-section" style="display: none;">
+                <ui:Label name="auth-url-desc" text="" class="sk-onboarding-step-desc" />
+                <ui:VisualElement class="sk-onboarding-actions">
+                    <ui:Button name="auth-url-btn" text="Open in Browser" class="sk-onboarding-btn sk-onboarding-btn-primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Step 3: MCP for Unity (Optional) -->
+        <ui:VisualElement name="onboarding-step-mcp" class="sk-onboarding-step" style="display: none;">
+            <ui:VisualElement class="sk-onboarding-step-header">
+                <ui:Label text="3. MCP for Unity" class="sk-onboarding-step-title sk-onboarding-step-title-inline" />
+                <ui:Label text="(Optional)" class="sk-onboarding-optional-badge" />
+            </ui:VisualElement>
+            <ui:Label text="MCP for Unity gives AI deep integration with the Unity Editor — manage assets, control scenes, and automate workflows." class="sk-onboarding-step-desc" />
+
+            <!-- Package status -->
+            <ui:VisualElement class="sk-onboarding-mcp-section">
+                <ui:Label text="Package" class="sk-onboarding-section-label" />
+                <ui:VisualElement class="sk-onboarding-status-row">
+                    <ui:VisualElement name="mcp-pkg-indicator" class="sk-onboarding-indicator" />
+                    <ui:Label name="mcp-pkg-text" text="Checking..." class="sk-onboarding-status-text" />
+                </ui:VisualElement>
+                <ui:Button name="mcp-install-btn" text="Install MCP for Unity" class="sk-onboarding-btn sk-onboarding-btn-primary" style="display: none;" />
+            </ui:VisualElement>
+
+            <!-- Server status -->
+            <ui:VisualElement class="sk-onboarding-mcp-section">
+                <ui:Label text="HTTP Server" class="sk-onboarding-section-label" />
+                <ui:VisualElement class="sk-onboarding-status-row">
+                    <ui:VisualElement name="mcp-server-indicator" class="sk-onboarding-indicator" />
+                    <ui:Label name="mcp-server-text" text="Checking..." class="sk-onboarding-status-text" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sk-onboarding-actions">
+                    <ui:Button name="mcp-setup-btn" text="Start MCP Server" class="sk-onboarding-btn sk-onboarding-btn-secondary" />
+                    <ui:Button name="mcp-refresh-btn" text="↻ Refresh" class="sk-onboarding-btn sk-onboarding-btn-secondary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="sk-onboarding-help">
+                <ui:Label text="Learn more: " class="sk-onboarding-help-text" />
+                <ui:Button name="mcp-help-btn" text="MCP for Unity README ↗" class="sk-onboarding-link-btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Step 4: Done -->
+        <ui:VisualElement name="onboarding-step-done" class="sk-onboarding-step" style="display: none;">
+            <ui:Label text="✓ All Set!" class="sk-onboarding-done-title" />
+            <ui:Label text="Ryx Sidekick is ready to use. Start a conversation and let AI help you build amazing things in Unity." class="sk-onboarding-step-desc" />
+
+            <ui:VisualElement class="sk-onboarding-summary">
+                <ui:VisualElement class="sk-onboarding-summary-item">
+                    <ui:VisualElement name="summary-cli-indicator" class="sk-onboarding-indicator success" />
+                    <ui:Label text="CLI Provider" class="sk-onboarding-summary-text" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sk-onboarding-summary-item">
+                    <ui:VisualElement name="summary-auth-indicator" class="sk-onboarding-indicator" />
+                    <ui:Label text="Authentication" class="sk-onboarding-summary-text" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sk-onboarding-summary-item last">
+                    <ui:VisualElement name="summary-mcp-indicator" class="sk-onboarding-indicator" />
+                    <ui:Label text="MCP for Unity" class="sk-onboarding-summary-text" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Footer navigation -->
+        <ui:VisualElement class="sk-onboarding-footer">
+            <ui:Button name="onboarding-back-btn" text="← Back" class="sk-onboarding-btn sk-onboarding-btn-secondary" style="display: none;" />
+            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:Button name="onboarding-next-btn" text="Next →" class="sk-onboarding-btn sk-onboarding-btn-primary" />
+            <ui:Button name="onboarding-finish-btn" text="Start Chatting" class="sk-onboarding-btn sk-onboarding-btn-primary" style="display: none;" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>

@@ -1,0 +1,270 @@
+/* ============================================
+   Login Overlay Styles
+   ============================================ */
+
+#login-overlay-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.sk-login-overlay {
+    flex-grow: 1;
+    background-color: var(--sk-bg-primary);
+    justify-content: center;
+    align-items: center;
+}
+
+.sk-login-screen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 500px;
+    padding: 40px;
+}
+
+/* Brand (Logo + Title) */
+.sk-login-brand {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.sk-login-logo {
+    width: 48px;
+    height: 48px;
+    margin-right: 12px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-login-title {
+    font-size: 32px;
+    color: var(--sk-text-primary);
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+}
+
+/* Divider */
+.sk-login-divider {
+    width: 100%;
+    max-width: 420px;
+    height: 1px;
+    background-color: var(--sk-border);
+    margin-bottom: 32px;
+}
+
+/* Description and Question */
+.sk-login-description {
+    font-size: 14px;
+    color: var(--sk-text-primary);
+    -unity-text-align: upper-left;
+    white-space: normal;
+    max-width: 420px;
+    margin-bottom: 20px;
+}
+
+.sk-login-question {
+    font-size: 14px;
+    color: var(--sk-text-primary);
+    margin-bottom: 20px;
+    -unity-text-align: upper-left;
+    width: 100%;
+    max-width: 420px;
+}
+
+.sk-login-auth-lost-title {
+    font-size: 18px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    margin-bottom: 16px;
+    -unity-text-align: middle-center;
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Login Buttons */
+.sk-login-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 420px;
+}
+
+.sk-login-btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 6px;
+    border-width: 0;
+    margin-bottom: 4px;
+    -unity-text-align: middle-center;
+}
+
+.sk-login-btn Label {
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+.sk-login-btn-primary {
+    background-color: var(--sk-accent);
+}
+
+.sk-login-btn-primary:hover {
+    background-color: var(--sk-accent-hover);
+}
+
+.sk-login-btn-primary Label {
+    color: #ffffff;
+}
+
+.sk-login-btn-secondary {
+    background-color: var(--sk-bg-tertiary);
+}
+
+.sk-login-btn-secondary:hover {
+    background-color: var(--sk-bg-hover);
+}
+
+.sk-login-btn-secondary Label {
+    color: var(--sk-text-primary);
+}
+
+.sk-login-btn-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.sk-login-external-icon {
+    font-size: 12px;
+    color: var(--sk-text-secondary);
+    margin-left: 6px;
+}
+
+.sk-login-btn-hint {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+    margin-bottom: 16px;
+    -unity-text-align: upper-left;
+}
+
+/* OAuth Screen Styles */
+#login-oauth-screen {
+    width: 100%;
+    max-width: 520px;
+    flex-shrink: 1;
+}
+
+.sk-oauth-content {
+    flex-direction: column;
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 1;
+}
+
+.sk-oauth-title {
+    font-size: 18px;
+    color: var(--sk-text-primary);
+    -unity-font-style: bold;
+    margin-bottom: 20px;
+}
+
+.sk-oauth-subtitle {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    margin-bottom: 12px;
+}
+
+.sk-oauth-url-container {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.sk-oauth-url-field {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--sk-text-secondary);
+    font-size: 12px;
+}
+
+.sk-oauth-url-field .unity-base-text-field__input {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    color: var(--sk-text-secondary);
+}
+
+.sk-oauth-copy-btn {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    flex-shrink: 0;
+    padding: 0;
+    margin-left: 8px;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    -unity-text-align: middle-center;
+}
+
+.sk-oauth-copy-btn:hover {
+    background-color: var(--sk-bg-hover);
+    border-color: var(--sk-border-light);
+}
+
+.sk-oauth-copy-btn Label {
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.sk-oauth-code-label {
+    font-size: 13px;
+    color: var(--sk-text-secondary);
+    margin-bottom: 12px;
+}
+
+.sk-oauth-code-input {
+    width: 100%;
+    flex-shrink: 1;
+    min-width: 0;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--sk-text-primary);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.sk-oauth-code-input .unity-base-text-field__input {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    color: var(--sk-text-primary);
+}
+
+.sk-oauth-code-input:focus {
+    border-color: var(--sk-accent);
+}
+
+.sk-oauth-code-input .unity-text-element--placeholder {
+    color: var(--sk-text-muted);
+}
