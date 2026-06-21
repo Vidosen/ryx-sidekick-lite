@@ -17,19 +17,24 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
         private readonly IExternalUrlOpener _opener;
         private readonly IUpdateNotifier _notifier;
         private readonly IDismissStore _dismissStore;
+        private readonly Action<UpdateAvailability> _onUpdateAction;
 
         public UpdateNotificationViewModel(
             CheckForUpdatesQuery check,
             IRemoteConfigSource config,
             IExternalUrlOpener opener,
             IUpdateNotifier notifier,
-            IDismissStore dismissStore)
+            IDismissStore dismissStore,
+            Action<UpdateAvailability> onUpdateAction = null)
         {
             _check = check;
             _config = config;
             _opener = opener;
             _notifier = notifier;
             _dismissStore = dismissStore;
+            // When supplied (by the window presenter), the toast's "Update" runs the same in-Editor
+            // update flow as the status-bar chip. Falls back to opening the store URL otherwise.
+            _onUpdateAction = onUpdateAction;
         }
 
         /// <summary>
@@ -62,6 +67,13 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
 
         private void OnUpdate(UpdateAvailability u)
         {
+            if (_onUpdateAction != null)
+            {
+                _onUpdateAction(u);
+                return;
+            }
+
+            // Fallback (no in-Editor update flow wired): open the store/download page.
             if (!string.IsNullOrWhiteSpace(u.Url))
                 _opener.Open(u.Url);
         }

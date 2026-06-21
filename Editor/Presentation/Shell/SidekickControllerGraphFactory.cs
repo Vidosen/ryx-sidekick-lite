@@ -51,6 +51,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
         private readonly IExternalUrlOpener _externalUrlOpener;
         private readonly IDismissStore _dismissStore;
         private readonly ResolveProAccessStateQuery _resolveProAccessState;
+        private readonly IProEntitlement _proEntitlement;
+        private readonly IUpdateInstaller _updateInstaller;
 
         public SidekickControllerGraphFactory(
             ISettingsStore settingsStore,
@@ -79,7 +81,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             IRemoteConfigSource remoteConfigSource = null,
             IExternalUrlOpener externalUrlOpener = null,
             IDismissStore dismissStore = null,
-            ResolveProAccessStateQuery resolveProAccessState = null)
+            ResolveProAccessStateQuery resolveProAccessState = null,
+            IProEntitlement proEntitlement = null,
+            IUpdateInstaller updateInstaller = null)
         {
             _settingsStore = settingsStore;
             _dialogService = dialogService;
@@ -108,6 +112,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             _externalUrlOpener = externalUrlOpener;
             _dismissStore = dismissStore;
             _resolveProAccessState = resolveProAccessState;
+            _proEntitlement = proEntitlement;
+            _updateInstaller = updateInstaller;
         }
 
         public SidekickWindowScopeGraph CreateWindowScopeGraph(
@@ -222,7 +228,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 _externalUrlOpener,
                 _dismissStore,
                 accountController,
-                _resolveProAccessState);
+                _resolveProAccessState,
+                _proEntitlement,
+                _updateInstaller,
+                _sidekickAccountService);
         }
 
         public SidekickProviderScopeGraph CreateProviderScopeGraph(

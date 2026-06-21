@@ -46,9 +46,15 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Pro
                 ? (long)(_clock.Now.ToUniversalTime() - UnixEpoch).TotalSeconds
                 : 0L;
 
+            // OwnsPro is SKU-gated: only a 'pro' token means Pro ownership. A free 'lite' token — minted
+            // for signed-in users so they can pull free Lite updates through the same signed-URL channel —
+            // is a valid, signature-verified token but must NOT flip the paywall/chip into an "owns Pro"
+            // state. Sku/EditionYear/SupportUntil still reflect the actual token so the unified update flow
+            // can read the free token's support window.
+            bool ownsPro = string.Equals(p.Sku, "pro", StringComparison.OrdinalIgnoreCase);
             bool supportActive = p.SupportUntil <= 0 || now <= p.SupportUntil;
             return new ProEntitlementInfo(
-                ownsPro: true,
+                ownsPro: ownsPro,
                 supportActive: supportActive,
                 sku: p.Sku,
                 editionYear: p.EditionYear,

@@ -1139,7 +1139,7 @@ namespace Ryx.Sidekick.Editor
                     InputTokens = usage.input_tokens + usage.cache_creation_input_tokens + usage.cache_read_input_tokens,
                     OutputTokens = usage.output_tokens,
                     ModelName = modelName,
-                    ContextWindow = ModelContextWindows.GetContextWindow(modelName)
+                    ContextWindow = ModelContextWindowRegistry.Resolve(modelName)
                 };
             }
             catch (Exception ex)

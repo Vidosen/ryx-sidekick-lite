@@ -1,7 +1,7 @@
 {
   "name": "com.ryxinteractive.sidekick",
   "displayName": "Ryx Sidekick",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "unity": "6000.0",
   "description": "Multi-provider AI coding assistant for Unity. Run Claude, Cursor, or Codex from inside the Editor with streaming chat, context, and safe edits.",
   "type": "tool",

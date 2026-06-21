@@ -25,6 +25,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         // Scroll
         void RequestScrollToBottom(int delayMs = 50);
 
+        // Scroll a specific tool element's top to the top of the viewport (e.g. a plan presented for review).
+        void RequestScrollToToolTop(string toolUseId, int delayMs = 50);
+
         // Events
         event Action ScrollToBottomClicked;
         event Action<ScrollDeltaSnapshot> ScrollChanged;
@@ -289,6 +292,46 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             }).ExecuteLater(delayMs);
         }
 
+        // Scrolls the timeline so the top of the given tool element sits at the top of the viewport.
+        // Used when a plan is presented for review so the user starts reading from the beginning
+        // instead of landing at the end via auto-attach-to-bottom.
+        public void RequestScrollToToolTop(string toolUseId, int delayMs = 50)
+        {
+            if (_messageListView == null || string.IsNullOrEmpty(toolUseId)) return;
+            var index = IndexOfTool(toolUseId);
+            if (index < 0) return;
+            var name = TimelineRenderHelpers.GetElementName(_viewItems[index]);
+
+            _messageListView.schedule.Execute(() =>
+            {
+                // Realize the row in the virtualized (DynamicHeight) list first...
+                _messageListView.ScrollToItem(index);
+                // ...then align its top to the viewport top after a layout pass settles.
+                _messageListView.schedule.Execute(() =>
+                {
+                    if (_innerScroll == null) return;
+                    var el = _innerScroll.contentContainer.Q<VisualElement>(name);
+                    if (el == null) return;
+                    var top = el.ChangeCoordinatesTo(_innerScroll.contentContainer, Vector2.zero).y;
+                    _innerScroll.scrollOffset = new Vector2(_innerScroll.scrollOffset.x, Mathf.Max(0f, top));
+                }).ExecuteLater(16);
+            }).ExecuteLater(delayMs);
+        }
+
+        private int IndexOfTool(string toolUseId)
+        {
+            for (int i = _viewItems.Count - 1; i >= 0; i--)
+            {
+                var msg = _viewItems[i];
+                if (msg?.ToolUses == null) continue;
+                foreach (var t in msg.ToolUses)
+                {
+                    if (t?.Id == toolUseId) return i;
+                }
+            }
+            return -1;
+        }
+
         // === Typing indicator ===
 
         public void SetTypingIndicatorVisible(bool visible)
@@ -388,20 +431,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         public bool RefreshToolById(string toolUseId)
         {
             if (_messageListView == null || string.IsNullOrEmpty(toolUseId)) return false;
-            for (int i = _viewItems.Count - 1; i >= 0; i--)
-            {
-                var msg = _viewItems[i];
-                if (msg?.ToolUses == null) continue;
-                foreach (var t in msg.ToolUses)
-                {
-                    if (t?.Id == toolUseId)
-                    {
-                        _messageListView.RefreshItem(i);
-                        return true;
-                    }
-                }
-            }
-            return false;
+            var index = IndexOfTool(toolUseId);
+            if (index < 0) return false;
+            _messageListView.RefreshItem(index);
+            return true;
         }
 
         public bool RefreshStreamingMessage(string messageId)

@@ -5,6 +5,7 @@ using Ryx.Sidekick.Editor.Presentation.Controllers;
 using Ryx.Sidekick.Editor.Domain.Models;
 using Ryx.Sidekick.Editor.Presentation.Contracts;
 using Ryx.Sidekick.Editor.Presentation.Views;
+using Ryx.Sidekick.Editor.Providers;
 using Ryx.Sidekick.Editor.UseCases.Chat;
 using Unity.AppUI.MVVM;
 using Unity.Properties;
@@ -92,6 +93,17 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
 
             PushInitialState();
             SyncItems();
+        }
+
+        // Invoked when a permission/AskUserQuestion prompt is about to be shown. When the prompt is a
+        // plan review (ExitPlanMode), scroll the plan's top into view so the user reads it from the
+        // beginning instead of being left at the end by auto-attach-to-bottom.
+        public void NotifyPermissionPresented(PendingPermission permission)
+        {
+            if (_view == null || permission == null) return;
+            if (ToolPresentationCatalog.GetEffectiveKind(permission) != ToolKind.ExitPlanMode) return;
+            if (string.IsNullOrEmpty(permission.ToolUseId)) return;
+            _view.RequestScrollToToolTop(permission.ToolUseId);
         }
 
         private Action _retryHistoryAction;

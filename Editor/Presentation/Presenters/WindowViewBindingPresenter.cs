@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ryx.Sidekick.Editor.Domain.Account;
 using Ryx.Sidekick.Editor.Domain.Models;
+using Ryx.Sidekick.Editor.Domain.Updates;
 using Ryx.Sidekick.Editor.Presentation.Controllers;
 using Ryx.Sidekick.Editor.Presentation.Shell;
 using Ryx.Sidekick.Editor.Presentation.ViewModels;
@@ -30,6 +32,15 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
         // it survives window close/reopen within a session; resets on domain reload (e.g. after the
         // install completes, or a recompile), which is the desired "once per session" cadence.
         private static bool _installNudgeShownThisSession;
+
+        // Status-bar chip state machine. The single chip is "★ Upgrade to Pro" / "Install Pro" /
+        // "Update" depending on access + available updates; _chipMode routes the click.
+        private ProChipMode _chipMode = ProChipMode.Hidden;
+        private bool _updateInProgress;
+        private bool _accountStatusSubscribed;
+
+        private const string LiteId = "com.ryxinteractive.sidekick";
+        private const string ProId = "com.ryxinteractive.sidekick.pro";
 
         public IComposerView ComposerView => _view?.Composer;
 
@@ -178,10 +189,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             _paywallModalView = new PaywallModalView(referenceView);
             paywallVm.BindView(_paywallModalView);
 
-            // Entitlement-aware chip: hidden when Pro is installed; "Install Pro" when the user owns
-            // Pro but hasn't installed it; "★ Upgrade to Pro" otherwise.
+            // Entitlement- and update-aware chip: see RefreshProChip / ProChipDecider for the matrix.
             var access = ResolveProAccess(scopeGraph);
-            ApplyProChipState(access);
+            RefreshProChip();
 
             // Wire provider-menu locked-feature click → paywall.
             if (_view?.ProviderMenu != null)
@@ -189,10 +199,17 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                 _view.ProviderMenu.LockedFeatureClicked += OnLockedFeatureClicked;
             }
 
-            // Wire status-bar Pro chip click → paywall.
+            // Wire status-bar chip click → routed by _chipMode (paywall vs update flow).
             if (_view?.StatusBar != null)
             {
                 _view.StatusBar.ProUpgradeClicked += OnProUpgradeClicked;
+            }
+
+            // Re-evaluate the chip after sign-in completes (a fresh entitlement token is cached then).
+            if (scopeGraph.AccountService != null && !_accountStatusSubscribed)
+            {
+                scopeGraph.AccountService.OnStatusChanged += OnAccountStatusChanged;
+                _accountStatusSubscribed = true;
             }
 
             // Auto-show the full-screen "you own Pro → install it" nudge once per session.
@@ -224,28 +241,59 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             return presence != null && presence.IsInstalled ? ProAccessState.Installed : ProAccessState.Locked;
         }
 
-        private void ApplyProChipState(ProAccessState access)
+        /// <summary>
+        /// Recomputes the status-bar chip from Pro access + available updates and applies label/visibility.
+        /// Public so <see cref="SidekickEditorAppHost"/> can re-run it after the remote config fetch lands
+        /// (update availability is unknown until then).
+        /// </summary>
+        public void RefreshProChip()
         {
             var statusBar = _view?.StatusBar;
-            if (statusBar == null)
+            if (statusBar == null || _windowScopeGraph == null)
             {
                 return;
             }
 
-            switch (access)
+            var access = ResolveProAccess(_windowScopeGraph);
+
+            var releases = _windowScopeGraph.RemoteConfigSource?.Current?.Releases;
+            var updates = _windowScopeGraph.CheckForUpdatesQuery?.Check(releases);
+            bool liteUpdate = HasUpdate(updates, LiteId);
+            bool proUpdate = HasUpdate(updates, ProId);
+
+            var presentation = ProChipDecider.Decide(access, liteUpdate, proUpdate);
+            _chipMode = presentation.Mode;
+
+            // Don't clobber an in-flight "Updating…" label; _chipMode is still refreshed above.
+            if (_updateInProgress)
             {
-                case ProAccessState.Installed:
-                    statusBar.SetProChipVisible(false);
-                    break;
-                case ProAccessState.OwnedNotInstalled:
-                    statusBar.SetProChipLabel("Install Pro");
-                    statusBar.SetProChipVisible(true);
-                    break;
-                default:
-                    statusBar.SetProChipLabel("★ Upgrade to Pro");
-                    statusBar.SetProChipVisible(true);
-                    break;
+                return;
             }
+
+            if (presentation.Visible)
+            {
+                statusBar.SetProChipLabel(presentation.Label);
+            }
+
+            statusBar.SetProChipVisible(presentation.Visible);
+        }
+
+        private static bool HasUpdate(IReadOnlyList<UpdateAvailability> updates, string packageId)
+        {
+            if (updates == null)
+            {
+                return false;
+            }
+
+            foreach (var u in updates)
+            {
+                if (u != null && u.HasUpdate && string.Equals(u.PackageId, packageId, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void UnbindPaywall()
@@ -259,6 +307,12 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             {
                 _view.StatusBar.ProUpgradeClicked -= OnProUpgradeClicked;
             }
+
+            if (_accountStatusSubscribed && _windowScopeGraph?.AccountService != null)
+            {
+                _windowScopeGraph.AccountService.OnStatusChanged -= OnAccountStatusChanged;
+            }
+            _accountStatusSubscribed = false;
 
             _paywallModalView?.Dispose();
             _paywallModalView = null;
@@ -277,7 +331,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                 scopeGraph.RemoteConfigSource,
                 scopeGraph.ExternalUrlOpener,
                 notifier,
-                scopeGraph.DismissStore);
+                scopeGraph.DismissStore,
+                onUpdateAction: HandleToastUpdate);
 
             // Evaluate immediately against the baked / already-cached config snapshot.
             // A post-fetch re-evaluation will be triggered by SidekickEditorAppHost once
@@ -299,7 +354,112 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
 
         private void OnProUpgradeClicked()
         {
-            _windowScopeGraph?.PaywallViewModel?.Open(null);
+            switch (_chipMode)
+            {
+                case ProChipMode.UpdateLite:
+                    StartUpdate("lite");
+                    break;
+                case ProChipMode.UpdatePro:
+                    StartUpdate("pro");
+                    break;
+                case ProChipMode.Hidden:
+                    break;
+                default: // UpgradePro / InstallPro → open the buy / install paywall
+                    _windowScopeGraph?.PaywallViewModel?.Open(null);
+                    break;
+            }
+        }
+
+        // The top update toast's "Update" routes through the same flow as the status-bar chip:
+        // map the package id to its SKU and run the in-Editor update (sign-in prompt → download).
+        private void HandleToastUpdate(UpdateAvailability u)
+        {
+            if (u == null)
+            {
+                return;
+            }
+
+            var sku = string.Equals(u.PackageId, ProId, StringComparison.Ordinal) ? "pro" : "lite";
+            StartUpdate(sku);
+        }
+
+        private async void StartUpdate(string sku)
+        {
+            if (_disposed || _updateInProgress || _windowScopeGraph == null)
+            {
+                return;
+            }
+
+            // Require a cached entitlement token whose SKU matches the requested update. If absent or the
+            // wrong tier (not signed in / free token for a Pro update), prompt sign-in: the account flow
+            // mints the right token (free 'lite' for any account, 'pro' for a licensed one) and
+            // OnAccountStatusChanged re-runs the chip so the user can click Update again.
+            var info = _windowScopeGraph.ProEntitlement?.Get() ?? default;
+            bool tokenMatches = !string.IsNullOrEmpty(info.Sku)
+                && string.Equals(info.Sku, sku, StringComparison.OrdinalIgnoreCase);
+            if (!tokenMatches)
+            {
+                _windowScopeGraph.AccountController?.ShowSignIn();
+                return;
+            }
+
+            var installer = _windowScopeGraph.UpdateInstaller;
+            if (installer == null)
+            {
+                return;
+            }
+
+            _updateInProgress = true;
+            _view?.StatusBar?.SetProChipLabel("Updating…");
+
+            try
+            {
+                var result = await installer.InstallAsync(sku);
+                if (_disposed)
+                {
+                    return;
+                }
+
+                if (result.Outcome != InstallProOutcome.Staged)
+                {
+                    UnityEngine.Debug.LogWarning($"[Ryx Sidekick] Update failed: {result.Message}");
+                }
+                // On Staged the editor reloads to finish the install; nothing more to do here.
+            }
+            catch (Exception ex)
+            {
+                if (!_disposed)
+                {
+                    UnityEngine.Debug.LogError($"[Ryx Sidekick] Update error: {ex.Message}");
+                }
+            }
+            finally
+            {
+                _updateInProgress = false;
+                if (!_disposed)
+                {
+                    RefreshProChip();
+                }
+            }
+        }
+
+        private void OnAccountStatusChanged(SidekickAccountStatus status)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            // OnStatusChanged can fire off the login Task's continuation → marshal to the UI thread
+            // before touching the status-bar chip.
+            var root = _view?.Root;
+            root?.schedule.Execute(() =>
+            {
+                if (!_disposed)
+                {
+                    RefreshProChip();
+                }
+            });
         }
 
         private void BindProviderScopeToView()
@@ -322,6 +482,12 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             {
                 _windowScopeGraph.PermissionController.OnAskUserQuestionPermission -= _windowScopeGraph.AskUserQuestionController.HandlePermission;
                 _windowScopeGraph.PermissionController.OnAskUserQuestionPermission += _windowScopeGraph.AskUserQuestionController.HandlePermission;
+            }
+
+            if (_windowScopeGraph is { PermissionController: not null, ChatTimelineViewModel: not null })
+            {
+                _windowScopeGraph.PermissionController.OnAskUserQuestionPermission -= _windowScopeGraph.ChatTimelineViewModel.NotifyPermissionPresented;
+                _windowScopeGraph.PermissionController.OnAskUserQuestionPermission += _windowScopeGraph.ChatTimelineViewModel.NotifyPermissionPresented;
             }
 
             if (_windowScopeGraph is { PermissionController: not null, PermissionOverlayController: not null })
@@ -348,6 +514,11 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             if (_windowScopeGraph is { PermissionController: not null, AskUserQuestionController: not null })
             {
                 _windowScopeGraph.PermissionController.OnAskUserQuestionPermission -= _windowScopeGraph.AskUserQuestionController.HandlePermission;
+            }
+
+            if (_windowScopeGraph is { PermissionController: not null, ChatTimelineViewModel: not null })
+            {
+                _windowScopeGraph.PermissionController.OnAskUserQuestionPermission -= _windowScopeGraph.ChatTimelineViewModel.NotifyPermissionPresented;
             }
 
             if (_windowScopeGraph is { PermissionController: not null, PermissionOverlayController: not null })

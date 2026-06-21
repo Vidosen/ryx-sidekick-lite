@@ -230,6 +230,11 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             {
                 try { _viewBindingPresenter?.UpdateNotificationViewModel?.Evaluate(); }
                 catch { /* must not surface errors to the Editor main loop */ }
+
+                // Update availability is unknown until the config lands → re-evaluate the status-bar
+                // chip now so it can flip to "Update" when a newer Lite/Pro release is published.
+                try { _viewBindingPresenter?.RefreshProChip(); }
+                catch { /* must not surface errors to the Editor main loop */ }
             };
         }
 

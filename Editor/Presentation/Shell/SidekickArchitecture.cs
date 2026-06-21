@@ -73,7 +73,10 @@ namespace Ryx.Sidekick.Editor
             IExternalUrlOpener externalUrlOpener = null,
             IDismissStore dismissStore = null,
             SidekickAccountController accountController = null,
-            UseCases.Pro.ResolveProAccessStateQuery resolveProAccessState = null)
+            UseCases.Pro.ResolveProAccessStateQuery resolveProAccessState = null,
+            UseCases.Pro.IProEntitlement proEntitlement = null,
+            UseCases.Pro.IUpdateInstaller updateInstaller = null,
+            ISidekickAccountService accountService = null)
         {
             AuthService = authService;
             AttachmentController = attachmentController;
@@ -100,6 +103,9 @@ namespace Ryx.Sidekick.Editor
             DismissStore = dismissStore;
             AccountController = accountController;
             ResolveProAccessState = resolveProAccessState;
+            ProEntitlement = proEntitlement;
+            UpdateInstaller = updateInstaller;
+            AccountService = accountService;
         }
 
         public IAuthService AuthService { get; }
@@ -133,6 +139,13 @@ namespace Ryx.Sidekick.Editor
         // Entitlement-aware gate state (Installed / OwnedNotInstalled / Locked) consumed by
         // WindowViewBindingPresenter for the status-bar chip + auto-show install nudge.
         public UseCases.Pro.ResolveProAccessStateQuery ResolveProAccessState { get; }
+
+        // Unified "Update" chip (status bar): the entitlement snapshot drives the cached token's SKU,
+        // the installer runs the SKU-agnostic download flow, and the account service signals a re-evaluate
+        // after sign-in. See WindowViewBindingPresenter.RefreshProChip / StartUpdate.
+        public UseCases.Pro.IProEntitlement ProEntitlement { get; }
+        public UseCases.Pro.IUpdateInstaller UpdateInstaller { get; }
+        public ISidekickAccountService AccountService { get; }
 
         public void Dispose()
         {

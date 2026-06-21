@@ -52,7 +52,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 var toast = Toast
                     .Build(_referenceView, message, NotificationDuration.Indefinite)
                     .SetStyle(NotificationStyle.Informative)
-                    .SetPosition(PopupNotificationPlacement.Bottom)
+                    // Anchored at the top so it overlays the start of the message area (just under the
+                    // top panel) rather than colliding with the composer + status bar at the bottom.
+                    .SetPosition(PopupNotificationPlacement.Top)
+                    .SetDuration(NotificationDuration.Long)
                     .AddAction(1, "Update", _ => onUpdate?.Invoke(captured), autoDismiss: true);
 
                 if (!string.IsNullOrWhiteSpace(captured.ChangelogUrl))

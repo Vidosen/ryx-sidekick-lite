@@ -7,12 +7,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-06-21
+
+### Added
+
+- In-editor one-click updates: when a newer version is published, the status-bar chip turns into **Update** and installs it in place without leaving Unity — free updates after a quick sign-in, Pro updates via your license. The "update available" notification's **Update** button now runs the same in-editor flow instead of opening the store page.
+
 ### Changed
 
 - The chat timeline now renders with a virtualized `ListView`, removing the previous 50-message render cap — long conversations scroll smoothly from end to end. The assistant "typing" indicator now renders as the trailing row inside the timeline, below the last message, and scrolls together with the conversation instead of sitting in a fixed bar above the composer.
+- When the assistant presents a plan for review, the chat timeline now scrolls to the **top** of the plan instead of leaving you at its end — so you start reading from the beginning, with the approval prompt and a jump-to-bottom button still available below.
+- The "update available" notification is now anchored at the top of the conversation area instead of overlapping the composer and status bar.
+- The installer compares versions semantically (major.minor.patch): it skips reinstalling an equal-or-newer version and applies only genuine upgrades.
 
 ### Fixed
 
+- Context-window usage ("% used") is now accurate. The window size is no longer hard-coded to 200k: the real per-model window reported by the CLI (e.g. 1M for Opus) is captured from turn usage events, remembered per model, and reused when loading conversation history. The live usage figure now also counts cached input tokens (prompt-cache reads/writes), so long sessions no longer read as nearly empty.
 - Empty and brand-new chats now show the branded welcome screen (logo + a rotating inspiring subtitle) instead of a bare "Conversation is empty." line over an empty list. The subtitle is picked at random from a curated set each time the welcome screen appears.
 
 ## [2.4.0] - 2026-06-20
@@ -99,7 +109,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
-- Cursor ACP (Asynchronous Call Protocol) event routing for real-time communication with persistent Cursor sessions.
+- Cursor event routing for real-time communication with persistent Cursor sessions.
 - Onboarding wizard now includes a Codex provider selection card with CLI-based authentication guidance.
 - Conditional MCP server start/stop methods in `McpForUnityController`, compiled only when the `HAS_UNITY_MCP` symbol is present.
 - Provider-scoped runtime architecture (`SidekickArchitecture`, `SidekickWindowHost`, `PersistentConversationStorage`) for isolated per-provider state management.
@@ -110,20 +120,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Fixed
 
-- Cursor ACP tool mapping now correctly routes tool calls; related UI tests updated.
+- Cursor tool mapping now correctly routes tool calls; related UI tests updated.
 
 ## [1.3.1] - 2026-03-12
 
 ### Added
 
-- Codex app-server launch overrides that map Sidekick MCP server settings into session-scoped `mcp_servers` config flags.
+- Codex launch overrides that map Sidekick MCP server settings into session-scoped `mcp_servers` config flags.
 - Local plan implementation approval: after a Codex plan-mode turn completes, Sidekick prompts the user to approve or reject running the plan locally.
 
 ### Changed
 
-- Codex sessions now advertise MCP support and restart the app-server when the effective MCP override set changes.
+- Codex sessions now advertise MCP support and restart the session when the effective MCP override set changes.
 - Codex history reconstruction now tracks terminal sessions and properly extracts output from `write_stdin` tool calls; improved `request_user_input` round-tripping.
-- Expanded Codex provider tests to cover MCP override building, app-server startup arguments, and restart behavior.
+- Expanded Codex provider tests to cover MCP override building, session startup arguments, and restart behavior.
 
 ## [1.3.0] - 2026-03-08
 
@@ -131,7 +141,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - Multi-provider CLI support with selectable `Claude`, `Cursor`, and `Codex` runtimes in Project Settings.
 - Provider-specific history readers and event parsers for Cursor and Codex, including improved Cursor thinking/content parsing.
-- Session-based runtimes for Cursor and Codex using persistent JSON-RPC and app-server transports.
+- Session-based runtimes for Cursor and Codex using persistent connections to each CLI.
 - Provider-aware collaboration and permission mode configuration, including explicit plan/permission mode separation.
 - Compatibility adapters that normalize `AskUserQuestion` and `ExitPlanMode` flows across provider schemas.
 - Inline `AskUserQuestion` traces for Codex sessions, including collapsible question details and recorded answers in the chat UI and restored history.

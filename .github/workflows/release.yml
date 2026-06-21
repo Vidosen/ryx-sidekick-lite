@@ -1,8 +1,8 @@
 # Drafts a GitHub Release from the matching CHANGELOG.md section when a v* tag is pushed.
 # This workflow does NOT build the .unitypackage (that needs the Unity Editor and would
-# require a licensed Unity activation secret in a public repo). After the release is
-# created, attach the prebuilt package with:
-#   gh release upload v<version> RyxSidekick-Lite-Plain-<version>.unitypackage
+# require a licensed Unity activation secret in a public repo). Build the OSS installer
+# locally via Tools/Sidekick/Release/Export Lite Installer (OSS · GPL), then attach it:
+#   gh release upload v<version> RyxSidekick-Lite-OSS-<version>.unitypackage
 name: Release
 
 on:

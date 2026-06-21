@@ -575,28 +575,6 @@ namespace Ryx.Sidekick.Editor.Domain.Models
     }
 
     /// <summary>
-    /// Helper for model context window lookups.
-    /// </summary>
-    internal static class ModelContextWindows
-    {
-        // All Claude 4/3.5 models have 200k context
-        private const int DefaultContextWindow = 200000;
-
-        /// <summary>
-        /// Gets the context window size for a given model name.
-        /// </summary>
-        public static int GetContextWindow(string modelName)
-        {
-            if (string.IsNullOrEmpty(modelName))
-                return DefaultContextWindow;
-
-            // All current Claude models (sonnet, opus, haiku) have 200k context
-            // Future-proof: could add specific overrides here if needed
-            return DefaultContextWindow;
-        }
-    }
-
-    /// <summary>
     /// Represents extracted usage info from a conversation history.
     /// </summary>
     [Serializable]

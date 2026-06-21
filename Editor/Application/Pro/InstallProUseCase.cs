@@ -44,16 +44,31 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
         Task<InstallProResult> InstallLatestAsync(Action<string> onStatus = null);
     }
 
-    /// <inheritdoc cref="IProInstaller"/>
-    internal sealed class InstallProUseCase : IProInstaller
+    /// <summary>
+    /// SKU-agnostic in-Editor updater: download the newest in-window release for a SKU with the cached
+    /// entitlement token and stage it via the two-stage installer. "pro" requires a Pro entitlement;
+    /// "lite" works with the free Lite entitlement minted for any signed-in user. The status-bar
+    /// "Update" chip drives this; the caller is responsible for ensuring the cached token's SKU matches.
+    /// </summary>
+    internal interface IUpdateInstaller
     {
+        Task<InstallProResult> InstallAsync(string sku, Action<string> onStatus = null);
+    }
+
+    /// <inheritdoc cref="IProInstaller"/>
+    internal sealed class InstallProUseCase : IProInstaller, IUpdateInstaller
+    {
+        private const string LiteId = "com.ryxinteractive.sidekick";
+        private const string ProId  = "com.ryxinteractive.sidekick.pro";
+
         // Same Cloud Functions base + endpoint the Project Settings install flow uses.
         private const string FunctionsBase = "https://europe-west1-ryx-sidekick.cloudfunctions.net";
         private const string GetDownloadUrl = FunctionsBase + "/getDownloadUrl";
 
-        // Package ids the two-stage installer reconciles for a Pro install (matches the manifest the
-        // server payload carries). Mirrors SidekickGeneralSettingsProvider's "Download & install" call.
-        private static readonly string[] ProPackages = { "com.ryxinteractive.sidekick.pro" };
+        // Package ids the two-stage installer reconciles per SKU (matches the manifest the server payload
+        // carries). Pro ships both packages; Lite ships just the base package.
+        private static readonly string[] ProPackages = { ProId };
+        private static readonly string[] LitePackages = { LiteId };
 
         private readonly IHttpClient _http;
         private readonly IFileDownloader _downloader;
@@ -78,13 +93,21 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
             _entitlement = entitlement;
         }
 
-        public async Task<InstallProResult> InstallLatestAsync(Action<string> onStatus = null)
+        // IProInstaller — the one-click "install Pro" entry point (paywall install nudge / settings).
+        public Task<InstallProResult> InstallLatestAsync(Action<string> onStatus = null)
+            => InstallAsync("pro", onStatus);
+
+        // IUpdateInstaller — SKU-agnostic download + install used by the status-bar "Update" chip.
+        public async Task<InstallProResult> InstallAsync(string sku, Action<string> onStatus = null)
         {
             var token = _cache?.Read();
             if (string.IsNullOrEmpty(token))
-                return new InstallProResult(InstallProOutcome.NeedsActivation, "Sign in or activate a license to install Pro.");
+                return new InstallProResult(InstallProOutcome.NeedsActivation, "Sign in to download updates.");
 
-            onStatus?.Invoke("Checking for the latest Pro release…");
+            bool isPro = string.Equals(sku, "pro", StringComparison.OrdinalIgnoreCase);
+            string label = isPro ? "Pro" : "Sidekick";
+
+            onStatus?.Invoke($"Checking for the latest {label} release…");
 
             // Refresh remote config so version selection sees the newest releases[] metadata.
             if (_remote != null)
@@ -92,9 +115,11 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
                 try { await _remote.RefreshAsync(); } catch { /* fall back to cached/baked config below */ }
             }
 
-            var pro = _remote?.Current?.Releases?.Pro;
+            var releases = _remote?.Current?.Releases;
+            var release = isPro ? releases?.Pro : releases?.Lite;
+            var packages = isPro ? ProPackages : LitePackages;
             var supportUntil = _entitlement?.Get().SupportUntil ?? 0L;
-            var entitled = EntitledReleaseResolver.Resolve(pro?.Versions, supportUntil);
+            var entitled = EntitledReleaseResolver.Resolve(release?.Versions, supportUntil);
 
             string version;
             string suffix = string.Empty;
@@ -104,7 +129,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
                 if (entitled.HasNewerOutOfWindow)
                     suffix = " (newer version available — renew to update)";
             }
-            else if (pro?.Versions != null && pro.Versions.Count > 0)
+            else if (release?.Versions != null && release.Versions.Count > 0)
             {
                 // Version metadata exists but nothing falls in the window → the window ended.
                 return new InstallProResult(InstallProOutcome.WindowEnded,
@@ -113,24 +138,24 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
             else
             {
                 // Old config without versions[] → fall back to `latest`; the server still enforces the window.
-                version = pro?.Latest;
+                version = release?.Latest;
             }
 
             if (string.IsNullOrEmpty(version))
-                return new InstallProResult(InstallProOutcome.NoReleaseInfo, "No Pro release information available.");
+                return new InstallProResult(InstallProOutcome.NoReleaseInfo, $"No {label} release information available.");
 
-            onStatus?.Invoke($"Downloading Pro {version}…");
+            onStatus?.Invoke($"Downloading {label} {version}…");
 
             var update = new UpdateService(_http, _downloader, _installer, GetDownloadUrl, DownloadDirectory);
             UpdateOutcome outcome;
-            try { outcome = await update.DownloadAndInstallAsync("pro", version, ProPackages, token); }
+            try { outcome = await update.DownloadAndInstallAsync(sku, version, packages, token); }
             catch { outcome = UpdateOutcome.UrlError; }
 
             switch (outcome)
             {
                 case UpdateOutcome.Staged:
                     return new InstallProResult(InstallProOutcome.Staged,
-                        "Installing Pro — the editor will reload to finish." + suffix);
+                        $"Installing {label} — the editor will reload to finish." + suffix);
                 case UpdateOutcome.DownloadError:
                     return new InstallProResult(InstallProOutcome.Failed, "Download failed. Check your connection and try again.");
                 default:

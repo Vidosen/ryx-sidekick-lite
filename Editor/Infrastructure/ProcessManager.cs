@@ -717,11 +717,16 @@ namespace Ryx.Sidekick.Editor
                 return;
             }
 
-            // Track tokens from assistant messages
+            // Track tokens from assistant messages. Input must include cache tokens — under prompt
+            // caching the bulk of the context lives in cache_read, so input_tokens alone badly
+            // under-reports how full the window is. This mirrors the history path (CliHistoryService).
             if (evt is AssistantMessageEvent { message: { usage: not null } } assistantEvent)
             {
-                _totalInputTokens = assistantEvent.message.usage.input_tokens;
-                _totalOutputTokens = assistantEvent.message.usage.output_tokens;
+                var usage = assistantEvent.message.usage;
+                _totalInputTokens = usage.input_tokens
+                    + usage.cache_creation_input_tokens
+                    + usage.cache_read_input_tokens;
+                _totalOutputTokens = usage.output_tokens;
             }
         }
 
@@ -742,14 +747,19 @@ namespace Ryx.Sidekick.Editor
                 var totalTokens = _totalInputTokens + _totalOutputTokens;
                 var contextWindow = 0;
 
-                // modelUsage is a dictionary keyed by model ID
+                // modelUsage is a dictionary keyed by model ID. Harvest every real per-model window
+                // so history / cold-start lookups can reuse it, and keep the first positive value
+                // for the live status display.
                 foreach (var kvp in resultEvent.modelUsage)
                 {
-                    if (kvp.Value?.contextWindow > 0)
-                    {
-                        contextWindow = kvp.Value.contextWindow;
-                        break;
-                    }
+                    var window = kvp.Value?.contextWindow ?? 0;
+                    if (window <= 0)
+                        continue;
+
+                    ModelContextWindowRegistry.Record(kvp.Key, window);
+
+                    if (contextWindow == 0)
+                        contextWindow = window;
                 }
 
                 if (contextWindow > 0)

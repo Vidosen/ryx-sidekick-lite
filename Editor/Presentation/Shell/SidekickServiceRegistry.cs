@@ -84,6 +84,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             services.AddSingleton<IFileDownloader, UnityFileDownloader>();
             services.AddSingleton<IPackageInstaller, EditorPackageInstaller>();
             services.AddSingleton<IProInstaller, InstallProUseCase>();
+            // Same use case behind the SKU-agnostic contract used by the status-bar "Update" chip
+            // (lite or pro). Stateless → a separate singleton instance is harmless.
+            services.AddSingleton<IUpdateInstaller, InstallProUseCase>();
 
             services.AddSingleton<PaywallViewModel>();
 
