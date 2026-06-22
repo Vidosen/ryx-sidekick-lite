@@ -241,11 +241,6 @@
     white-space: normal;
 }
 
-.md-table-cell .md-p-flow {
-    min-width: 0;
-    max-width: 100%;
-}
-
 .md-align-left { -unity-text-align: upper-left; }
 .md-align-center { -unity-text-align: upper-center; }
 .md-align-right { -unity-text-align: upper-right; }

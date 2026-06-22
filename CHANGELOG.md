@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-06-22
+
+### Changed
+
+- Chat markdown now renders each paragraph (and heading, list item, table cell, quote) as a **single selectable text block** instead of splitting it into many pieces around inline code and file links. This fixes text selection breaking mid-paragraph, words wrapping incorrectly at formatting boundaries, and the large number of UI elements per message. Inline code keeps its rounded highlighted chip; detected asset-path links keep their type icon and single-click ping / double-click open.
+- Redesigned the Pro paywall with a refined layout: a wide "engines" card that groups the extra providers as labelled chips, dedicated **Skills** and **MCP management** feature cards, crisp vector icons drawn in-editor (including the official Model Context Protocol mark), a gold accent hairline, and a clearer price block above the call-to-action.
+
 ## [2.4.1] - 2026-06-21
 
 ### Added

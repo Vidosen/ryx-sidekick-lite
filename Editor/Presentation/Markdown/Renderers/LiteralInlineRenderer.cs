@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-only
-using System.Collections.Generic;
 using System.Text;
 using Markdig.Syntax.Inlines;
 using Ryx.Sidekick.Editor.Infrastructure.Assets;
@@ -13,10 +12,6 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown.Renderers
 {
     internal class LiteralInlineRenderer : IMarkdownInlineRenderer
     {
-        // Marker constants for asset path detection in post-processing
-        public const string AssetPathMarkerStart = "\u200B\u200C\u200D"; // Zero-width space + non-joiner + joiner
-        public const string AssetPathMarkerEnd = "\u200D\u200C\u200B";
-
         public int Priority => 100;
 
         public bool CanRender(Inline inline) => inline is LiteralInline;
@@ -27,59 +22,9 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown.Renderers
             var literal = (LiteralInline)inline;
             var text = literal.Content.ToString();
 
-            if (context.UseRichTextForInlines)
+            if (context.UseRichTextForInlines && builder != null)
             {
-                // Find asset paths in the text and mark them for post-processing
-                var assetPaths = AssetLinkService.FindAssetPaths(text);
-                
-                if (assetPaths.Count > 0)
-                {
-                    // Store paths for post-processing
-                    if (!context.UserData.ContainsKey("AssetPaths"))
-                    {
-                        context.UserData["AssetPaths"] = new List<string>();
-                    }
-                    var pathList = (List<string>)context.UserData["AssetPaths"];
-
-                    // Set flag that this content has asset paths
-                    context.UserData["HasAssetPaths"] = true;
-
-                    // Build text with markers around asset paths
-                    var result = new StringBuilder();
-                    int lastIndex = 0;
-
-                    foreach (var match in assetPaths)
-                    {
-                        // Add text before the match
-                        if (match.StartIndex > lastIndex)
-                        {
-                            result.Append(EscapeRichText(text.Substring(lastIndex, match.StartIndex - lastIndex)));
-                        }
-
-                        // Add marked asset path - content between markers will be replaced
-                        // by AssetLinkElement in ParagraphBlockRenderer
-                        var fileName = AssetLinkService.GetAssetNameWithExtension(match.Path);
-                        pathList.Add(match.Path);
-                        
-                        result.Append(AssetPathMarkerStart);
-                        result.Append(fileName); // Just filename, no rich text
-                        result.Append(AssetPathMarkerEnd);
-
-                        lastIndex = match.StartIndex + match.Length;
-                    }
-
-                    // Add remaining text
-                    if (lastIndex < text.Length)
-                    {
-                        result.Append(EscapeRichText(text[lastIndex..]));
-                    }
-
-                    builder?.Append(result);
-                }
-                else
-                {
-                    builder?.Append(EscapeRichText(text));
-                }
+                AppendForSingleElement(text, builder, context);
             }
             else
             {
@@ -121,11 +66,34 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown.Renderers
             }
         }
 
-        private static string EscapeRichText(string text)
+        private static void AppendForSingleElement(string text, StringBuilder builder, MarkdownRenderContext context)
         {
-            return text
-                .Replace("<", "<\u200B")
-                .Replace(">", "\u200B>");
+            var assetPaths = AssetLinkService.FindAssetPaths(text);
+            if (assetPaths.Count == 0)
+            {
+                builder.Append(MarkdownRichText.EscapeAngles(text));
+                return;
+            }
+
+            int lastIndex = 0;
+            foreach (var match in assetPaths)
+            {
+                if (match.StartIndex > lastIndex)
+                {
+                    builder.Append(MarkdownRichText.EscapeAngles(
+                        text.Substring(lastIndex, match.StartIndex - lastIndex)));
+                }
+
+                // Reserve a transparent placeholder under the overlaid AssetLinkElement so
+                // the span occupies real layout width and stays selectable/copyable.
+                var fileName = AssetLinkService.GetAssetNameWithExtension(match.Path);
+                MarkdownRichText.AppendAssetPlaceholder(builder, fileName, context.Spans, match.Path);
+
+                lastIndex = match.StartIndex + match.Length;
+            }
+
+            if (lastIndex < text.Length)
+                builder.Append(MarkdownRichText.EscapeAngles(text[lastIndex..]));
         }
     }
 }

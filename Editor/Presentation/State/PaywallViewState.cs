@@ -16,17 +16,22 @@ namespace Ryx.Sidekick.Editor.Presentation.State
 
     internal readonly struct PaywallFeatureItem
     {
-        public readonly string Id, DisplayName, Description, IconKey;
+        public readonly string Id, DisplayName, Description, IconKey, Surface;
         public readonly bool IsHighlighted;
 
-        public PaywallFeatureItem(string id, string displayName, string description, string iconKey, bool isHighlighted)
+        public PaywallFeatureItem(string id, string displayName, string description, string iconKey, string surface, bool isHighlighted)
         {
             Id = id;
             DisplayName = displayName;
             Description = description;
             IconKey = iconKey;
+            Surface = surface;
             IsHighlighted = isHighlighted;
         }
+
+        /// <summary>Provider features (Surface "provider:*") collapse into the engines hero card.</summary>
+        public bool IsProvider =>
+            !string.IsNullOrEmpty(Surface) && Surface.StartsWith("provider:", System.StringComparison.Ordinal);
     }
 
     internal readonly struct PaywallViewState

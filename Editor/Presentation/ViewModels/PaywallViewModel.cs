@@ -129,6 +129,7 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
                     f.DisplayName,
                     f.ShortDescription,
                     f.Icon,
+                    f.Surface,
                     !string.IsNullOrEmpty(_highlightFeatureId) && string.Equals(f.Id, _highlightFeatureId, StringComparison.Ordinal)))
                 .ToList();
         }

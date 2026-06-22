@@ -19,6 +19,14 @@ namespace Ryx.Sidekick.Editor.Presentation.Contracts.Markdown
 
         public Dictionary<string, object> UserData { get; } = new();
 
+        /// <summary>
+        /// Inline spans (code chips, asset links) emitted while building the rich-text
+        /// string for the current block. Populated by inline renderers; consumed by block
+        /// renderers to feed <c>MarkdownTextElement</c>. Cleared at the start of each block
+        /// render. Offsets are RAW — see <see cref="SpanDescriptor"/>.
+        /// </summary>
+        public List<SpanDescriptor> Spans { get; } = new();
+
         public bool UseRichTextForInlines { get; set; } = true;
 
         public int MaxNestingDepth { get; set; } = 10;

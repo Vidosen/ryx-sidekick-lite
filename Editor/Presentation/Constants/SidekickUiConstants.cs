@@ -66,6 +66,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Constants
         public const string ChevronDownIconPath = AssetsPath + "chevron-down.png";
         public const string ChevronUpIconPath = AssetsPath + "chevron-up.png";
         public const string RobotoMonoFontTtfPath = AssetsPath + "RobotoMono-wght.ttf";
+        /// <summary>Path to the TextCore FontAsset used by inline-code <c>&lt;font&gt;</c> tags.</summary>
+        public const string RobotoMonoFontAssetPath = AssetsPath + "RobotoMono-wght.asset";
+        /// <summary>TextCore FontAsset name resolved by the inline-code <c>&lt;font="…"&gt;</c> tag.</summary>
+        public const string RobotoMonoFontAssetName = "RobotoMono-wght";
 
         public const string PackageJsonPath = PackageRoot + "/package.json";
         public const string DocumentationIndexPath = PackageRoot + "/Documentation~/index.html";

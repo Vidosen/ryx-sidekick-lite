@@ -77,6 +77,13 @@
     --sk-quote-bg: rgba(74, 158, 255, 0.06);
     --sk-surface-overlay-05: rgba(255, 255, 255, 0.05);
     --sk-pro-gold: #e9c46a;
+    --sk-pro-gold-hover: #f0d488;
+    /* Paywall (refined "F") surface + text accents. Keep in sync with web/src/styles/tokens.css. */
+    --sk-paywall-card-bg: #1c1c1c;
+    --sk-paywall-card-border: #343434;
+    --sk-paywall-feature-bg: #202020;
+    --sk-text-bright: #f3f1ee;
+    --sk-text-soft: #9a958c;
 }
 
 /* Main Container */
@@ -1730,7 +1737,7 @@
 }
 
 /* ============================================
-   Paywall Modal (layout A1)
+   Paywall Modal — refined "F" (Buy + Install share the card)
    ============================================ */
 
 .sk-paywall-modal {
@@ -1738,130 +1745,276 @@
        fills it (width: 100%) so App UI's own modal-content background never peeks
        around our card (the "double backdrop"). */
     width: 100%;
-    padding: 24px;
-    background-color: var(--sk-bg-secondary);
-    border-radius: 12px;
+    padding: 24px 24px 20px 24px;
+    background-color: var(--sk-paywall-card-bg);
+    border-width: 1px;
+    border-color: var(--sk-paywall-card-border);
+    border-radius: 14px;
     flex-direction: column;
+    overflow: hidden; /* clip the top hairline to the rounded corners */
 }
 
-/* App UI's .appui-modal__content wrapper (tagged in PaywallModalView). Owns the
-   width cap so the card fills it exactly and the feature grid's %-children resolve
-   against a definite parent (same pattern as confirm/onboarding modals). */
 .sk-modal-paywall-content {
     width: 100%;
-    max-width: 560px;
+    max-width: 460px;
 }
 
+/* Top accent hairline — soft gold gradient texture assigned in PaywallIconRenderer. */
+.sk-paywall-hairline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+}
+
+/* UI Toolkit's default Label carries padding (4px) + margin (4/2) — that inflates every label's
+   box, making the tiny PRO pill and engine chips render chunky (≈34px tall for 10px text). Zero it
+   for the paywall's labels so our explicit typography/spacing below is exact. Placed before the
+   per-label rules so their own margins still win. */
+.sk-paywall-headline,
+.sk-paywall-subhead,
+.sk-paywall-pro-pill-label,
+.sk-paywall-feature-name,
+.sk-paywall-feature-desc,
+.sk-paywall-chip-label,
+.sk-paywall-price,
+.sk-paywall-price-caption,
+.sk-paywall-cta-label,
+.sk-paywall-footer,
+.sk-paywall-install-status {
+    margin: 0;
+    padding: 0;
+}
+
+/* Gold "RYX SIDEKICK PRO" pill with a spark glyph */
 .sk-paywall-pro-pill {
+    flex-direction: row;
+    align-items: center;
     align-self: flex-start;
     background-color: var(--sk-pro-gold);
+    border-radius: 6px;
+    padding: 4px 10px;
+    margin-bottom: 14px;
+}
+
+.sk-paywall-pro-pill-icon {
+    margin-right: 6px;
+}
+
+.sk-paywall-pro-pill-label {
     color: #181818;
     font-size: 10px;
     -unity-font-style: bold;
     -unity-text-transform: uppercase;
     letter-spacing: 1px;
-    border-radius: 3px;
-    padding: 2px 7px;
-    margin-bottom: 10px;
 }
 
 .sk-paywall-headline {
-    color: var(--sk-text-primary);
-    font-size: 20px;
+    color: var(--sk-text-bright);
+    font-size: 23px;
     -unity-font-style: bold;
     white-space: normal;
-    margin-bottom: 8px;
 }
 
 .sk-paywall-subhead {
     color: var(--sk-text-secondary);
     font-size: 13px;
     white-space: normal;
-    margin-bottom: 14px;
+    margin-top: 10px;
 }
 
-.sk-paywall-onetime-pill {
-    align-self: flex-start;
-    color: var(--sk-success);
-    background-color: var(--sk-success-bg);
+/* Feature section: engines hero + 2-up card grid */
+.sk-paywall-features {
+    flex-direction: column;
+    margin-top: 16px;
+}
+
+/* 34×34 tinted, rounded icon plate (icon glyph drawn via Painter2D inside) */
+.sk-paywall-iconbox {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    border-radius: 9px;
     border-width: 1px;
-    border-color: var(--sk-success-border);
-    font-size: 11px;
-    -unity-font-style: normal;
-    border-radius: 3px;
-    padding: 2px 7px;
-    margin-bottom: 16px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.sk-paywall-grid {
+.sk-paywall-iconbox--engines {
+    background-color: rgba(74, 158, 255, 0.12);
+    border-color: rgba(74, 158, 255, 0.25);
+}
+
+.sk-paywall-iconbox--skills {
+    background-color: rgba(78, 201, 176, 0.12);
+    border-color: rgba(78, 201, 176, 0.25);
+}
+
+.sk-paywall-iconbox--mcp {
+    background-color: rgba(233, 196, 106, 0.12);
+    border-color: rgba(233, 196, 106, 0.28);
+}
+
+/* Wide providers hero */
+.sk-paywall-hero {
     flex-direction: row;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    margin-left: -4px;
-    margin-right: -4px;
-}
-
-.sk-paywall-feature {
-    flex-basis: 45%;
-    flex-grow: 1;
-    background-color: var(--sk-bg-tertiary);
+    background-color: var(--sk-paywall-feature-bg);
     border-width: 1px;
     border-color: var(--sk-border);
-    border-radius: 8px;
-    padding: 12px;
-    margin: 4px;
-    flex-direction: column;
+    border-radius: 10px;
+    padding: 14px;
 }
 
-.sk-paywall-feature.highlighted {
+.sk-paywall-hero .sk-paywall-iconbox {
+    margin-right: 13px;
+}
+
+.sk-paywall-hero-body {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+/* Engine chips */
+.sk-paywall-chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 9px;
+    margin-left: -3px;
+    margin-right: -3px;
+}
+
+.sk-paywall-chip {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-bg-tertiary);
+    border-width: 1px;
+    border-color: var(--sk-paywall-card-border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin: 3px;
+}
+
+.sk-paywall-chip--more {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: #3d3d3d;
+}
+
+.sk-paywall-chip-icon {
+    margin-right: 5px;
+}
+
+.sk-paywall-chip-label {
+    color: #cfcfcf;
+    font-size: 10px;
+}
+
+.sk-paywall-chip--more .sk-paywall-chip-label {
+    color: var(--sk-text-soft);
+}
+
+/* 2-up card grid (flexbox — UI Toolkit has no CSS grid) */
+.sk-paywall-cards2 {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.sk-paywall-card {
+    flex-grow: 1;
+    flex-basis: 45%;
+    flex-direction: column;
+    background-color: var(--sk-paywall-feature-bg);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 5px;
+}
+
+.sk-paywall-card .sk-paywall-iconbox {
+    margin-bottom: 11px;
+}
+
+/* Highlighted feature (the trigger that opened the paywall) */
+.sk-paywall-hero.highlighted,
+.sk-paywall-card.highlighted {
     border-color: var(--sk-pro-gold);
     background-color: rgba(233, 196, 106, 0.06);
 }
 
-.sk-paywall-feature-icon {
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
-    min-height: 16px;
-    margin-bottom: 6px;
-}
-
 .sk-paywall-feature-name {
-    font-size: 12px;
-    color: var(--sk-text-primary);
+    font-size: 14px;
+    color: var(--sk-text-bright);
     -unity-font-style: bold;
     white-space: normal;
-    margin-bottom: 3px;
 }
 
 .sk-paywall-feature-desc {
     font-size: 11px;
-    color: var(--sk-text-secondary);
+    color: var(--sk-text-soft);
     white-space: normal;
+    margin-top: 3px;
 }
 
+/* Price block */
+.sk-paywall-price-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 13px;
+}
+
+.sk-paywall-price {
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: var(--sk-text-bright);
+    margin-right: 10px;
+}
+
+.sk-paywall-price-caption {
+    font-size: 11px;
+    color: var(--sk-text-soft);
+    white-space: normal;
+    max-width: 200px;
+}
+
+/* CTA — button used as a row container: [label] [arrow]. The button's own text is
+   empty; the label/arrow are child elements so the arrow can be a Painter2D glyph. */
 .sk-paywall-cta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     background-color: var(--sk-pro-gold);
     border-width: 0;
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-bottom: 10px;
-    align-items: center;
-    /* UnityEngine.UIElements.Button is a TextElement — paint the label on the
-       button itself; child selectors (#unity-text-input/.unity-button__text/Label)
-       match nothing here, so they left the text inheriting the light Editor colour. */
-    color: #181818;
-    font-size: 14px;
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
+    border-radius: 10px;
+    padding: 13px;
+    margin-top: 4px;
 }
 
 .sk-paywall-cta:hover {
-    background-color: rgba(233, 196, 106, 0.85);
+    background-color: var(--sk-pro-gold-hover);
 }
 
 .sk-paywall-cta:disabled {
     background-color: rgba(233, 196, 106, 0.4);
+}
+
+.sk-paywall-cta-label {
+    color: #181818;
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+.sk-paywall-cta-arrow {
+    margin-left: 8px;
 }
 
 .sk-paywall-footer {
@@ -1869,6 +2022,7 @@
     font-size: 10px;
     -unity-text-align: middle-center;
     white-space: normal;
+    margin-top: 11px;
 }
 
 /* ============================================

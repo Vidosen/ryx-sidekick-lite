@@ -5,14 +5,14 @@
     "enabled": true,
     "headline": "Unlock the full Sidekick",
     "subhead": "Every provider and Pro feature in one package.",
-    "requiresLiteVersion": "2.4.1",
+    "requiresLiteVersion": "2.4.2",
     "features": [
       { "id": "cursor", "displayName": "Cursor", "icon": "cursor", "shortDescription": "Cursor CLI provider (ACP).", "surface": "provider:cursor" },
       { "id": "codex", "displayName": "Codex", "icon": "codex", "shortDescription": "OpenAI Codex app-server provider.", "surface": "provider:codex" },
       { "id": "skills", "displayName": "Skills", "icon": "skills", "shortDescription": "User, project and plugin skills as slash commands.", "surface": "palette:skills" },
       { "id": "mcp-management", "displayName": "MCP management", "icon": "mcp-management", "shortDescription": "Live MCP server status, tools and resources — see what each CLI actually loads.", "surface": "settings:mcp" }
     ],
-    "cta": { "label": "Join the waitlist", "url": null, "mode": "waitlist", "price": null }
+    "cta": { "label": "Buy on the Asset Store", "url": "https://assetstore.unity.com/packages/slug/348200", "mode": "assetStore", "price": "$49" }
   },
   "mcpRecommendations": {
     "schemaVersion": 1,

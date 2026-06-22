@@ -107,6 +107,8 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown
             EnsureDefaultsRegistered();
 
             context ??= new MarkdownRenderContext { UseRichTextForInlines = true };
+            // Spans describe this inline run only; clear any from a previous block.
+            context.Spans.Clear();
             var sb = new StringBuilder();
 
             RenderInlines(inlines, sb, null, context);

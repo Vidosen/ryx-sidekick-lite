@@ -401,15 +401,3 @@
     -unity-font-style: bold;
     white-space: nowrap;
 }
-
-/* Flow layout for paragraphs with inline asset links */
-.md-p-flow {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.md-p-segment {
-    margin: 0;
-    padding: 0;
-}

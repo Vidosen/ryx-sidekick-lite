@@ -25,13 +25,11 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown.Renderers
             container.AddToClassList(context.Class("heading"));
             container.AddToClassList(context.Class($"h{heading.Level}"));
 
-            var label = new SelectableLabel(text)
-            {
-                enableRichText = true
-            };
-            label.AddToClassList(context.Class("heading-text"));
-            
-            container.Add(label);
+            var headingText = new MarkdownTextElement();
+            headingText.AddToClassList(context.Class("heading-text"));
+            headingText.SetContent(text, context.Spans);
+
+            container.Add(headingText);
             parent.Add(container);
         }
     }

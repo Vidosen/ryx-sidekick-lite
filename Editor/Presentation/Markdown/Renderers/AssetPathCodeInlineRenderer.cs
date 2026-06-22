@@ -35,27 +35,12 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Markdown.Renderers
             var code = (CodeInline)inline;
             var path = code.Content;
 
-            if (context.UseRichTextForInlines)
+            if (context.UseRichTextForInlines && builder != null)
             {
-                // Use the same markers as LiteralInlineRenderer for consistent post-processing
-                var markerStart = LiteralInlineRenderer.AssetPathMarkerStart;
-                var markerEnd = LiteralInlineRenderer.AssetPathMarkerEnd;
-                
-                // Store path info in UserData for post-processing
-                if (!context.UserData.ContainsKey("AssetPaths"))
-                {
-                    context.UserData["AssetPaths"] = new System.Collections.Generic.List<string>();
-                }
-                var paths = (System.Collections.Generic.List<string>)context.UserData["AssetPaths"];
-                paths.Add(path);
-
-                // Set flag for ParagraphBlockRenderer
-                context.UserData["HasAssetPaths"] = true;
-
-                // Render with markers only - the visual content between markers will be replaced
-                // by AssetLinkElement in ParagraphBlockRenderer
+                // Reserve a transparent placeholder under the overlaid AssetLinkElement and
+                // record an asset-link span.
                 var fileName = AssetLinkService.GetAssetNameWithExtension(path);
-                builder?.Append($"{markerStart}{fileName}{markerEnd}");
+                MarkdownRichText.AppendAssetPlaceholder(builder, fileName, context.Spans, path);
             }
             else
             {
