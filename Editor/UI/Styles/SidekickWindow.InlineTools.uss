@@ -36,6 +36,125 @@
     background-color: var(--sk-text-muted);
 }
 
+/* Running spinner (code-driven rotation; USS has no @keyframes). Reuses the status dot
+   element, swapping the filled dot for a gold ring with one transparent side. */
+.sk-tool-status-dot.sk-tool-spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 7px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: var(--sk-warning);
+    border-right-color: rgba(0, 0, 0, 0);
+}
+
+/* ============================================
+   Foldable tool header (Terminal/Bash card)
+   ============================================ */
+
+.sk-tool-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    color: var(--sk-text-muted);
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
+.sk-tool-header-spacer {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.sk-tool-header-meta {
+    font-size: 10px;
+    color: var(--sk-text-muted);
+    margin: 0 8px;
+    flex-shrink: 0;
+    display: none;
+}
+
+.sk-tool-header-chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
+.sk-tool-header--foldable {
+    cursor: link;
+    border-radius: 6px;
+}
+
+.sk-tool-header--foldable:hover {
+    background-color: var(--sk-surface-overlay-05);
+}
+
+.sk-tool-header--foldable .sk-tool-name {
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-font-style: normal;
+}
+
+/* Bordered card chrome applied to foldable tools */
+.sk-tool-call--card {
+    background-color: var(--sk-tool-card-bg);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.sk-tool-call--card .sk-tool-header {
+    padding: 8px 11px;
+}
+
+.sk-tool-call--card .sk-tool-content {
+    padding: 0;
+}
+
+.sk-tool-call--error {
+    border-color: var(--sk-error-border);
+}
+
+/* MCP header badge (purple pill: hexagon glyph + "MCP") */
+.sk-tool-header-badge {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--sk-mcp-badge-bg);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    display: none;
+}
+
+.sk-tool-header-badge-glyph {
+    width: 9px;
+    height: 9px;
+    margin-right: 4px;
+    flex-shrink: 0;
+    color: var(--sk-mcp-badge);
+}
+
+.sk-tool-header-badge-label {
+    font-size: 9px;
+    -unity-font-style: bold;
+    letter-spacing: 0.3px;
+    color: var(--sk-mcp-badge);
+}
+
+/* Monospace tool name (MCP "server.tool") */
+.sk-tool-name--mono {
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+    color: var(--sk-text-primary);
+}
+
 /* ============================================
    Edit/Write Link Element (VS Code style)
    ============================================ */
@@ -389,121 +508,229 @@
 
 .sk-bash-content {
     flex-direction: column;
-    padding: 4px 8px 8px 8px;
+    padding: 8px;
 }
 
-.sk-bash-description {
-    font-size: 11px;
-    color: var(--sk-text-secondary);
-    margin-bottom: 6px;
-    -unity-font-style: italic;
-    padding-left: 4px;
-}
-
-.sk-bash-cmd-row {
+/* Command block: "$" prompt + dim-prefix/green-action segments, full-wrap */
+.sk-bash-cmd-block {
     flex-direction: row;
     align-items: flex-start;
-    margin-bottom: 4px;
-    padding: 6px 4px;
-    background-color: var(--sk-overlay-dark-subtle);
-    border-radius: 4px;
+    background-color: var(--sk-terminal-block-bg);
+    border-width: 1px;
+    border-color: var(--sk-terminal-block-border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    margin-bottom: 6px;
 }
 
-.sk-bash-cmd {
+.sk-bash-cmd-prompt {
     font-size: 12px;
-    color: var(--sk-success);
-    white-space: pre-wrap;
+    color: var(--sk-cmd-prompt);
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.sk-bash-cmd-text {
+    flex-direction: row;
+    flex-wrap: wrap;
     flex-grow: 1;
     flex-shrink: 1;
+    min-width: 0;
 }
 
-.sk-bash-out-row {
-    flex-direction: row;
-    align-items: center;
-    padding: 4px;
-}
-
-.sk-bash-out-preview {
+.sk-bash-cmd-seg {
     font-size: 12px;
-    color: var(--sk-text-secondary);
-    flex-grow: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: pre-wrap;
+    flex-shrink: 1;
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
 }
 
-.sk-bash-out-inline {
-    font-size: 12px;
-    color: var(--sk-text-secondary);
-    flex-grow: 1;
+.sk-bash-cmd-seg--dim {
+    color: var(--sk-cmd-dim);
 }
 
+.sk-bash-cmd-seg--action {
+    color: var(--sk-success);
+}
+
+/* Running indicator (no output yet) */
 .sk-bash-out-running {
     font-size: 12px;
     color: var(--sk-warning);
     -unity-font-style: italic;
+    padding: 2px 2px 6px 2px;
 }
 
-.sk-bash-expand-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-    padding: 0;
-    margin-left: 6px;
-    background-color: transparent;
-    border-width: 0;
-    color: var(--sk-text-muted);
-    -unity-text-align: middle-center;
-}
-
-.sk-bash-expand-btn:hover {
-    background-color: var(--sk-bg-hover);
-    border-radius: 4px;
-}
-
+/* Output block */
 .sk-bash-output-panel {
     flex-direction: column;
-    margin-top: 4px;
-    background-color: var(--sk-code-bg);
-    border-radius: 4px;
+    background-color: var(--sk-terminal-block-bg);
+    border-radius: 6px;
     border-width: 1px;
-    border-color: var(--sk-border);
+    border-color: var(--sk-terminal-block-border);
     overflow: hidden;
+    margin-bottom: 6px;
 }
 
 .sk-bash-output-scroll {
     max-height: 200px;
-    min-height: 60px;
-    padding: 8px 12px;
+    min-height: 0;
+    padding: 8px 10px;
 }
 
 .sk-bash-output-text {
     font-size: 12px;
-    color: var(--sk-text-secondary);
+    color: var(--sk-output-text);
     white-space: pre-wrap;
     -unity-font: resource("Fonts/SourceCodePro-Regular");
 }
 
-.sk-bash-output-toolbar {
-    flex-direction: row;
-    justify-content: flex-end;
-    padding: 4px 8px;
-    border-top-width: 1px;
-    border-top-color: var(--sk-border);
-    background-color: var(--sk-overlay-dark-soft);
+.sk-bash-output-text--error {
+    color: var(--sk-output-error);
 }
 
-.sk-bash-copy-btn {
+/* Footer: copy actions */
+.sk-bash-footer {
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.sk-bash-footer-btn {
     font-size: 11px;
-    padding: 4px 10px;
+    padding: 3px 9px;
+    margin-left: 6px;
     background-color: var(--sk-bg-hover);
     border-width: 0;
-    border-radius: 4px;
+    border-radius: 5px;
+    color: var(--sk-text-secondary);
+}
+
+.sk-bash-footer-btn:hover {
+    background-color: var(--sk-bg-active);
     color: var(--sk-text-primary);
 }
 
-.sk-bash-copy-btn:hover {
-    background-color: var(--sk-bg-active);
+/* ============================================
+   MCP Tool Styles (custom card: INPUT/OUTPUT + JSON)
+   ============================================ */
+
+.sk-mcp-content {
+    flex-direction: column;
+}
+
+/* Technical server.tool address, shown when the header leads with a title */
+.sk-mcp-address {
+    font-size: 11px;
+    color: var(--sk-text-muted);
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+    padding: 8px 12px 6px 12px;
+}
+
+.sk-mcp-io-section {
+    flex-direction: column;
+    border-top-width: 1px;
+    border-top-color: var(--sk-terminal-block-border);
+}
+
+.sk-mcp-io-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 7px 12px;
+    background-color: var(--sk-code-bg);
+    cursor: link;
+}
+
+.sk-mcp-io-header:hover {
+    background-color: var(--sk-bg-secondary);
+}
+
+.sk-mcp-io-chevron {
+    width: 11px;
+    height: 11px;
+    margin-right: 7px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: var(--sk-text-muted);
+}
+
+.sk-mcp-io-label {
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 0.4px;
+    color: var(--sk-text-muted);
+}
+
+.sk-mcp-io-meta {
+    font-size: 10.5px;
+    color: var(--sk-text-muted);
+    margin-left: 8px;
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+}
+
+.sk-mcp-io-meta--error {
+    color: var(--sk-error);
+}
+
+.sk-mcp-io-body {
+    max-height: 160px;
+    min-height: 0;
+    padding: 8px 12px;
+    background-color: var(--sk-terminal-block-bg);
+}
+
+.sk-mcp-json {
+    flex-direction: column;
+}
+
+.sk-mcp-json-line {
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.sk-mcp-json-seg {
+    font-size: 11.5px;
+    white-space: nowrap;
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+    color: var(--sk-json-punct);
+}
+
+.sk-mcp-json-seg--key {
+    color: var(--sk-json-key);
+}
+
+.sk-mcp-json-seg--string {
+    color: var(--sk-json-string);
+}
+
+.sk-mcp-json-seg--number {
+    color: var(--sk-json-number);
+}
+
+.sk-mcp-json-seg--keyword {
+    color: var(--sk-json-keyword);
+}
+
+.sk-mcp-json-seg--punct {
+    color: var(--sk-json-punct);
+}
+
+.sk-mcp-output-text {
+    font-size: 11.5px;
+    color: var(--sk-output-text);
+    white-space: pre-wrap;
+    -unity-font: resource("Fonts/SourceCodePro-Regular");
+}
+
+.sk-mcp-output-text--error {
+    color: var(--sk-output-error);
+}
+
+.sk-mcp-out-running {
+    font-size: 12px;
+    color: var(--sk-warning);
+    -unity-font-style: italic;
+    padding: 8px 12px;
 }
 
 /* ============================================

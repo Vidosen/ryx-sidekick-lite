@@ -131,6 +131,19 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             private set => SetProperty(ref _isModelPopupOpen, value);
         }
 
+        private bool _isPermissionModePopupOpen;
+
+        [CreateProperty]
+        public bool IsPermissionModePopupOpen
+        {
+            get => _isPermissionModePopupOpen;
+            private set => SetProperty(ref _isPermissionModePopupOpen, value);
+        }
+
+        // Snapshot of the modes + current selection passed to the view when the popup opens.
+        private IReadOnlyList<PermissionModeDescriptor> _permissionModeOptions = Array.Empty<PermissionModeDescriptor>();
+        private string _permissionModeSelection = string.Empty;
+
         private string _customModelDraft = string.Empty;
 
         [CreateProperty]
@@ -144,6 +157,11 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
 
         public event global::System.Action<string> ProviderSwitchRequested;
         public event global::System.Action InterruptRuntimeRequested;
+
+        // Phase 4: live permission-mode switch on the running session (set_permission_mode control
+        // request) — does NOT interrupt the turn. Raised for default/acceptEdits/auto; bypass still
+        // goes through InterruptRuntimeRequested (relaunch) because the CLI needs the dangerous flag.
+        public event global::System.Action<string> RuntimePermissionModeChangeRequested;
 
         // === Constructor ===
 
@@ -183,6 +201,7 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
 
                 IsProviderPopupOpen = true;
                 IsModelPopupOpen = false;
+                IsPermissionModePopupOpen = false;
             }
         }
 
@@ -205,6 +224,7 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
 
                 IsModelPopupOpen = true;
                 IsProviderPopupOpen = false;
+                IsPermissionModePopupOpen = false;
             }
         }
 
@@ -309,8 +329,79 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             InterruptRuntimeRequested?.Invoke();
         }
 
+        // Opens the permission-mode popup (mirrors the provider/model popups). The button click no
+        // longer cycles in place — the user picks from a list. Quick-cycling via the Tab shortcut is
+        // preserved through CyclePrimaryModeCommand below.
         [ICommand]
-        private void CyclePermissionMode()
+        private void OpenPermissionModeMenu()
+        {
+            if (IsPermissionModePopupOpen)
+            {
+                IsPermissionModePopupOpen = false;
+                return;
+            }
+
+            var providerId = _storeService.CurrentProviderState?.ProviderId;
+            var metadata = string.IsNullOrWhiteSpace(providerId)
+                ? null
+                : _catalog.GetProvider(providerId)?.Metadata;
+            var collaborationMode = _settingsStore.CollaborationMode;
+            var modes = metadata?.GetPermissionModes(collaborationMode) ?? Array.Empty<PermissionModeDescriptor>();
+
+            if (modes.Length == 0)
+            {
+                return;
+            }
+
+            _permissionModeOptions = modes;
+            _permissionModeSelection = _settingsStore.PermissionMode ?? string.Empty;
+
+            // Mutually exclusive with the other popups.
+            IsProviderPopupOpen = false;
+            IsModelPopupOpen = false;
+            IsPermissionModePopupOpen = true;
+        }
+
+        [ICommand]
+        private void ClosePermissionModeMenu()
+        {
+            IsPermissionModePopupOpen = false;
+        }
+
+        [ICommand]
+        private void SelectPermissionMode(string value)
+        {
+            ClosePermissionModeMenu();
+
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            ApplyPermissionModeChange(value);
+        }
+
+        // Phase 4: persist the new mode, then apply it without killing the turn where the CLI allows it.
+        //  - bypassPermissions → interrupt + relaunch, because the CLI rejects a live switch into bypass
+        //    without --dangerously-skip-permissions (relaunch re-supplies it via launch args).
+        //  - default / acceptEdits / auto / plan → live set_permission_mode control request. When the
+        //    session is idle the runtime no-ops and the persisted mode applies on the next start.
+        private void ApplyPermissionModeChange(string value)
+        {
+            _settingsStore.PermissionMode = value;
+
+            if (string.Equals(value, "bypassPermissions", StringComparison.Ordinal))
+            {
+                InterruptRuntimeRequested?.Invoke();
+            }
+            else
+            {
+                RuntimePermissionModeChangeRequested?.Invoke(value);
+            }
+        }
+
+        // Quick-cycle used by the Tab shortcut. Picks the next permission mode in place.
+        private void CyclePermissionModeInPlace()
         {
             var providerId = _storeService.CurrentProviderState?.ProviderId;
             var metadata = string.IsNullOrWhiteSpace(providerId)
@@ -333,8 +424,7 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             }
 
             var nextIndex = (currentIndex + 1) % modes.Length;
-            _settingsStore.PermissionMode = modes[nextIndex].Value;
-            InterruptRuntimeRequested?.Invoke();
+            ApplyPermissionModeChange(modes[nextIndex].Value);
         }
 
         [ICommand]
@@ -352,7 +442,7 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             }
             else
             {
-                CyclePermissionModeCommand.Execute(null);
+                CyclePermissionModeInPlace();
             }
         }
 
@@ -381,6 +471,8 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
                 _view.ModelRequested -= OnModelRequested;
                 _view.CollaborationModeRequested -= OnCollaborationModeRequested;
                 _view.PermissionModeRequested -= OnPermissionModeRequested;
+                _view.PermissionModeSelected -= OnPermissionModeSelected;
+                _view.PermissionModePopupDismissed -= OnPermissionModePopupDismissed;
                 _view.ProviderPopupDismissed -= OnProviderPopupDismissed;
                 _view.ModelPopupDismissed -= OnModelPopupDismissed;
             }
@@ -407,6 +499,8 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             _view.ModelRequested += OnModelRequested;
             _view.CollaborationModeRequested += OnCollaborationModeRequested;
             _view.PermissionModeRequested += OnPermissionModeRequested;
+            _view.PermissionModeSelected += OnPermissionModeSelected;
+            _view.PermissionModePopupDismissed += OnPermissionModePopupDismissed;
             _view.ProviderPopupDismissed += OnProviderPopupDismissed;
             _view.ModelPopupDismissed += OnModelPopupDismissed;
         }
@@ -450,6 +544,8 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
                 _view.ModelRequested -= OnModelRequested;
                 _view.CollaborationModeRequested -= OnCollaborationModeRequested;
                 _view.PermissionModeRequested -= OnPermissionModeRequested;
+                _view.PermissionModeSelected -= OnPermissionModeSelected;
+                _view.PermissionModePopupDismissed -= OnPermissionModePopupDismissed;
                 _view.ProviderPopupDismissed -= OnProviderPopupDismissed;
                 _view.ModelPopupDismissed -= OnModelPopupDismissed;
                 _view = null;
@@ -725,6 +821,18 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
             {
                 _view.ShowModelPopup(IsModelPopupOpen);
             }
+
+            if (name is null or nameof(IsPermissionModePopupOpen))
+            {
+                if (IsPermissionModePopupOpen)
+                {
+                    _view.ShowPermissionModePopup(_permissionModeOptions, _permissionModeSelection);
+                }
+                else
+                {
+                    _view.HidePermissionModePopup();
+                }
+            }
         }
 
         private void OnProviderOptionSelected(string id) => SelectProviderCommand.Execute(id);
@@ -736,6 +844,13 @@ namespace Ryx.Sidekick.Editor.Presentation.ViewModels
         private void OnProviderRequested() => ToggleProviderPopupCommand.Execute(null);
         private void OnModelRequested() => ToggleModelPopupCommand.Execute(null);
         private void OnCollaborationModeRequested() => CycleCollaborationModeCommand.Execute(null);
-        private void OnPermissionModeRequested() => CyclePermissionModeCommand.Execute(null);
+        private void OnPermissionModeRequested() => OpenPermissionModeMenuCommand.Execute(null);
+        private void OnPermissionModeSelected(string value) => SelectPermissionModeCommand.Execute(value);
+
+        private void OnPermissionModePopupDismissed()
+        {
+            if (IsPermissionModePopupOpen)
+                ClosePermissionModeMenuCommand.Execute(null);
+        }
     }
 }

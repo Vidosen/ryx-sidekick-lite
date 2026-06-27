@@ -2,27 +2,27 @@
 using System;
 using Ryx.Sidekick.Editor.Constants;
 using Ryx.Sidekick.Editor.Presentation.Shell;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using Ryx.Sidekick.Editor.Presentation.ViewModels;
 using Ryx.Sidekick.Editor.Providers;
 using UnityEditor;
-using UnityEngine.UIElements;
 
 namespace Ryx.Sidekick.Editor.Presentation.Presenters
 {
     internal sealed class ProviderSwitchPresenter : IDisposable
     {
-        private readonly VisualElement _root;
+        private readonly SidekickModalLayer _layer;
         private readonly SidekickEditorAppHost _appHost;
         private readonly ProviderSelectorViewModel _providerSelectorViewModel;
         private OnboardingWizardPresenter _onboardingPresenter;
         private bool _disposed;
 
         public ProviderSwitchPresenter(
-            VisualElement root,
+            SidekickModalLayer layer,
             SidekickEditorAppHost appHost,
             ProviderSelectorViewModel providerSelectorViewModel)
         {
-            _root = root;
+            _layer = layer;
             _appHost = appHost;
             _providerSelectorViewModel = providerSelectorViewModel;
 
@@ -30,6 +30,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             {
                 _providerSelectorViewModel.ProviderSwitchRequested += OnProviderSwitchRequested;
                 _providerSelectorViewModel.InterruptRuntimeRequested += OnInterruptRuntimeRequested;
+                _providerSelectorViewModel.RuntimePermissionModeChangeRequested += OnRuntimePermissionModeChangeRequested;
             }
         }
 
@@ -55,6 +56,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             {
                 _providerSelectorViewModel.ProviderSwitchRequested -= OnProviderSwitchRequested;
                 _providerSelectorViewModel.InterruptRuntimeRequested -= OnInterruptRuntimeRequested;
+                _providerSelectorViewModel.RuntimePermissionModeChangeRequested -= OnRuntimePermissionModeChangeRequested;
             }
 
             _onboardingPresenter = null;
@@ -68,6 +70,11 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
         private async void OnInterruptRuntimeRequested()
         {
             await _appHost.InterruptRuntimeAsync();
+        }
+
+        private async void OnRuntimePermissionModeChangeRequested(string mode)
+        {
+            await _appHost.SetRuntimePermissionModeAsync(mode);
         }
 
         private bool SwitchProvider(string providerId, bool promptForProviderSetup)
@@ -94,7 +101,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
 
             var provider = CliProviderRegistry.GetProvider(providerId);
             SidekickConfirmDialog.Show(
-                _root,
+                _layer,
                 title: "Setup Required",
                 description: $"{provider.DisplayName} hasn't been set up yet.\nWould you like to run the setup wizard?",
                 primaryActionText: "Set Up Now",

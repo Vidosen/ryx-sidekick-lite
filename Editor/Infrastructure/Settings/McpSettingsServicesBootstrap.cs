@@ -29,8 +29,7 @@ namespace Ryx.Sidekick.Editor
 
         static McpSettingsServicesBootstrap() => EnsureRegistered();
 
-        private static IRemoteConfigSource ComposeSource() =>
-            new RemoteConfigSource(new UnityWebRequestHttpClient(), new RemoteConfigCache(), new BakedConfigSource());
+        private static IRemoteConfigSource ComposeSource() => RemoteConfigSourceFactory.Create();
 
         // Idempotent (RegisterPermanent is replace-by-Id) so repeated domain loads / test calls keep ONE slot each.
         internal static void EnsureRegistered()

@@ -116,6 +116,7 @@ namespace Ryx.Sidekick.Editor
         [SerializeField] private bool verboseLogging;
         [SerializeField] private bool useBedrock;
         [SerializeField] private bool debugMode;
+        [SerializeField] private bool useAgentHost;
         [SerializeField] private int maxTurns = 50;
         [SerializeField] private string collaborationMode = SidekickAppConstants.CollaborationModes.Default;
         [SerializeField] private string permissionMode = SidekickAppConstants.PermissionModes.Default;
@@ -300,6 +301,19 @@ namespace Ryx.Sidekick.Editor
         {
             get => verboseLogging;
             set { verboseLogging = value; SaveSettings(); }
+        }
+
+        /// <summary>
+        /// Feature flag (default OFF) for the out-of-process Sidekick Agent Host. When enabled AND a
+        /// daemon is reachable, CLI child processes are owned by the daemon (via
+        /// <c>RemoteProcessHost</c>) so they survive Unity domain reloads; when disabled — or when no
+        /// daemon is available — the in-process <c>CliProcessHost</c> is used (existing behavior).
+        /// Default false keeps production behavior unchanged during rollout.
+        /// </summary>
+        public bool UseAgentHost
+        {
+            get => useAgentHost;
+            set { useAgentHost = value; SaveSettings(); }
         }
 
         /// <summary>
@@ -826,7 +840,29 @@ namespace Ryx.Sidekick.Editor
         /// </summary>
         public ProcessStartInfo CreateProcessStartInfo(string arguments)
         {
-            return ActiveProvider.CreateProcessStartInfo(CliPath, arguments, WorkingDirectory, debugMode, UseBedrock);
+            return ActiveProvider.CreateProcessStartInfo(new CliLaunchRequest
+            {
+                CliPath = CliPath,
+                Arguments = arguments,
+                WorkingDirectory = WorkingDirectory,
+                Surface = debugMode ? CliLaunchSurface.InteractiveTerminal : CliLaunchSurface.Streaming,
+                EnvironmentVariables = BuildLaunchEnvironment(),
+            });
+        }
+
+        /// <summary>
+        /// Builds the environment overrides for a CLI launch. A null value clears an inherited
+        /// variable; any other value sets it. Provider-specific knowledge (which variable a CLI
+        /// needs) lives here, keeping <see cref="CliLaunchRequest"/> provider-neutral.
+        /// </summary>
+        private IReadOnlyDictionary<string, string> BuildLaunchEnvironment()
+        {
+            return new Dictionary<string, string>
+            {
+                // Claude routes through Amazon Bedrock when this is set; clear it otherwise so a
+                // globally-exported value can't leak into the session.
+                ["CLAUDE_CODE_USE_BEDROCK"] = UseBedrock ? "1" : null,
+            };
         }
 
         /// <summary>

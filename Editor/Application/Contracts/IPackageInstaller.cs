@@ -4,10 +4,14 @@ namespace Ryx.Sidekick.Editor.UseCases.Contracts
     internal interface IPackageInstaller
     {
         /// <summary>
-        /// Stage a downloaded payload + manifest for the existing two-stage installer
-        /// and trigger it (the installer self-activates on reload). payloadSourcePath is
-        /// a local file the installer will import.
+        /// Import a downloaded self-contained installer artifact (the two-stage installer
+        /// .unitypackage: the <c>[InitializeOnLoad]</c> reconciler + its <c>installer.json</c> +
+        /// the inner payload). Importing it extracts the reconciler into the project, which then
+        /// runs backup→import→finalize→self-clean on the ensuing domain reload. The artifact is
+        /// authoritative — do NOT pre-write a manifest or force a reload here.
+        /// <paramref name="artifactPath"/> is the local .unitypackage to import;
+        /// <paramref name="sku"/>/<paramref name="version"/> are for diagnostics/logging only.
         /// </summary>
-        void StageUpdate(string sku, string version, string[] packages, string payloadSourcePath);
+        void StageUpdate(string sku, string version, string artifactPath);
     }
 }

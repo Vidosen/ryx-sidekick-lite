@@ -25,7 +25,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Licensing
         }
 
         public async Task<UpdateOutcome> DownloadAndInstallAsync(
-            string sku, string version, string[] packages, string entitlementToken)
+            string sku, string version, string entitlementToken)
         {
             if (string.IsNullOrEmpty(sku) || string.IsNullOrEmpty(version) || string.IsNullOrEmpty(entitlementToken))
                 return UpdateOutcome.UrlError;
@@ -55,7 +55,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Licensing
             catch { ok = false; }
             if (!ok) return UpdateOutcome.DownloadError;
 
-            _installer.StageUpdate(sku, version, packages, dest);
+            _installer.StageUpdate(sku, version, dest);
             return UpdateOutcome.Staged;
         }
     }

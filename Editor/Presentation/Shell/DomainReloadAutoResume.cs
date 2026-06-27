@@ -34,11 +34,52 @@ namespace Ryx.Sidekick.Editor
             _isQuitting = true;
             ResumeStateStore.ClearPendingResume();
             ResumeStateStore.SaveInputFieldState(null);
+
+            // Clean-quit SHUTDOWN: a real Editor quit is NOT a domain reload (we deliberately do NOT set
+            // AgentHostReloadCoordinator.IsReloadTeardownInProgress here). The daemon child should stop
+            // immediately rather than linger out its ~30s grace, so tell each live daemon to SHUTDOWN
+            // (stop its children + exit). Strictly gated + no-op when the feature is off or no daemon was
+            // ever resolved this session — see AgentHostEndpointRegistry.
+            ShutdownAgentHostDaemonsOnQuit();
+        }
+
+        /// <summary>
+        /// On a clean Editor quit, send SHUTDOWN to every Agent Host daemon endpoint this session
+        /// resolved. Best-effort and bounded: a missing/dead daemon is silently skipped. Distinct from
+        /// the domain-reload detach path — that one keeps the daemon alive; this one stops it.
+        /// </summary>
+        private static void ShutdownAgentHostDaemonsOnQuit()
+        {
+            // No daemon endpoints ⇒ flag is effectively off / never connected ⇒ pure no-op.
+            var endpoints = AgentHostEndpointRegistry.Snapshot();
+            if (endpoints.Count == 0)
+                return;
+
+            if (!SidekickSettings.instance.UseAgentHost)
+                return;
+
+            foreach (var endpoint in endpoints)
+            {
+                var sent = AgentHostShutdownClient.TrySendShutdown(endpoint, msg => Debug.LogWarning(msg));
+                if (SidekickSettings.instance.VerboseLogging)
+                {
+                    Debug.Log($"[AgentHost] Clean-quit SHUTDOWN to {endpoint.Host}:{endpoint.Port}: {(sent ? "sent" : "unreachable")}.");
+                }
+            }
+
+            AgentHostEndpointRegistry.Clear();
         }
 
         private static void OnBeforeAssemblyReload()
         {
             if (_isQuitting) return;
+
+            // Tell the dispose chain that this teardown is a domain reload, NOT a user stop/close: a
+            // RemoteProcessHost must DETACH (close its socket, keep the daemon child alive) instead of
+            // STOP (kill). beforeAssemblyReload fires before SidekickWindow.OnDisable → AppHost.Dispose
+            // → ProcessManager.Dispose → host.Stop(), so the flag is observable for the whole chain.
+            // Statics reset across the reload, and OnAfterAssemblyReload clears it explicitly too.
+            AgentHostReloadCoordinator.IsReloadTeardownInProgress = true;
 
             foreach (var host in SidekickWindowHostRegistry.Snapshot())
             {
@@ -53,6 +94,25 @@ namespace Ryx.Sidekick.Editor
 
                 ResumeStateStore.SavePendingResume(hostToken, providerId, sessionId);
 
+                // If the runtime is daemon-backed, snapshot the reconnect keys (session handle + durable
+                // replay cursor) so the next domain re-attaches instead of resuming. No-op / no keys when
+                // in-process (flag OFF), in which case the next domain uses the lossy -r resume.
+                if (host.TryGetAgentHostReconnectSnapshot(out var sessionHandle, out var lastDurableSeq))
+                {
+                    ResumeStateStore.SaveAgentHostReconnect(hostToken, sessionHandle, lastDurableSeq);
+
+                    if (SidekickSettings.instance.VerboseLogging)
+                    {
+                        Debug.Log($"[Ryx Sidekick] Agent Host reconnect snapshot saved: host={hostToken} handle={sessionHandle} durableSeq={lastDurableSeq}");
+                    }
+                }
+                else
+                {
+                    // Clear any stale snapshot from a previous reload so we never replay-attach a session
+                    // that is no longer daemon-backed.
+                    ResumeStateStore.ClearAgentHostReconnect(hostToken);
+                }
+
                 if (SidekickSettings.instance.VerboseLogging)
                 {
                     Debug.Log($"[Ryx Sidekick] Domain reload detected during active turn. Scheduled auto-resume for provider={providerId} session={sessionId} host={hostToken}");
@@ -65,6 +125,10 @@ namespace Ryx.Sidekick.Editor
 
         private static void OnAfterAssemblyReload()
         {
+            // New domain: the reload-teardown window is over. (The static is already false in the fresh
+            // domain; clearing it explicitly keeps same-domain edge cases and tests deterministic.)
+            AgentHostReloadCoordinator.IsReloadTeardownInProgress = false;
+
             if (!HasPendingResume()) return;
 
             // Start polling until editor is stable
@@ -108,8 +172,19 @@ namespace Ryx.Sidekick.Editor
                 return;
             }
 
-            // Use delayCall to ensure UI is fully initialized
-            Scheduler.Schedule(() => targetHost.AutoResumeAfterDomainReload(providerId, sessionId));
+            // Use delayCall to ensure UI is fully initialized, then decide attach-vs-resume:
+            // a daemon-backed host re-attaches to the surviving turn (no synthetic prompt); otherwise
+            // it falls back to the existing "Continue where you left off" resume (zero regression).
+            Scheduler.Schedule(() =>
+            {
+                var outcome = DomainReloadReconnectCoordinator.Resume(
+                    ResumeStateStore, targetHost, hostToken, providerId, sessionId);
+
+                if (SidekickSettings.instance.VerboseLogging)
+                {
+                    Debug.Log($"[Ryx Sidekick] Post-reload resume outcome for host={hostToken}: {outcome}");
+                }
+            });
         }
 
         private static bool HasPendingResume()

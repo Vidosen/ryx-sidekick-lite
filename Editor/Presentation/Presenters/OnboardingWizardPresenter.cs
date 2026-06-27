@@ -392,7 +392,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             try
             {
                 var platform = ClaudePlatformFactory.GetPlatform();
-                var psi = platform.CreateDebugProcessStartInfo(cliPath, info.AuthLoginArg, SidekickSettings.instance.WorkingDirectory);
+                var psi = platform.CreateInteractiveTerminalStartInfo(cliPath, info.AuthLoginArg, SidekickSettings.instance.WorkingDirectory);
                 Process.Start(psi);
 
                 _view?.SetAuthStatus(

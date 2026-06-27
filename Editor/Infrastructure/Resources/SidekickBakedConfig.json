@@ -5,7 +5,7 @@
     "enabled": true,
     "headline": "Unlock the full Sidekick",
     "subhead": "Every provider and Pro feature in one package.",
-    "requiresLiteVersion": "2.4.2",
+    "requiresLiteVersion": "2.5.0",
     "features": [
       { "id": "cursor", "displayName": "Cursor", "icon": "cursor", "shortDescription": "Cursor CLI provider (ACP).", "surface": "provider:cursor" },
       { "id": "codex", "displayName": "Codex", "icon": "codex", "shortDescription": "OpenAI Codex app-server provider.", "surface": "provider:codex" },

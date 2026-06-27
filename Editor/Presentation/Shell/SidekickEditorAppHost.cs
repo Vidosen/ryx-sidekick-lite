@@ -323,6 +323,65 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             ChatController?.AutoResumeAfterDomainReload(sessionId);
         }
 
+        public bool TryGetAgentHostReconnectSnapshot(out string sessionHandle, out long lastDurableSeq)
+        {
+            sessionHandle = null;
+            lastDurableSeq = 0;
+
+            if (_activeProviderScope?.Runtime is not UseCases.Contracts.IReconnectableRuntime reconnectable)
+            {
+                return false;
+            }
+
+            var handle = reconnectable.SessionHandle;
+            if (string.IsNullOrEmpty(handle))
+            {
+                return false;
+            }
+
+            sessionHandle = handle;
+            lastDurableSeq = reconnectable.LastDurableSequence;
+            return true;
+        }
+
+        public bool TryReattachAfterDomainReload(string providerId, string sessionId, string sessionHandle, long lastDurableSeq)
+        {
+            if (string.IsNullOrEmpty(sessionHandle))
+            {
+                return false;
+            }
+
+            // Make sure the runtime we re-attach to is the one for the provider that owned the turn.
+            if (!string.IsNullOrWhiteSpace(providerId) && !string.Equals(providerId, _settingsStore.ProviderId, StringComparison.Ordinal))
+            {
+                if (!SwitchProvider(providerId))
+                {
+                    return false;
+                }
+            }
+
+            if (_activeProviderScope?.Runtime is not UseCases.Contracts.IReconnectableRuntime reconnectable)
+            {
+                return false;
+            }
+
+            if (!reconnectable.TryReattach(sessionHandle, lastDurableSeq))
+            {
+                return false;
+            }
+
+            // Successful re-attach: the surviving daemon session is replaying the in-flight turn and the
+            // parser is rebuilding UI/state idempotently — no synthetic "Continue where you left off"
+            // prompt. Make sure the conversation for this session is the active one so the replayed
+            // stream lands in the right timeline.
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                _ = ChatController?.RestoreConversationForReattachAsync(sessionId);
+            }
+
+            return true;
+        }
+
         public InputFieldState CaptureInputFieldState()
         {
             return _viewBindingPresenter?.CaptureInputFieldState(WindowScopeGraph?.AttachmentController);
@@ -340,6 +399,27 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 if (_activeProviderScope?.Runtime?.IsRunning == true)
                 {
                     await _activeProviderScope.Runtime.InterruptAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        /// <summary>
+        /// Applies a permission-mode change to the live runtime without interrupting the turn.
+        /// The runtime no-ops when the transport is CliProcess or the session is idle, so this is
+        /// safe to call unconditionally; the chosen mode is already persisted in settings.
+        /// </summary>
+        internal async Task SetRuntimePermissionModeAsync(string mode)
+        {
+            try
+            {
+                var runtime = _activeProviderScope?.Runtime;
+                if (runtime != null)
+                {
+                    await runtime.SetPermissionModeAsync(mode);
                 }
             }
             catch (Exception e)

@@ -22,6 +22,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell.CommandPalette.Providers
         public Action OnOpenSettings { get; set; }
         public Action OnOpenHelp { get; set; }
         public Action OnNewChat { get; set; }
+        public Action OnOpenInTerminal { get; set; }
         public Action<string> OnSelectModel { get; set; }
         public Func<string> GetCurrentModel { get; set; }
         public Func<IEnumerable<string>> GetAvailableModels { get; set; }
@@ -116,6 +117,14 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell.CommandPalette.Providers
                 TrailingVisual = "cmd-chat",
                 OnExecute = () => OnNewChat?.Invoke(),
                 SearchKeywords = new[] { "new", "chat", "conversation", "clear" }
+            });
+
+            _actions.Add(new CommandAction("settings:open-in-terminal", "Open in Terminal", CommandSections.Settings)
+            {
+                Description = "Launch the active CLI in a terminal at the project root",
+                TrailingVisual = "tool-bash",
+                OnExecute = () => OnOpenInTerminal?.Invoke(),
+                SearchKeywords = new[] { "terminal", "open", "cli", "shell", "console", "interactive" }
             });
 
             // Feedback section

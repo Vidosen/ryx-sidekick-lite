@@ -14,7 +14,7 @@ Chat with **Claude** right in Unity — Unity-native context, streaming replies,
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL_3.0-blue.svg)](LICENSE)
 [![Unity](https://img.shields.io/badge/Unity-6000.0%2B-000000.svg?logo=unity&logoColor=white)](https://unity.com)
-[![Version](https://img.shields.io/badge/version-2.4.2-success.svg)](https://github.com/Vidosen/ryx-sidekick-lite/releases)
+[![Version](https://img.shields.io/badge/version-2.5.0-success.svg)](https://github.com/Vidosen/ryx-sidekick-lite/releases)
 [![Upgrade to Pro](https://img.shields.io/badge/upgrade-Ryx_Sidekick_Pro-f5a623.svg)](https://ryx-sidekick.pro/?from=github-readme)
 
 <br/>
@@ -63,16 +63,16 @@ before it touches your files.
 In Unity: **Window → Package Manager → ➕ → Add package from git URL…** and paste:
 
 ```
-https://github.com/Vidosen/ryx-sidekick-lite.git#v2.4.2
+https://github.com/Vidosen/ryx-sidekick-lite.git#v2.5.0
 ```
 
 Or add it to `Packages/manifest.json`:
 
 ```json
-"com.ryxinteractive.sidekick": "https://github.com/Vidosen/ryx-sidekick-lite.git#v2.4.2"
+"com.ryxinteractive.sidekick": "https://github.com/Vidosen/ryx-sidekick-lite.git#v2.5.0"
 ```
 
-Omit `#v2.4.2` to track the default branch.
+Omit `#v2.5.0` to track the default branch.
 
 </details>
 
@@ -81,7 +81,7 @@ Omit `#v2.4.2` to track the default branch.
 
 <br/>
 
-Download `RyxSidekick-Lite-OSS-2.4.2.unitypackage` from the
+Download `RyxSidekick-Lite-OSS-2.5.0.unitypackage` from the
 [latest release](https://github.com/Vidosen/ryx-sidekick-lite/releases/latest) and import it via
 **Assets → Import Package → Custom Package…**. It runs a one-time installer that places the
 package under `Packages/`, cleanly replaces any previous version (with rollback on failure),

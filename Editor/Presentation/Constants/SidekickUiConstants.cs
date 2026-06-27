@@ -28,6 +28,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Constants
         public const string MainWindowCommandPaletteUss = StylesFolder + "SidekickWindow.CommandPalette.uss";
         public const string MainWindowOnboardingUss = StylesFolder + "SidekickWindow.Onboarding.uss";
         public const string MainWindowConfirmDialogUss = StylesFolder + "SidekickWindow.ConfirmDialog.uss";
+        public const string MainWindowModalUss = StylesFolder + "SidekickWindow.Modal.uss";
 
         /// <summary>
         /// Partial stylesheets cascaded onto <c>Panel.popupContainer</c>,
@@ -47,14 +48,15 @@ namespace Ryx.Sidekick.Editor.Presentation.Constants
             MainWindowCommandPaletteUss,
             MainWindowOnboardingUss,
             MainWindowConfirmDialogUss,
+            MainWindowModalUss,
         };
         public const string LoginOverlayUxmlPath = UiFolder + "Templates/LoginOverlay.uxml";
-        public const string AccountOverlayUxmlPath = UiFolder + "Templates/SidekickAccountOverlay.uxml";
         public const string AskUserQuestionOverlayUxmlPath = UiFolder + "Templates/AskUserQuestionOverlay.uxml";
         public const string PermissionOverlayUxmlPath = UiFolder + "Templates/PermissionOverlay.uxml";
         public const string OnboardingOverlayUxmlPath = UiFolder + "Templates/OnboardingOverlay.uxml";
         public const string ProviderPopoverContentUxmlPath = UiFolder + "Templates/ProviderPopoverContent.uxml";
         public const string ModelPopoverContentUxmlPath = UiFolder + "Templates/ModelPopoverContent.uxml";
+        public const string PermissionModePopoverContentUxmlPath = UiFolder + "Templates/PermissionModePopoverContent.uxml";
         public const string AttachmentMenuContentUxmlPath = UiFolder + "Templates/AttachmentMenuContent.uxml";
         public const string MessageBubbleTemplatePath = UiFolder + "Templates/MessageBubble.uxml";
         public const string ToolCallTemplatePath = UiFolder + "Templates/ToolCall.uxml";

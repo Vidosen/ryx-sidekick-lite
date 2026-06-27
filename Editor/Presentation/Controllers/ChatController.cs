@@ -625,6 +625,60 @@ namespace Ryx.Sidekick.Editor.Presentation.Controllers
             }
         }
 
+        /// <summary>
+        /// Agent Host reconnect (Phase 3): selects the conversation for <paramref name="sessionId"/> so
+        /// the daemon's replayed in-flight turn lands in the right timeline, WITHOUT sending the
+        /// synthetic "Continue where you left off" prompt and WITHOUT the <c>&lt;domain_reload/&gt;</c>
+        /// banner. The live runtime was already re-attached by the host; this only restores the UI
+        /// selection. Use cases:
+        /// <list type="bullet">
+        /// <item>successful re-attach → this method (no prompt, the surviving turn streams on)</item>
+        /// <item>failed re-attach → <see cref="AutoResumeAfterDomainReload"/> (synthetic resume prompt)</item>
+        /// </list>
+        /// </summary>
+        public async System.Threading.Tasks.Task RestoreConversationForReattachAsync(string sessionId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(sessionId))
+                {
+                    return;
+                }
+
+                await EnsureConversationSelectedAsync(sessionId);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        /// <summary>
+        /// Ensures a conversation for <paramref name="sessionId"/> exists, is current, and is loaded.
+        /// Shared by the synthetic-resume path and the Agent Host reattach path.
+        /// </summary>
+        private async System.Threading.Tasks.Task EnsureConversationSelectedAsync(string sessionId)
+        {
+            var conv = _conversationController?.Conversations?.FirstOrDefault(c => c.SessionId == sessionId);
+            if (conv == null && _conversationController != null)
+            {
+                conv = new Conversation
+                {
+                    Id = sessionId,
+                    SessionId = sessionId,
+                    Title = "Resumed Session"
+                };
+                _conversationController.Conversations.Insert(0, conv);
+            }
+
+            if (_conversationController != null)
+            {
+                _conversationController.SetCurrentConversation(conv);
+                // ConversationController already lazy-loads; force here by selecting.
+                await _conversationController.SelectConversationAsync(conv);
+            }
+        }
+
         public async void AutoResumeAfterDomainReload(string sessionId)
         {
             try
@@ -637,42 +691,24 @@ namespace Ryx.Sidekick.Editor.Presentation.Controllers
 
                 try
                 {
-                    // Ensure we have a conversation for this session
-                    var conv = _conversationController?.Conversations?.FirstOrDefault(c => c.SessionId == sessionId);
-                    if (conv == null && _conversationController != null)
-                    {
-                        conv = new Conversation
-                        {
-                            Id = sessionId,
-                            SessionId = sessionId,
-                            Title = "Resumed Session"
-                        };
-                        _conversationController.Conversations.Insert(0, conv);
-                    }
-
-                    if (_conversationController != null)
-                    {
-                        _conversationController.SetCurrentConversation(conv);
-                    }
-
-                    // Load history if needed
-                    // Note: ConversationController already lazy-loads; force here by selecting.
-                    if (_conversationController != null)
-                    {
-                        await _conversationController.SelectConversationAsync(conv);
-                    }
+                    // Ensure we have a conversation for this session (current + loaded).
+                    await EnsureConversationSelectedAsync(sessionId);
+                    var conv = _conversationController?.CurrentConversation;
 
                     const string displayTag = "<domain_reload/>";
                     const string cliPrompt = "Unity recompilation and domain reload has completed. Continue where you left off.";
 
                     // Add display message to conversation (for UI rendering as banner)
-                    var userMessage = new Message
+                    if (conv != null)
                     {
-                        Role = MessageRole.User,
-                        Content = displayTag
-                    };
-                    conv.Messages.Add(userMessage);
-                    conv.UpdatedAt = DateTime.Now;
+                        var userMessage = new Message
+                        {
+                            Role = MessageRole.User,
+                            Content = displayTag
+                        };
+                        conv.Messages.Add(userMessage);
+                        conv.UpdatedAt = DateTime.Now;
+                    }
 
                     _timelineSink.Refresh();
 

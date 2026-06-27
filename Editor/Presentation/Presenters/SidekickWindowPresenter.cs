@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 using System;
-using Ryx.Sidekick.Editor.Constants;
 using Ryx.Sidekick.Editor.Presentation.Constants;
 using Ryx.Sidekick.Editor.Presentation.Controllers;
 using Ryx.Sidekick.Editor.Presentation.Shell;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using Ryx.Sidekick.Editor.Presentation.Views;
 using Ryx.Sidekick.Editor.UseCases.Pro;
 using UnityEditor;
@@ -34,8 +34,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
         private ComposerInputPresenter _composerInputPresenter;
         private CommandPalettePresenter _commandPalettePresenter;
         private StatusBarActionsPresenter _statusBarActionsPresenter;
+        private SidekickModalLayer _modalLayer;
         private SidekickAccountController _accountController;
-        private SidekickAccountLoginView _accountLoginView;
+        private AccountModalView _accountModalView;
         private EventCallback<ClickEvent> _conversationDropdownClickCallback;
         private EventCallback<ClickEvent> _rootClickCallback;
         private bool _disposed;
@@ -70,6 +71,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             _rootVisualElement.Clear();
             _rootVisualElement.Add(_appPanel.Canvas);
 
+            // Create the modal layer before TryCreate so it can be threaded to OnboardingView.
+            _modalLayer = new SidekickModalLayer(_appPanel.ContentContainer);
+
             if (!SidekickWindowView.TryCreate(
                     _appPanel.ContentContainer,
                     UxmlPath,
@@ -79,28 +83,26 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                     OnboardingOverlayUxmlPath,
                     LogoAssetPath,
                     AssetsPath,
-                    out _view))
+                    out _view,
+                    _modalLayer))
             {
+                _modalLayer.Dispose();
+                _modalLayer = null;
                 return;
             }
 
             _appPanel.ApplyThemeToStatusBar();
 
-            _viewBindingPresenter = new WindowViewBindingPresenter();
+            _viewBindingPresenter = new WindowViewBindingPresenter(_modalLayer);
             _viewBindingPresenter.BindView(_view);
             _appHost.BindView(_viewBindingPresenter);
 
-            // Mount the Sidekick Account overlay adjacent to the main window content.
-            // Mirror: SidekickWindowView.TryCreate clones LoginOverlay.uxml into login-overlay-container,
-            // then WindowViewBindingPresenter.BindWindowScopeGraphToView calls AuthController.BindView.
+            // Bind the account modal view — renders as a centered popup via _modalLayer.
             _accountController = _appHost.WindowScopeGraph?.AccountController;
             if (_accountController != null)
             {
-                _accountLoginView = SidekickAccountOverlayMount.Mount(_appPanel.ContentContainer);
-                if (_accountLoginView != null)
-                {
-                    _accountController.BindView(_accountLoginView);
-                }
+                _accountModalView = new AccountModalView(_modalLayer);
+                _accountController.BindView(_accountModalView);
             }
 
             InitializeStaticIcons();
@@ -140,7 +142,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                 _view.InputField);
 
             _providerSwitchPresenter = new ProviderSwitchPresenter(
-                _view.Root,
+                _modalLayer,
                 _appHost,
                 _appHost.ProviderSelectorViewModel);
 
@@ -255,16 +257,16 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
 
         private void DisposeViewPresenters()
         {
-            // Account overlay: unbind first so the controller stops receiving events,
-            // then dispose the view to unregister ClickEvent callbacks from UI Toolkit.
+            // Account view: unbind first so the controller stops receiving events,
+            // then dispose the view (dismisses any open modal).
             if (_accountController != null)
             {
                 _accountController.BindView(null);
                 _accountController = null;
             }
 
-            _accountLoginView?.Dispose();
-            _accountLoginView = null;
+            _accountModalView?.Dispose();
+            _accountModalView = null;
 
             if (_view != null)
             {
@@ -305,6 +307,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             _viewBindingPresenter?.Dispose();
             _viewBindingPresenter = null;
             _view = null;
+            _modalLayer?.Dispose();
+            _modalLayer = null;
             _appPanel = null;
         }
 

@@ -16,7 +16,7 @@ namespace Ryx.Sidekick.Editor
     /// Manages the Claude CLI process lifecycle and communication.
     /// Facade that coordinates CliProcessHost, StreamJsonEventRouter, ControlRequestHandler, and MCP managers.
     /// </summary>
-    internal class ProcessManager : IRuntimeOrchestrator
+    internal class ProcessManager : IRuntimeOrchestrator, IReconnectableRuntime
     {
         #region Events (Public API)
 
@@ -45,6 +45,7 @@ namespace Ryx.Sidekick.Editor
         #region Components
 
         private readonly IProcessHost _processHost;
+        private readonly IProcessHostFactory _processHostFactory;
         private IStreamEventParser _eventParser;
         private readonly ControlRequestHandler _controlHandler = new();
         private readonly McpConfigManager _mcpConfigManager = new();
@@ -68,6 +69,12 @@ namespace Ryx.Sidekick.Editor
         private bool _activeTurnCompletionIsObserved;
         private bool _providerAuthFailureReported;
 
+        // Agent Host durable replay cursor (Phase 3): the last seq this runtime can recover WITHOUT
+        // the daemon — advances ONLY at a turn boundary (completed `result`, durably in JSONL). Mid-turn
+        // it stays pinned so a reload replays the entire in-flight turn. Persisted by the reload
+        // orchestration; sent to the daemon as TRIM(safeSeq) at the boundary so its buffer can shrink.
+        private long _lastDurableSeq;
+
         #endregion
 
         #region Public Properties
@@ -81,13 +88,36 @@ namespace Ryx.Sidekick.Editor
         #endregion
 
         public ProcessManager(ISessionRuntimeClient sharedSessionRuntimeClient = null, string sharedSessionRuntimeProviderId = null)
-            : this(new CliProcessHost(), sharedSessionRuntimeClient, sharedSessionRuntimeProviderId)
+            : this((IProcessHostFactory)null, sharedSessionRuntimeClient, sharedSessionRuntimeProviderId)
+        {
+        }
+
+        /// <summary>
+        /// Production ctor: the <see cref="IProcessHostFactory"/> (flowed in via DI from
+        /// <c>WindowScopedRuntimeLeaseManager</c>) decides between the in-process
+        /// <see cref="CliProcessHost"/> and the out-of-process <see cref="RemoteProcessHost"/>.
+        /// A null factory falls back to the in-process default (behavior unchanged). The factory is
+        /// also retained so the persistent-session path (Claude) can build its host through it — see
+        /// <see cref="EnsureSessionRuntimeClient"/> / <see cref="IProcessHostFactoryAware"/>.
+        /// </summary>
+        internal ProcessManager(IProcessHostFactory processHostFactory, ISessionRuntimeClient sharedSessionRuntimeClient = null, string sharedSessionRuntimeProviderId = null)
+            : this(processHost: null, sharedSessionRuntimeClient, sharedSessionRuntimeProviderId, processHostFactory)
         {
         }
 
         internal ProcessManager(IProcessHost processHost, ISessionRuntimeClient sharedSessionRuntimeClient = null, string sharedSessionRuntimeProviderId = null)
+            : this(processHost, sharedSessionRuntimeClient, sharedSessionRuntimeProviderId, processHostFactory: null)
         {
-            _processHost = processHost ?? new CliProcessHost();
+        }
+
+        private ProcessManager(IProcessHost processHost, ISessionRuntimeClient sharedSessionRuntimeClient, string sharedSessionRuntimeProviderId, IProcessHostFactory processHostFactory)
+        {
+            // Resolve the factory once: it is retained so the persistent-session path (Claude) can build
+            // its host through the same factory, and it also supplies the legacy CliProcess host when no
+            // explicit host was injected. When reached via the explicit-host test path the factory still
+            // defaults (flag-OFF / no connector ⇒ in-process), so the persistent path always has one.
+            _processHostFactory = processHostFactory ?? new DefaultProcessHostFactory();
+            _processHost = processHost ?? _processHostFactory.Create();
             _sharedSessionRuntimeClient = sharedSessionRuntimeClient;
             _sharedSessionRuntimeProviderId = sharedSessionRuntimeProviderId;
 
@@ -220,6 +250,16 @@ namespace Ryx.Sidekick.Editor
                 return;
             }
 
+            // Route the IProcessHostFactory into the freshly-created client (the provider factory
+            // method is parameterless and Domain-bound, so it cannot take the Infrastructure factory).
+            // With UseAgentHost ON + a reachable daemon this swaps the client's in-process host for a
+            // RemoteProcessHost BEFORE the first turn starts; otherwise it is a no-op (flag OFF / no
+            // connector / explicit test host). See IProcessHostFactoryAware.
+            if (_ownsSessionRuntimeClient && _sessionRuntimeClient is IProcessHostFactoryAware factoryAware)
+            {
+                factoryAware.SetProcessHostFactory(_processHostFactory);
+            }
+
             _sessionRuntimeClient.OnRawOutput += line => OnRawOutput?.Invoke(line);
             _sessionRuntimeClient.OnStreamEvent += HandleStreamEvent;
             _sessionRuntimeClient.OnAssistantMessageStarted += OnAssistantMessageStartedRelay;
@@ -315,7 +355,17 @@ namespace Ryx.Sidekick.Editor
                     case PendingPermissionKind.ClaudeControlRequest:
                         if (!string.IsNullOrEmpty(permission.RequestId))
                         {
-                            SendControlResponse(permission.RequestId, permission.ToolUseId, allow, permission.Input, message);
+                            // In a persistent session the live process is owned by the session runtime
+                            // client, so the control_response must be written to its stdin — not the
+                            // (idle) per-prompt process host.
+                            if (SidekickSettings.instance.ActiveProvider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession)
+                            {
+                                _sessionRuntimeClient?.SendApprovalResponse(permission, allow, message, remember);
+                            }
+                            else
+                            {
+                                SendControlResponse(permission.RequestId, permission.ToolUseId, allow, permission.Input, message);
+                            }
                         }
                         break;
 
@@ -348,13 +398,22 @@ namespace Ryx.Sidekick.Editor
         /// </summary>
         public void SendControlResponse(string requestId, string toolUseId, bool allow, JToken updatedInput = null, string message = null)
         {
-            var json = ControlRequestHandler.BuildControlResponse(requestId, toolUseId, allow, updatedInput, message);
-
             if (SidekickSettings.instance.VerboseLogging)
             {
                 Debug.Log($"[Ryx Sidekick] Sending control_response: allow={allow}, requestId={requestId}");
             }
 
+            // In a persistent session the live CLI process is owned by the session runtime client, so the
+            // control_response (e.g. an AskUserQuestion answer) must be written to ITS stdin — NOT the idle
+            // per-prompt process host, which is never started in this transport. Mirrors the routing in
+            // SendPermissionResponse's ClaudeControlRequest case.
+            if (SidekickSettings.instance.ActiveProvider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession)
+            {
+                _sessionRuntimeClient?.SendControlResponse(requestId, toolUseId, allow, updatedInput, message);
+                return;
+            }
+
+            var json = ControlRequestHandler.BuildControlResponse(requestId, toolUseId, allow, updatedInput, message);
             WriteJsonLineToStdin(json);
         }
 
@@ -401,6 +460,33 @@ namespace Ryx.Sidekick.Editor
             }
         }
 
+        /// <summary>
+        /// Switches the permission mode on a live persistent session via a control_request, without
+        /// interrupting the active turn. No-op for CliProcess providers (mode is applied via launch
+        /// arguments on the next start) and when the session runtime client is idle / lacks live switching.
+        /// </summary>
+        public async Task SetPermissionModeAsync(string mode)
+        {
+            if (SidekickSettings.instance.ActiveProvider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession
+                && _sessionRuntimeClient is IRuntimeModeSwitch modeSwitch)
+            {
+                await modeSwitch.SetPermissionModeAsync(mode);
+            }
+        }
+
+        /// <summary>
+        /// Switches the model on a live persistent session via a control_request. Same no-op rules as
+        /// <see cref="SetPermissionModeAsync"/>.
+        /// </summary>
+        public async Task SetModelAsync(string model)
+        {
+            if (SidekickSettings.instance.ActiveProvider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession
+                && _sessionRuntimeClient is IRuntimeModeSwitch modeSwitch)
+            {
+                await modeSwitch.SetModelAsync(model);
+            }
+        }
+
         public void Dispose()
         {
             Stop();
@@ -408,6 +494,103 @@ namespace Ryx.Sidekick.Editor
             _mcpConfigManager.Dispose();
             ReleaseInvocationPlan();
             ReleaseSessionRuntimeClient();
+        }
+
+        #endregion
+
+        #region IReconnectableRuntime (Agent Host)
+
+        public string SessionHandle => ActiveReconnectableHost?.SessionHandle ?? string.Empty;
+
+        public long LastObservedSequence => ActiveReconnectableHost?.LastObservedSequence ?? 0L;
+
+        public long LastDurableSequence => _lastDurableSeq;
+
+        /// <summary>
+        /// Re-attach the freshly-recreated runtime to a surviving daemon session and replay the
+        /// in-flight turn instead of respawning. On success the turn lifecycle is (re)started and, for
+        /// the persistent transport, its completion task is observed exactly like a normal start; the
+        /// replayed OUTPUT lines flow through the parser idempotently (the host de-dups by seq). Returns
+        /// false when the runtime is not daemon-backed, the session is gone, or the daemon responded
+        /// REPLAY_TRUNCATED — the caller then falls back to the synthetic <c>-r</c> resume.
+        /// </summary>
+        public bool TryReattach(string sessionHandle, long afterDurableSeq)
+        {
+            if (string.IsNullOrEmpty(sessionHandle) || _turnInProgress)
+            {
+                return false;
+            }
+
+            var provider = SidekickSettings.instance.ActiveProvider;
+            if (provider == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (provider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession)
+                {
+                    return TryReattachPersistent(provider, sessionHandle, afterDurableSeq);
+                }
+
+                return TryReattachCliProcess(provider, sessionHandle, afterDurableSeq);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[ProcessManager] Re-attach failed, falling back to resume: {ex.Message}");
+                return false;
+            }
+        }
+
+        private bool TryReattachPersistent(ICliProvider provider, string sessionHandle, long afterDurableSeq)
+        {
+            EnsureSessionRuntimeClient(provider);
+            if (_sessionRuntimeClient is not IReconnectableSessionClient { SupportsReattach: true } reconnectable)
+            {
+                return false;
+            }
+
+            var ack = reconnectable.TryReattach(sessionHandle, afterDurableSeq);
+            if (ack == null || !ack.IsStarted)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(ack.ResolvedSessionId))
+            {
+                _currentSessionId = ack.ResolvedSessionId;
+            }
+
+            _lastDurableSeq = afterDurableSeq;
+            StartTurnLifecycle(useCompletionObserver: true);
+            ObservePersistentTurnCompletion(ack.CompletionTask, _turnGeneration);
+            return true;
+        }
+
+        private bool TryReattachCliProcess(ICliProvider provider, string sessionHandle, long afterDurableSeq)
+        {
+            if (_processHost is not IReconnectableProcessHost reconnectableHost)
+            {
+                return false;
+            }
+
+            // Fresh parser + control handler so replay rebuilds the in-flight turn from its boundary
+            // idempotently (de-dup by seq lives in the host; the parser re-parse is idempotent).
+            SetEventParser(provider.CreateEventParser());
+            _eventParser.Reset();
+            _controlHandler.CurrentSessionId = _currentSessionId;
+
+            if (!reconnectableHost.TryAttach(sessionHandle, afterDurableSeq))
+            {
+                return false;
+            }
+
+            _lastDurableSeq = afterDurableSeq;
+            // CliProcess turn completion is driven by the replayed/live `result` event through
+            // HandleResult (useCompletionObserver:false), mirroring a normal CliProcess start.
+            StartTurnLifecycle(useCompletionObserver: false);
+            return true;
         }
 
         #endregion
@@ -492,6 +675,13 @@ namespace Ryx.Sidekick.Editor
 
             // Create a fresh parser for this provider
             SetEventParser(provider.CreateEventParser());
+
+            // A CliProcess turn spawns a NEW process → a NEW daemon session whose seq restarts at 1 and
+            // whose buffer holds only this turn. Reset the durable replay cursor so a mid-turn reload
+            // replays this turn from its start. (The persistent transport, by contrast, keeps one
+            // long-lived session across turns and never resets the cursor — it advances + TRIMs at each
+            // turn boundary so the buffer holds only the in-flight turn.)
+            _lastDurableSeq = 0;
 
             _activeInvocationPlan = CliInvocationPlanner.Build(
                 settings,
@@ -638,6 +828,16 @@ namespace Ryx.Sidekick.Editor
             _activeTurnCompletionIsObserved = false;
             _turnGeneration++;
 
+            // Turn boundary: a genuine completion (emitStreamComplete) means the turn is now durably in
+            // the CLI's on-disk JSONL (which Unity reads independently via CliHistoryService). Only here
+            // does the durable replay cursor advance, and only here do we TRIM the daemon buffer. A user
+            // stop / crash teardown (emitStreamComplete == false) must NOT advance — the in-flight turn
+            // is not durable, so a reload after it must replay the whole turn.
+            if (emitStreamComplete)
+            {
+                AdvanceDurableSeqToTurnBoundary();
+            }
+
             if (emitTurnFinished)
             {
                 OnTurnFinished?.Invoke();
@@ -646,6 +846,54 @@ namespace Ryx.Sidekick.Editor
             if (emitStreamComplete)
             {
                 OnStreamComplete?.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Advance <see cref="_lastDurableSeq"/> to the active reconnectable host's current observed
+        /// seq and tell the daemon it may trim its buffer up to that seq. No-op when the runtime is not
+        /// backed by a daemon host (in-process / flag OFF) — there is no buffer to trim and no replay
+        /// cursor to persist.
+        /// </summary>
+        private void AdvanceDurableSeqToTurnBoundary()
+        {
+            var reconnectable = ActiveReconnectableHost;
+            if (reconnectable == null)
+            {
+                return;
+            }
+
+            var boundarySeq = reconnectable.LastObservedSequence;
+            if (boundarySeq <= _lastDurableSeq)
+            {
+                return;
+            }
+
+            _lastDurableSeq = boundarySeq;
+            // TRIM is a durable-recoverable floor, NOT a delivered ack: it is safe precisely because the
+            // completed turn is now on disk.
+            reconnectable.SendTrim(boundarySeq);
+        }
+
+        /// <summary>
+        /// The reconnectable (daemon-backed) surface for the active transport, or null when the runtime
+        /// is in-process. For CliProcess this is the process host; for the persistent session it is the
+        /// session client's hidden host (exposed via <see cref="IReconnectableSessionClient"/>).
+        /// </summary>
+        private IReconnectableHostView ActiveReconnectableHost
+        {
+            get
+            {
+                if (SidekickSettings.instance.ActiveProvider.RuntimeTransport == ProviderRuntimeTransport.PersistentJsonRpcSession)
+                {
+                    return _sessionRuntimeClient is IReconnectableSessionClient { SupportsReattach: true } sessionClient
+                        ? new SessionClientReconnectableView(sessionClient)
+                        : null;
+                }
+
+                return _processHost is IReconnectableProcessHost reconnectableHost
+                    ? new ProcessHostReconnectableView(reconnectableHost)
+                    : null;
             }
         }
 

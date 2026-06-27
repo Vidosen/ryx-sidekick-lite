@@ -29,13 +29,13 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Platform
         ProcessStartInfo CreateProcessStartInfo(string cliPath, string arguments, string workingDirectory);
 
         /// <summary>
-        /// Creates a ProcessStartInfo that opens a visible terminal window for debugging.
+        /// Creates a ProcessStartInfo that opens a visible, interactive terminal window.
         /// On macOS: opens Terminal.app; on Windows: opens cmd.exe window; on Linux: opens default terminal.
         /// </summary>
         /// <param name="cliPath">The resolved CLI executable path</param>
         /// <param name="arguments">Command-line arguments to pass to the CLI</param>
         /// <param name="workingDirectory">Working directory for the process</param>
         /// <returns>A configured ProcessStartInfo that launches a visible terminal</returns>
-        ProcessStartInfo CreateDebugProcessStartInfo(string cliPath, string arguments, string workingDirectory);
+        ProcessStartInfo CreateInteractiveTerminalStartInfo(string cliPath, string arguments, string workingDirectory);
     }
 }

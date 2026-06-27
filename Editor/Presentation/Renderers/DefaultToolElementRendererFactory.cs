@@ -22,6 +22,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
             var file = new FileToolRenderer();
             var question = new QuestionTraceRenderer();
             var plan = new PlanToolRenderer(_markdown);
+            var mcp = new McpToolRenderer();
 
             return new Dictionary<ToolKind, IToolElementRenderer>
             {
@@ -33,6 +34,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
                 { ToolKind.AskUserQuestion, question },
                 { ToolKind.ImplementPlan, plan },
                 { ToolKind.ExitPlanMode, plan },
+                { ToolKind.Mcp, mcp },
             };
         }
 

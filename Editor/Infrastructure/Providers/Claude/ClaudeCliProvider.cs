@@ -60,11 +60,11 @@ namespace Ryx.Sidekick.Editor.Providers.Claude
 
         public CollaborationModeDescriptor[] CollaborationModes => new[]
         {
-            new CollaborationModeDescriptor("default", "Default mode", "mode-default"),
+            new CollaborationModeDescriptor("default", "Act mode", "mode-default"),
             new CollaborationModeDescriptor("plan", "Plan mode", "mode-plan"),
         };
 
-        public ProviderRuntimeTransport RuntimeTransport => ProviderRuntimeTransport.CliProcess;
+        public ProviderRuntimeTransport RuntimeTransport => ProviderRuntimeTransport.PersistentJsonRpcSession;
         public bool SupportsInteractivePermissions => true;
         public PromptTransportMode PromptTransportMode => PromptTransportMode.StreamJsonStdin;
         public bool UsesImageAttachmentFilePaths => false;
@@ -74,7 +74,7 @@ namespace Ryx.Sidekick.Editor.Providers.Claude
 
         public ISessionRuntimeClient CreateSessionRuntimeClient()
         {
-            return null;
+            return new ClaudePersistentSessionClient();
         }
 
         public IProviderToolMapper CreateToolMapper()
@@ -84,16 +84,17 @@ namespace Ryx.Sidekick.Editor.Providers.Claude
 
         public PermissionModeDescriptor[] GetPermissionModes(string collaborationMode)
         {
-            return collaborationMode == "plan"
-                ? new[]
-                {
-                    new PermissionModeDescriptor("default", "Ask before edits", "permission-default"),
-                }
-                : new[]
-                {
-                    new PermissionModeDescriptor("default", "Ask before edits", "permission-default"),
-                    new PermissionModeDescriptor("bypassPermissions", "Edit automatically", "permission-auto"),
-                };
+            // The full Claude CLI permission-mode set is available regardless of collaboration
+            // mode. While in plan collaboration mode the launch arg is still `--permission-mode
+            // plan` (see BuildArguments); the selected mode here is preserved as the mode to apply
+            // when exiting plan, and "auto during plan" is governed by the CLI's own config flag.
+            return new[]
+            {
+                new PermissionModeDescriptor("default", "Ask before edits", "permission-default"),
+                new PermissionModeDescriptor("acceptEdits", "Accept edits", "permission-auto"),
+                new PermissionModeDescriptor("auto", "Auto", "permission-auto"),
+                new PermissionModeDescriptor("bypassPermissions", "Edit automatically", "permission-auto"),
+            };
         }
 
         public ProviderModeSelection NormalizeModeSelection(string collaborationMode, string permissionMode)
@@ -231,26 +232,22 @@ namespace Ryx.Sidekick.Editor.Providers.Claude
             return ControlRequestHandler.BuildUserMessage(prompt, attachments, contextAttachments);
         }
 
-        public ProcessStartInfo CreateProcessStartInfo(
-            string cliPath, string arguments, string workingDirectory,
-            bool debugMode, bool useBedrock)
+        public ProcessStartInfo CreateProcessStartInfo(CliLaunchRequest request)
         {
             var platform = ClaudePlatformFactory.GetPlatform();
-            var resolvedPath = platform.ResolveCliPath(cliPath, GetDefaultCliPaths());
+            var resolvedPath = platform.ResolveCliPath(request.CliPath, GetDefaultCliPaths());
 
             ProcessStartInfo startInfo;
-            if (debugMode)
+            if (request.Surface == CliLaunchSurface.InteractiveTerminal)
             {
-                startInfo = platform.CreateDebugProcessStartInfo(resolvedPath, arguments, workingDirectory);
+                // Visible terminal runs with UseShellExecute=true, which forbids setting
+                // EnvironmentVariables — overrides don't apply to this surface.
+                startInfo = platform.CreateInteractiveTerminalStartInfo(resolvedPath, request.Arguments, request.WorkingDirectory);
             }
             else
             {
-                startInfo = platform.CreateProcessStartInfo(resolvedPath, arguments, workingDirectory);
-
-                if (useBedrock)
-                    startInfo.EnvironmentVariables["CLAUDE_CODE_USE_BEDROCK"] = "1";
-                else if (startInfo.EnvironmentVariables.ContainsKey("CLAUDE_CODE_USE_BEDROCK"))
-                    startInfo.EnvironmentVariables.Remove("CLAUDE_CODE_USE_BEDROCK");
+                startInfo = platform.CreateProcessStartInfo(resolvedPath, request.Arguments, request.WorkingDirectory);
+                request.ApplyEnvironmentTo(startInfo);
             }
 
             return startInfo;

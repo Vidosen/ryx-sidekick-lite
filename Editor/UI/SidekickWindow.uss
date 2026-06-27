@@ -3,7 +3,11 @@
    Production-ready dark theme
    ============================================ */
 
-:root {
+/* The design tokens are also declared on .sk-modal-layer-overlay so SidekickModalLayer
+   content resolves var(--sk-*) when hosted in a surface WITHOUT the Sidekick panel root
+   (e.g. a Project Settings page, where :root matches the editor window root — an ancestor
+   outside the overlay's stylesheet scope). */
+:root, .sk-modal-layer-overlay {
     --sk-bg-primary: #181818;
     --sk-bg-secondary: #1f1f1f;
     --sk-bg-tertiary: #262626;
@@ -84,6 +88,22 @@
     --sk-paywall-feature-bg: #202020;
     --sk-text-bright: #f3f1ee;
     --sk-text-soft: #9a958c;
+    /* Terminal/Bash tool block (collapsed-foldable card). From "Tool Messages" design import. */
+    --sk-tool-card-bg: #151515;
+    --sk-terminal-block-bg: #101010;
+    --sk-terminal-block-border: #232323;
+    --sk-cmd-prompt: #5a8a52;
+    --sk-cmd-dim: #5a5a5a;
+    --sk-output-text: #a8a8a8;
+    --sk-output-error: #e5a3a3;
+    /* MCP tool block (badge + JSON syntax colours). From "Tool Messages" design import. */
+    --sk-mcp-badge: #b48ead;
+    --sk-mcp-badge-bg: rgba(180, 142, 173, 0.16);
+    --sk-json-key: #9cdcfe;
+    --sk-json-string: #ce9178;
+    --sk-json-number: #b5cea8;
+    --sk-json-keyword: #569cd6;
+    --sk-json-punct: #808080;
 }
 
 /* Main Container */

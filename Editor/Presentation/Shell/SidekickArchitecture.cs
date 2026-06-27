@@ -44,6 +44,25 @@ namespace Ryx.Sidekick.Editor
         void OnFocus();
         bool SwitchProvider(string providerId);
         void AutoResumeAfterDomainReload(string providerId, string sessionId);
+
+        /// <summary>
+        /// Snapshots the active runtime's Agent Host reconnect keys (daemon session handle + durable
+        /// replay cursor) on <c>beforeAssemblyReload</c>. Returns false when the runtime is not
+        /// daemon-backed (in-process / flag OFF), in which case the caller persists no reconnect keys
+        /// and the next domain uses the lossy <c>-r</c> resume.
+        /// </summary>
+        bool TryGetAgentHostReconnectSnapshot(out string sessionHandle, out long lastDurableSeq);
+
+        /// <summary>
+        /// After a reload, re-attach the freshly-recreated runtime to the surviving daemon session
+        /// identified by <paramref name="sessionHandle"/> and replay the in-flight turn (seq &gt;
+        /// <paramref name="lastDurableSeq"/>) instead of sending the synthetic "Continue where you left
+        /// off" prompt. Switches provider first if needed. Returns true on a successful attach (the
+        /// caller then skips the synthetic resume); false falls back to
+        /// <see cref="AutoResumeAfterDomainReload"/>.
+        /// </summary>
+        bool TryReattachAfterDomainReload(string providerId, string sessionId, string sessionHandle, long lastDurableSeq);
+
         InputFieldState CaptureInputFieldState();
         void RestoreInputFieldState(InputFieldState state);
     }
@@ -505,13 +524,23 @@ namespace Ryx.Sidekick.Editor
 
     internal sealed class WindowScopedRuntimeLeaseManager : IRuntimeLeaseManager
     {
+        private readonly IProcessHostFactory _processHostFactory;
+
+        // Default-injected by App UI DI; the optional default keeps test/manual construction working
+        // and falls back to the in-process host (behavior unchanged) when no factory is supplied.
+        public WindowScopedRuntimeLeaseManager(IProcessHostFactory processHostFactory = null)
+        {
+            _processHostFactory = processHostFactory ?? new DefaultProcessHostFactory();
+        }
+
         public IRuntimeLease Acquire(
             IProviderModule providerModule,
             ISettingsStore settingsStore,
             ILogger logger,
             ISessionRuntimeClient sharedSessionRuntimeClient = null)
         {
-            return new WindowScopedRuntimeLease(new ProviderRuntimeOrchestrator(sharedSessionRuntimeClient, providerModule?.Id));
+            return new WindowScopedRuntimeLease(
+                new ProviderRuntimeOrchestrator(_processHostFactory, sharedSessionRuntimeClient, providerModule?.Id));
         }
     }
 
@@ -536,6 +565,11 @@ namespace Ryx.Sidekick.Editor
             : base(sharedSessionRuntimeClient, sharedSessionRuntimeProviderId)
         {
         }
+
+        public ProviderRuntimeOrchestrator(IProcessHostFactory processHostFactory, ISessionRuntimeClient sharedSessionRuntimeClient = null, string sharedSessionRuntimeProviderId = null)
+            : base(processHostFactory, sharedSessionRuntimeClient, sharedSessionRuntimeProviderId)
+        {
+        }
     }
 
     internal sealed class SessionStateResumeStateStore : IResumeStateStore
@@ -547,6 +581,11 @@ namespace Ryx.Sidekick.Editor
         private const string InputTextKey = "Sidekick.InputState.Text";
         private const string InputContextKey = "Sidekick.InputState.Context";
         private const string InputImagesKey = "Sidekick.InputState.Images";
+
+        // Agent Host reconnect keys are host-token-suffixed so multiple windows (each its own daemon
+        // session) do not clobber each other across a domain reload.
+        private const string AgentHostHandlePrefix = "Sidekick.AgentHost.Handle.";
+        private const string AgentHostDurableSeqPrefix = "Sidekick.AgentHost.DurableSeq.";
 
         public void SavePendingResume(string hostToken, string providerId, string sessionId)
         {
@@ -579,6 +618,57 @@ namespace Ryx.Sidekick.Editor
             UnityEditor.SessionState.EraseString(HostTokenKey);
             UnityEditor.SessionState.EraseString(ProviderIdKey);
             UnityEditor.SessionState.EraseString(SessionIdKey);
+        }
+
+        public void SaveAgentHostReconnect(string hostToken, string sessionHandle, long lastDurableSeq)
+        {
+            if (string.IsNullOrEmpty(hostToken))
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(sessionHandle))
+            {
+                ClearAgentHostReconnect(hostToken);
+                return;
+            }
+
+            UnityEditor.SessionState.SetString(AgentHostHandlePrefix + hostToken, sessionHandle);
+            // SessionState has no long overload; store the durable seq as a decimal string.
+            UnityEditor.SessionState.SetString(
+                AgentHostDurableSeqPrefix + hostToken,
+                lastDurableSeq.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        public bool TryGetAgentHostReconnect(string hostToken, out string sessionHandle, out long lastDurableSeq)
+        {
+            sessionHandle = null;
+            lastDurableSeq = 0;
+            if (string.IsNullOrEmpty(hostToken))
+            {
+                return false;
+            }
+
+            sessionHandle = UnityEditor.SessionState.GetString(AgentHostHandlePrefix + hostToken, null);
+            if (string.IsNullOrEmpty(sessionHandle))
+            {
+                return false;
+            }
+
+            var seqText = UnityEditor.SessionState.GetString(AgentHostDurableSeqPrefix + hostToken, "0");
+            long.TryParse(seqText, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out lastDurableSeq);
+            return true;
+        }
+
+        public void ClearAgentHostReconnect(string hostToken)
+        {
+            if (string.IsNullOrEmpty(hostToken))
+            {
+                return;
+            }
+
+            UnityEditor.SessionState.EraseString(AgentHostHandlePrefix + hostToken);
+            UnityEditor.SessionState.EraseString(AgentHostDurableSeqPrefix + hostToken);
         }
 
         public void SaveInputFieldState(InputFieldState state)

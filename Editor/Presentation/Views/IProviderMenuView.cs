@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Ryx.Sidekick.Editor.Presentation.Constants;
 using Ryx.Sidekick.Editor.Presentation.ViewModels;
+using Ryx.Sidekick.Editor.Providers;
 using Ryx.Sidekick.Editor.Presentation.Shell;
 using Ryx.Sidekick.Editor.Presentation.UI.Elements;
 using Unity.AppUI.Core;
@@ -46,6 +47,21 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
 
         event Action<string> ModelPresetSelected;
 
+        /// <summary>Fired when the user picks a permission mode from the permission-mode popup.
+        /// Arg is the <see cref="PermissionModeDescriptor.Value"/>.</summary>
+        event Action<string> PermissionModeSelected
+        {
+            add { }
+            remove { }
+        }
+
+        /// <summary>Fired when the permission-mode popup is dismissed by the user (outside click / ESC).</summary>
+        event Action PermissionModePopupDismissed
+        {
+            add { }
+            remove { }
+        }
+
         /// <summary>Fired when the user clicks a locked Pro provider row.
         /// Arg is the <see cref="ProviderOptionViewState.FeatureId"/>.</summary>
         event Action<string> LockedFeatureClicked
@@ -71,6 +87,15 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         void ShowModelPopup(bool show);
 
         bool IsModelPopupVisible { get; }
+
+        /// <summary>Opens the permission-mode popup, rendering one row per mode and highlighting
+        /// <paramref name="currentValue"/>.</summary>
+        void ShowPermissionModePopup(IReadOnlyList<PermissionModeDescriptor> modes, string currentValue) { }
+
+        /// <summary>Closes the permission-mode popup if it is open.</summary>
+        void HidePermissionModePopup() { }
+
+        bool IsPermissionModePopupVisible => false;
 
         void ShowThinkingSection(bool show);
 
@@ -112,6 +137,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         private readonly Label _collaborationModeLabel;
         private readonly Button _permissionModeButton;
         private readonly Label _permissionModeLabel;
+        private readonly VisualElement _permissionModePopoverContent;
+        private readonly VisualElement _permissionModeOptionsContainer;
+        private Popover _permissionModePopover;
+        private bool _suppressPermissionModeDismissEvent;
         private bool _thinkingEnabled;
 
         public ProviderMenuView(
@@ -122,7 +151,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             Button collaborationModeButton,
             Label collaborationModeLabel,
             Button permissionModeButton,
-            Label permissionModeLabel)
+            Label permissionModeLabel,
+            VisualTreeAsset permissionModePopoverTemplate = null)
         {
             _providerButton = providerButton;
 
@@ -155,6 +185,12 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             _collaborationModeLabel = collaborationModeLabel;
             _permissionModeButton = permissionModeButton;
             _permissionModeLabel = permissionModeLabel;
+
+            // Instantiate permission-mode popover content fragment.
+            var permissionInstance = permissionModePopoverTemplate?.Instantiate();
+            _permissionModePopoverContent = permissionInstance?.contentContainer ?? permissionInstance;
+            _permissionModeOptionsContainer =
+                _permissionModePopoverContent?.Q<VisualElement>("permission-mode-options-container");
 
             providerButton?.RegisterCallback<ClickEvent>(_ => ProviderRequested?.Invoke());
             modelButton?.RegisterCallback<ClickEvent>(_ => ModelRequested?.Invoke());
@@ -200,6 +236,10 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         public event Action<string> ProviderOptionSelected;
 
         public event Action<string> ModelPresetSelected;
+
+        public event Action<string> PermissionModeSelected;
+
+        public event Action PermissionModePopupDismissed;
 
         public event Action<string> LockedFeatureClicked;
 
@@ -470,6 +510,82 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
 
             // User-driven dismiss (outside click, ESC, etc.) — sync VM.
             ModelPopupDismissed?.Invoke();
+        }
+
+        public bool IsPermissionModePopupVisible => _permissionModePopover != null;
+
+        public void ShowPermissionModePopup(IReadOnlyList<PermissionModeDescriptor> modes, string currentValue)
+        {
+            if (_permissionModeButton == null || _permissionModePopoverContent == null) return;
+            if (_permissionModePopover != null && IsPermissionModePopupVisible) return;
+
+            RenderPermissionModeOptions(modes, currentValue);
+
+            _permissionModePopover = Popover.Build(_permissionModeButton, _permissionModePopoverContent)
+                .SetPlacement(PopoverPlacement.Top)
+                .SetOutsideClickDismiss(true)
+                .SetKeyboardDismiss(true);
+
+            _permissionModePopover.dismissed += OnPermissionModePopoverDismissed;
+            _permissionModePopover.Show();
+        }
+
+        public void HidePermissionModePopup()
+        {
+            if (_permissionModePopover == null) return;
+            _suppressPermissionModeDismissEvent = true;
+            _permissionModePopover.Dismiss(DismissType.Manual);
+        }
+
+        private void RenderPermissionModeOptions(IReadOnlyList<PermissionModeDescriptor> modes, string currentValue)
+        {
+            if (_permissionModeOptionsContainer == null)
+            {
+                return;
+            }
+
+            _permissionModeOptionsContainer.Clear();
+            if (modes == null)
+            {
+                return;
+            }
+
+            foreach (var mode in modes)
+            {
+                var localMode = mode;
+                // Mirror the model/provider option rows exactly: a compact text-only button. The
+                // status-bar button keeps its icon; per-row icons here would just be oversized,
+                // repeated glyphs (auto/acceptEdits/bypass share one icon) and bloat the row height.
+                var btn = new Button();
+                btn.name = localMode.Value;
+                btn.AddToClassList("sk-model-option");
+                if (string.Equals(localMode.Value, currentValue, StringComparison.Ordinal))
+                {
+                    btn.AddToClassList("active");
+                }
+
+                var nameLabel = new Label(localMode.Label);
+                nameLabel.AddToClassList("sk-model-option-name");
+                btn.Add(nameLabel);
+
+                btn.RegisterCallback<ClickEvent>(_ => PermissionModeSelected?.Invoke(localMode.Value));
+                _permissionModeOptionsContainer.Add(btn);
+            }
+        }
+
+        private void OnPermissionModePopoverDismissed(Popover popup, DismissType reason)
+        {
+            _permissionModePopover.dismissed -= OnPermissionModePopoverDismissed;
+            _permissionModePopover = null;
+
+            if (_suppressPermissionModeDismissEvent)
+            {
+                _suppressPermissionModeDismissEvent = false;
+                return;
+            }
+
+            // User-driven dismiss (outside click, ESC, etc.) — sync VM.
+            PermissionModePopupDismissed?.Invoke();
         }
 
         public void ShowThinkingSection(bool show)

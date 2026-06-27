@@ -78,6 +78,20 @@ namespace Ryx.Sidekick.Editor.UseCases.Contracts
         void SendUserInputResponse(PendingPermission permission, JObject response);
         void SendControlResponse(string requestId, string toolUseId, bool allow, JToken updatedInput = null, string message = null);
         Task InterruptAsync();
+
+        /// <summary>
+        /// Switches the permission mode on a live persistent session without interrupting the turn
+        /// (Claude <c>set_permission_mode</c> control_request). No-op for CliProcess providers and when
+        /// the session is idle — the persisted mode applies on the next start.
+        /// </summary>
+        Task SetPermissionModeAsync(string mode);
+
+        /// <summary>
+        /// Switches the model on a live persistent session (Claude <c>set_model</c>). No-op for
+        /// CliProcess providers and when idle.
+        /// </summary>
+        Task SetModelAsync(string model);
+
         void Stop();
     }
 }

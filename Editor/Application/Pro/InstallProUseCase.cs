@@ -58,17 +58,9 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
     /// <inheritdoc cref="IProInstaller"/>
     internal sealed class InstallProUseCase : IProInstaller, IUpdateInstaller
     {
-        private const string LiteId = "com.ryxinteractive.sidekick";
-        private const string ProId  = "com.ryxinteractive.sidekick.pro";
-
         // Same Cloud Functions base + endpoint the Project Settings install flow uses.
         private const string FunctionsBase = "https://europe-west1-ryx-sidekick.cloudfunctions.net";
         private const string GetDownloadUrl = FunctionsBase + "/getDownloadUrl";
-
-        // Package ids the two-stage installer reconciles per SKU (matches the manifest the server payload
-        // carries). Pro ships both packages; Lite ships just the base package.
-        private static readonly string[] ProPackages = { ProId };
-        private static readonly string[] LitePackages = { LiteId };
 
         private readonly IHttpClient _http;
         private readonly IFileDownloader _downloader;
@@ -117,7 +109,6 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
 
             var releases = _remote?.Current?.Releases;
             var release = isPro ? releases?.Pro : releases?.Lite;
-            var packages = isPro ? ProPackages : LitePackages;
             var supportUntil = _entitlement?.Get().SupportUntil ?? 0L;
             var entitled = EntitledReleaseResolver.Resolve(release?.Versions, supportUntil);
 
@@ -148,7 +139,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
 
             var update = new UpdateService(_http, _downloader, _installer, GetDownloadUrl, DownloadDirectory);
             UpdateOutcome outcome;
-            try { outcome = await update.DownloadAndInstallAsync(sku, version, packages, token); }
+            try { outcome = await update.DownloadAndInstallAsync(sku, version, token); }
             catch { outcome = UpdateOutcome.UrlError; }
 
             switch (outcome)

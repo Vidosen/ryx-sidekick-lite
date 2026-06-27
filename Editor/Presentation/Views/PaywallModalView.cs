@@ -3,9 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ryx.Sidekick.Editor.Presentation.Renderers;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using Ryx.Sidekick.Editor.Presentation.State;
-using Unity.AppUI.Core;
-using Unity.AppUI.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
@@ -13,7 +12,7 @@ using Button = UnityEngine.UIElements.Button;
 namespace Ryx.Sidekick.Editor.Presentation.Views
 {
     /// <summary>
-    /// App UI <see cref="Modal"/>-hosted paywall dialog (refined "F" design). Renders two variants
+    /// <see cref="SidekickModalLayer"/>-hosted paywall dialog (refined "F" design). Renders two variants
     /// driven by <see cref="PaywallViewState.Mode"/>:
     /// <list type="bullet">
     /// <item><see cref="PaywallMode.Buy"/> — the upsell/purchase dialog (centred, outside-click dismiss).</item>
@@ -22,8 +21,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
     /// </list>
     /// Features are grouped by <see cref="PaywallFeatureItem.IsProvider"/>: provider features collapse
     /// into a single wide "engines" hero (with one chip each), and the remaining features render as a
-    /// two-column card grid below. The caller passes a <paramref name="referenceView"/> inside the
-    /// active App UI panel so the modal anchors to the correct panel.
+    /// two-column card grid below. The caller passes a <paramref name="layer"/> so the modal anchors
+    /// to the correct surface.
     /// </summary>
     internal sealed class PaywallModalView : IPaywallView, IDisposable
     {
@@ -43,8 +42,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         private static readonly Color Dark = new Color(0x18 / 255f, 0x18 / 255f, 0x18 / 255f);
         private static readonly Color Muted = new Color(0x8A / 255f, 0x85 / 255f, 0x7C / 255f);
 
-        private readonly VisualElement _referenceView;
-        private Modal _modal;
+        private readonly SidekickModalLayer _layer;
+        private SidekickModalHandle _handle;
         private bool _suppressDismissEvent;
 
         // In-place update handles for the Install variant — avoids rebuilding (and flashing) the
@@ -53,9 +52,9 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         private Label _installStatusLabel;
         private Button _installButton;
 
-        public PaywallModalView(VisualElement referenceView)
+        public PaywallModalView(SidekickModalLayer layer)
         {
-            _referenceView = referenceView;
+            _layer = layer;
         }
 
         public event Action PrimaryActionRequested;
@@ -71,16 +70,20 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
                 return;
             }
 
-            // While an Install modal is already open, just refresh its status/button in place so the
-            // surface doesn't flash on each progress update.
-            if (_modal != null && _currentMode == PaywallMode.Install && state.Mode == PaywallMode.Install)
+            // Same mode while already open → refresh content IN PLACE (no dismiss/re-show), so the
+            // entrance animation doesn't replay. PaywallViewModel.Open() renders once from cache,
+            // then again after its async offer refresh; the second render must not re-animate.
+            if (_handle != null && _handle.IsOpen && _currentMode == state.Mode)
             {
-                UpdateInstallStatus(state);
+                if (state.Mode == PaywallMode.Install)
+                    UpdateInstallStatus(state);
+                else
+                    _handle.ReplaceContent(BuildBuyContent(state));
                 return;
             }
 
             // Dismiss any existing modal before rebuilding so we never have two open at once.
-            if (_modal != null)
+            if (_handle != null && _handle.IsOpen)
             {
                 DismissModal();
             }
@@ -93,22 +96,11 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
                 ? BuildInstallContent(state)
                 : BuildBuyContent(state);
 
-            // Both variants render as a compact centred modal over a dim scrim. (Install used to
-            // be ModalFullScreenMode.FullScreen, but App UI's fullscreen theme rule force-stretches
-            // .appui-modal__content to full width — which blew the card out and exposed App UI's
-            // own modal-content background as a second backdrop.)
-            _modal = Modal.Build(_referenceView, content)
-                // Install carries its own close button and ignores outside-click so the user makes
-                // a deliberate choice; the Buy dialog still dismisses on outside-click.
-                .SetOutsideClickDismiss(state.Mode == PaywallMode.Buy)
-                .SetKeyboardDismiss(true);
-
-            // Tag App UI's .appui-modal__content wrapper (the content's parent after Build) so USS
-            // can cap the modal width without cycling against the auto-sized wrapper.
-            content.parent?.AddToClassList("sk-modal-paywall-content");
-
-            _modal.dismissed += OnModalDismissed;
-            _modal.Show();
+            _handle = _layer.Show(content, new SidekickModalOptions(
+                state.Mode == PaywallMode.Buy,
+                true,
+                "sk-modal-paywall-content"));
+            _handle.Dismissed += OnHandleDismissed;
         }
 
         // ── Buy variant (upsell) ──────────────────────────────────────────────────
@@ -439,7 +431,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
 
         private void DismissModal()
         {
-            if (_modal == null)
+            if (_handle == null)
             {
                 return;
             }
@@ -447,13 +439,14 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             _installStatusLabel = null;
             _installButton = null;
             _suppressDismissEvent = true;
-            _modal.Dismiss(DismissType.Manual);
+            // Dismiss() invokes OnHandleDismissed synchronously, which nulls _handle (and honors
+            // _suppressDismissEvent) — so no redundant null here.
+            _handle.Dismiss(SidekickModalDismissType.Manual);
         }
 
-        private void OnModalDismissed(Modal modal, DismissType reason)
+        private void OnHandleDismissed(SidekickModalDismissType type)
         {
-            modal.dismissed -= OnModalDismissed;
-            _modal = null;
+            _handle = null;
 
             if (_suppressDismissEvent)
             {
@@ -462,7 +455,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             }
 
             // User-driven dismiss (outside-click or ESC) — notify the ViewModel.
-            _referenceView.schedule.Execute(() => DismissRequested?.Invoke());
+            DismissRequested?.Invoke();
         }
 
         /// <inheritdoc />

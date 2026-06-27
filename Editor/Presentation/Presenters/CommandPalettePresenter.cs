@@ -26,6 +26,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
         private readonly AttachmentController _attachmentController;
         private readonly Action _createNewConversation;
         private readonly CommandRegistry _commandRegistry;
+        private readonly InteractiveTerminalLauncher _terminalLauncher = new();
         private readonly BuiltInActionsProvider _builtInActionsProvider;
         private readonly SlashCommandsProvider _slashCommandsProvider;
         private readonly McpPromptsProvider _mcpPromptsProvider;
@@ -62,6 +63,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                 OnOpenSettings = () => SettingsService.OpenProjectSettings("Project/Sidekick"),
                 OnOpenHelp = () => Application.OpenURL("https://github.com/anthropics/claude-code"),
                 OnNewChat = _createNewConversation,
+                OnOpenInTerminal = () => _terminalLauncher.OpenInteractiveSession(),
                 OnSelectModel = model => _providerSelectorViewModel?.SelectModelPresetCommand.Execute(model),
                 GetCurrentModel = () => SidekickSettings.instance.Model,
                 GetAvailableModels = () => _providerSelectorViewModel?.ModelPresets?.Select(model => model.Name)

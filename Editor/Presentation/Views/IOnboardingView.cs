@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 using System;
 using System.Collections.Generic;
-using Unity.AppUI.Core;
-using Unity.AppUI.UI;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 
@@ -100,7 +99,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
     {
         private const int McpStepIndex = 3; // must match OnboardingWizardPresenter.StepMcp
 
-        private readonly VisualElement _referenceView;
+        private readonly SidekickModalLayer _layer;
         private readonly VisualElement _content;
         private readonly VisualElement[] _progressDots;
         private readonly VisualElement _stepProvider;
@@ -132,16 +131,16 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
         private readonly Button _nextButton;
         private readonly Button _finishButton;
 
-        private Modal _modal;
+        private SidekickModalHandle _handle;
         private bool _suppressDismissEvent;
 
         /// <summary>
         /// Constructs the view from a pre-instantiated onboarding content fragment. The fragment
-        /// is kept off-tree until <see cref="Show"/> builds the Modal; the Modal hosts it then.
+        /// is kept off-tree until <see cref="Show"/> presents it via the <see cref="SidekickModalLayer"/>.
         /// </summary>
-        public OnboardingView(VisualElement referenceView, VisualElement contentFragment)
+        public OnboardingView(SidekickModalLayer layer, VisualElement contentFragment)
         {
-            _referenceView = referenceView;
+            _layer = layer;
             _content = contentFragment;
 
             if (_content == null)
@@ -249,18 +248,18 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
 
         /// <summary>
         /// Exposes the cached content fragment for tests that need to introspect the
-        /// rendered DOM without standing up an App UI Panel/Modal.
+        /// rendered DOM without standing up an App UI Panel or modal layer.
         /// </summary>
         internal VisualElement ContentForTests => _content;
 
         public void Show()
         {
-            if (_modal != null)
+            if (_handle != null && _handle.IsOpen)
             {
                 return;
             }
 
-            if (_referenceView == null || _content == null)
+            if (_layer == null || _content == null)
             {
                 return;
             }
@@ -268,34 +267,24 @@ namespace Ryx.Sidekick.Editor.Presentation.Views
             // Onboarding is the forced first-run flow today: ESC and outside-click are
             // BOTH no-ops. Users dismiss via Skip / Finish, which the flow partial
             // routes through CompleteOnboarding → Hide().
-            _modal = Modal.Build(_referenceView, _content)
-                .SetOutsideClickDismiss(false)
-                .SetKeyboardDismiss(false);
-            // Tag App UI's .appui-modal__content wrapper (now our content's
-            // parent) so USS can give it a definite, responsive width. Without
-            // this scope hook, %-widths on the panel resolve cyclically against
-            // the auto-sized wrapper and Yoga either shrinks the panel
-            // iteratively or leaves a phantom right gap.
-            _content.parent?.AddToClassList("sk-modal-onboarding-content");
-            _modal.dismissed += OnModalDismissed;
-            _modal.Show();
+            _handle = _layer.Show(_content, new SidekickModalOptions(false, false, "sk-modal-onboarding-content"));
+            _handle.Dismissed += OnHandleDismissed;
         }
 
         public void Hide()
         {
-            if (_modal == null)
+            if (_handle == null || !_handle.IsOpen)
             {
                 return;
             }
 
             _suppressDismissEvent = true;
-            _modal.Dismiss(DismissType.Manual);
+            _handle.Dismiss(SidekickModalDismissType.Manual);
         }
 
-        private void OnModalDismissed(Modal modal, DismissType reason)
+        private void OnHandleDismissed(SidekickModalDismissType type)
         {
-            modal.dismissed -= OnModalDismissed;
-            _modal = null;
+            _handle = null;
 
             if (_suppressDismissEvent)
             {

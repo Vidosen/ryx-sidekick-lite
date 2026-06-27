@@ -33,17 +33,30 @@ namespace Ryx.Sidekick.Editor
             LoadMcpStyleSheet(root);
             rootElement.Add(root);
 
-            var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.style.flexGrow = 1;
+            var scroll = new ScrollView(ScrollViewMode.Vertical)
+            {
+                style =
+                {
+                    flexGrow = 1
+                }
+            };
             root.Add(scroll);
 
             var content = new VisualElement(); // a child we own and can rebuild without re-adding the page root
             scroll.Add(content);
 
             Render(content);
+
+            // Notify the Presentation bridge LAST so it can create a local modal layer for the
+            // in-place Paywall. Done after the page root is added so the page stays the first
+            // child of rootElement (the modal layer's overlay root is absolute-positioned and
+            // brought to front on Show, so its sibling order does not affect paint order).
+            SidekickSettingsModalHost.NotifyActivated(rootElement);
+
+            rootElement.RegisterCallback<DetachFromPanelEvent>(_ => SidekickSettingsModalHost.NotifyDeactivated(rootElement));
         }
 
-        private void Render(VisualElement content)
+        private static void Render(VisualElement content)
         {
             content.Clear();
             var settings = SidekickSettings.instance;

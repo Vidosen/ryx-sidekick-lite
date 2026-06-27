@@ -59,12 +59,18 @@ namespace Ryx.Sidekick.Editor.UseCases.Chat
                 return new StopTurnResult(StopTurnStatus.IgnoredNoActiveTurn);
             }
 
-            _runtimeOrchestrator.Stop();
+            // Interrupt the current turn rather than tearing the runtime down. For a persistent
+            // session this sends an `interrupt` control_request over stdin and keeps the process
+            // alive for the next prompt; only hard teardown (Dispose / provider switch / auth
+            // failure) calls Stop(). Fire-and-forget: the synchronous stdin write happens inline,
+            // and turn-completion is signalled asynchronously through the orchestrator's events.
+            _ = _runtimeOrchestrator.InterruptAsync();
 
             var streamingMessageUpdated = false;
             if (request?.CurrentStreamingMessage != null)
             {
-                request.CurrentStreamingMessage.Content += "\n\n[Stopped by user]";
+                // Finalize the in-flight assistant message without injecting a visible marker —
+                // the turn just stops streaming and keeps whatever content already arrived.
                 request.CurrentStreamingMessage.IsStreaming = false;
                 streamingMessageUpdated = true;
             }

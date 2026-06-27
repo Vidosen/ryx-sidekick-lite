@@ -104,12 +104,53 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
                 GetToolIcon,
                 GetToolDisplayName,
                 CreateToolSpecificContentInstance,
-                CreateToolHeaderContentInstance);
+                CreateToolHeaderContentInstance,
+                GetToolHeaderOptions);
 
         // internal static (тестируется CodexProviderTests)
         internal static string GetToolIcon(ToolKind kind)
         {
             return ToolPresentationCatalog.GetIconKey(kind);
+        }
+
+        /// <summary>
+        /// Header presentation for the collapsed-foldable tool layout. Terminal/Bash and MCP tools
+        /// opt in today; every other kind keeps the default (non-foldable) header.
+        /// </summary>
+        internal static ToolHeaderOptions GetToolHeaderOptions(ToolUse toolUse)
+        {
+            if (toolUse == null)
+            {
+                return default;
+            }
+
+            var kind = ToolPresentationCatalog.GetEffectiveKind(toolUse);
+
+            if (kind == ToolKind.Bash)
+            {
+                var lines = BashCommandFormatter.CountLines(toolUse.Output);
+                return new ToolHeaderOptions
+                {
+                    Foldable = true,
+                    IconKey = ToolPresentationCatalog.GetIconKey(ToolKind.Bash),
+                    MetaText = lines <= 0 ? null : (lines == 1 ? "1 line" : $"{lines} lines"),
+                };
+            }
+
+            if (kind == ToolKind.Mcp)
+            {
+                // Monospace only when the header shows the technical server.tool address; a
+                // human-readable title (when present) reads as prose.
+                var hasTitle = !string.IsNullOrEmpty(ToolDisplayHelpers.ExtractMcpTitle(toolUse.Input));
+                return new ToolHeaderOptions
+                {
+                    Foldable = true,
+                    BadgeText = "MCP",
+                    MonospaceName = !hasTitle,
+                };
+            }
+
+            return default;
         }
 
         internal static string GetToolDisplayName(ToolUse toolUse)
@@ -140,18 +181,18 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
                 case ToolKind.Move:
                     return "Move";
                 case ToolKind.Bash:
-                    // Show description if available, otherwise fallback to command
+                    // Description-led header (no "Bash:" prefix); fall back to a middle-ellipsized command.
                     var description = !string.IsNullOrWhiteSpace(toolUse.Description)
                         ? toolUse.Description
                         : ToolDisplayHelpers.ExtractDescription(toolUse.Input);
                     if (!string.IsNullOrEmpty(description))
                     {
-                        return $"Bash: {description}";
+                        return description;
                     }
                     var cmd = !string.IsNullOrWhiteSpace(toolUse.CommandLine)
-                        ? ToolDisplayHelpers.TrimPreview(toolUse.CommandLine, 30)
+                        ? toolUse.CommandLine
                         : ToolDisplayHelpers.ExtractCommand(toolUse.Input);
-                    return !string.IsNullOrEmpty(cmd) ? $"Bash {ToolDisplayHelpers.TrimPreview(cmd, 30)}" : "Bash";
+                    return !string.IsNullOrEmpty(cmd) ? BashCommandFormatter.MiddleEllipsis(cmd, 48) : "Bash";
                 case ToolKind.Search:
                     var pattern = ExtractPattern(toolUse.Input);
                     return !string.IsNullOrEmpty(pattern) ? $"Search {pattern}" : "Search";
@@ -181,6 +222,13 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
                     return "WebSearch";
                 case ToolKind.Delete:
                     return "Delete";
+                case ToolKind.Mcp:
+                    // Lead with a human-readable title from the input when present (like Bash);
+                    // otherwise fall back to the technical server.tool address.
+                    var mcpTitle = ToolDisplayHelpers.ExtractMcpTitle(toolUse.Input);
+                    return !string.IsNullOrEmpty(mcpTitle)
+                        ? mcpTitle
+                        : ToolPresentationCatalog.ResolveMcpDisplayName(toolUse);
                 default:
                     return ToolPresentationCatalog.ResolveRawFallbackName(toolUse.RawTitle, toolUse.RawName, toolUse.Name);
             }
@@ -199,7 +247,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Renderers
         {
             var element = new ToolCallElement();
             element.AddToClassList("sk-inline-tool");
-            element.SetToolUse(toolUse, GetToolIcon, GetToolDisplayName, CreateToolSpecificContentInstance, CreateToolHeaderContentInstance);
+            element.SetToolUse(toolUse, GetToolIcon, GetToolDisplayName, CreateToolSpecificContentInstance, CreateToolHeaderContentInstance, GetToolHeaderOptions);
             return element;
         }
 

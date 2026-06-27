@@ -35,6 +35,102 @@ namespace Ryx.Sidekick.Editor
             var settings = SidekickSettings.instance;
             var root = SidekickSettingsSectionBuilder.CreateScrollableRoot(rootElement);
 
+            // ── Sidekick Account (with Pro license status) ────────────────────────
+            // Account sits at the top of the page. License is a function of the account:
+            // both sign-in and Refresh write the same entitlement token into the cache that
+            // LicenseService.GetStatus() reads. License acquisition lives on the web
+            // (ryx-sidekick.pro) — the editor only displays the cached license and re-pulls it
+            // through account credentials (no license-key entry, no manual install button;
+            // install/update is handled by the in-window paywall + status-bar chip).
+            var accountSection = SidekickSettingsSectionBuilder.Section("Sidekick Account");
+            root.Add(accountSection);
+
+            var manager = Infrastructure.Auth.SidekickAccountManager.Instance;
+
+            // LicenseService is built for GetStatus() only — there is no in-editor key activation.
+            var verifier = new Infrastructure.Entitlements.RsaEntitlementVerifier(
+                Infrastructure.Entitlements.RsaEntitlementVerifier.Base64UrlDecode(
+                    string.IsNullOrEmpty(Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyN)
+                        ? "AQAB" : Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyN),
+                Infrastructure.Entitlements.RsaEntitlementVerifier.Base64UrlDecode(
+                    string.IsNullOrEmpty(Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyE)
+                        ? "AQAB" : Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyE));
+
+            var creds = Infrastructure.Auth.CredentialStoreFactory.Create();
+            var http = new Infrastructure.Net.UnityWebRequestHttpClient();
+            var cache = new Infrastructure.Licensing.SettingsEntitlementCache();
+            var machine = new Infrastructure.Licensing.SystemInfoMachineIdProvider();
+            var clock = new Infrastructure.SystemClock();
+
+            const string fnBase = "https://europe-west1-ryx-sidekick.cloudfunctions.net";
+            var license = new UseCases.Licensing.LicenseService(
+                http, verifier, creds, cache, machine, clock, fnBase + "/validateLicense");
+
+            var accountStatusLabel = new Label();
+            void RefreshAccountStatus()
+            {
+                var st = manager.GetStatus();
+                accountStatusLabel.text = st.IsSignedIn
+                    ? (string.IsNullOrEmpty(st.Profile?.Email)
+                        ? $"Signed in · {st.Profile?.Plan ?? string.Empty}"
+                        : $"Signed in: {st.Profile.Email} · {st.Profile?.Plan ?? string.Empty}")
+                    : "Not signed in";
+            }
+
+            var licenseStatusLabel = new Label();
+
+            // "Manage account" opens the modal via the Presentation bridge.
+            var manageAccountBtn = new Button(SidekickSettingsModalHost.RequestAccountModal)
+            {
+                text = "Manage account"
+            };
+
+            // "Refresh" silently re-pulls the session via the stored refresh token (no
+            // logout/login). PersistSession() rewrites the cached entitlement token, so the
+            // License line updates too.
+            var refreshBtn = new Button { text = "Refresh" };
+
+            void RefreshAll()
+            {
+                RefreshAccountStatus();
+                RefreshLicenseStatus();
+                refreshBtn.SetEnabled(manager.GetStatus().IsSignedIn);
+            }
+
+            refreshBtn.clicked += () =>
+            {
+                refreshBtn.SetEnabled(false);
+                licenseStatusLabel.text = "Refreshing…";
+                _ = manager.RefreshAsync().ContinueWith(_ =>
+                {
+                    EditorApplication.delayCall += RefreshAll;
+                });
+            };
+
+            void OnAccountStatusChanged(Domain.Account.SidekickAccountStatus _)
+            {
+                EditorApplication.delayCall += RefreshAll;
+            }
+            manager.OnStatusChanged += OnAccountStatusChanged;
+
+            RefreshAll();
+
+            accountSection.Add(SidekickSettingsSectionBuilder.FieldRow("Account", accountStatusLabel, null));
+            accountSection.Add(SidekickSettingsSectionBuilder.FieldRow("License", licenseStatusLabel, null));
+            var accountActions = SidekickSettingsSectionBuilder.HorizontalRow();
+            accountActions.AddToClassList("sk-settings-actions");
+            accountActions.style.marginTop = 8;
+            accountActions.Add(manageAccountBtn);
+            accountActions.Add(refreshBtn);
+            accountSection.Add(accountActions);
+
+            // Deactivate modal bridge and unsubscribe status listener when the settings page is removed.
+            rootElement.RegisterCallback<DetachFromPanelEvent>(_ =>
+            {
+                manager.OnStatusChanged -= OnAccountStatusChanged;
+                SidekickSettingsModalHost.NotifyDeactivated(rootElement);
+            });
+
             // --- CLI section ---
             var cliSection = SidekickSettingsSectionBuilder.Section("CLI");
             root.Add(cliSection);
@@ -78,6 +174,13 @@ namespace Ryx.Sidekick.Editor
             behaviorSection.Add(SidekickSettingsSectionBuilder.FieldRow("Verbose Logging", verbose,
                 "Enable verbose output from the CLI."));
 
+            var agentHost = new Toggle { value = settings.UseAgentHost };
+            agentHost.RegisterValueChangedCallback(evt => settings.UseAgentHost = evt.newValue);
+            behaviorSection.Add(SidekickSettingsSectionBuilder.FieldRow("Use Agent Host (Experimental)", agentHost,
+                "Run the CLI through an external Agent Host process that survives Unity domain reloads — " +
+                "edits that trigger a recompile no longer kill the active turn or re-spend tokens on resume. " +
+                "Falls back to the in-process host if the daemon is unavailable. Takes effect on the next turn."));
+
             // --- Debugging section ---
             var debuggingSection = SidekickSettingsSectionBuilder.Section("Debugging");
             root.Add(debuggingSection);
@@ -118,230 +221,6 @@ namespace Ryx.Sidekick.Editor
             validationSection.Add(validateButton);
             validationSection.Add(validationLabel);
 
-            // ── License (Pro activation via key-fallback) ──────────────────────
-            var licenseSection = SidekickSettingsSectionBuilder.Section("License");
-
-            var verifier = new Ryx.Sidekick.Editor.Infrastructure.Entitlements.RsaEntitlementVerifier(
-                Ryx.Sidekick.Editor.Infrastructure.Entitlements.RsaEntitlementVerifier.Base64UrlDecode(
-                    string.IsNullOrEmpty(Ryx.Sidekick.Editor.Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyN)
-                        ? "AQAB" : Ryx.Sidekick.Editor.Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyN),
-                Ryx.Sidekick.Editor.Infrastructure.Entitlements.RsaEntitlementVerifier.Base64UrlDecode(
-                    string.IsNullOrEmpty(Ryx.Sidekick.Editor.Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyE)
-                        ? "AQAB" : Ryx.Sidekick.Editor.Infrastructure.Entitlements.SidekickEntitlementKey.PublicKeyE));
-
-            var creds = Ryx.Sidekick.Editor.Infrastructure.Auth.CredentialStoreFactory.Create();
-            var http = new Ryx.Sidekick.Editor.Infrastructure.Net.UnityWebRequestHttpClient();
-            var cache = new Ryx.Sidekick.Editor.Infrastructure.Licensing.SettingsEntitlementCache();
-            var machine = new Ryx.Sidekick.Editor.Infrastructure.Licensing.SystemInfoMachineIdProvider();
-            var clock = new Ryx.Sidekick.Editor.Infrastructure.SystemClock();
-
-            const string fnBase = "https://europe-west1-ryx-sidekick.cloudfunctions.net";
-            var license = new Ryx.Sidekick.Editor.UseCases.Licensing.LicenseService(
-                http, verifier, creds, cache, machine, clock, fnBase + "/validateLicense");
-
-            var statusLabel = new UnityEngine.UIElements.Label();
-            void RefreshStatus()
-            {
-                var st = license.GetStatus();
-                if (st.State == Ryx.Sidekick.Editor.UseCases.Licensing.LicenseState.Active)
-                {
-                    if (st.EditionYear > 0 && st.SupportUntil > 0)
-                    {
-                        var windowEnd = DateTimeOffset.FromUnixTimeSeconds(st.SupportUntil).UtcDateTime;
-                        statusLabel.text = $"{st.Sku} {st.EditionYear} · updates until {windowEnd:yyyy-MM-dd}";
-                    }
-                    else
-                    {
-                        statusLabel.text = $"Active ({st.Sku})";
-                    }
-                }
-                else if (st.State == Ryx.Sidekick.Editor.UseCases.Licensing.LicenseState.Expired)
-                {
-                    statusLabel.text = "Expired — reconnect to refresh";
-                }
-                else
-                {
-                    statusLabel.text = "Not activated";
-                }
-            }
-            RefreshStatus();
-
-            var keyField = new UnityEngine.UIElements.TextField { isPasswordField = true };
-            var activateBtn = new UnityEngine.UIElements.Button { text = "Activate" };
-            activateBtn.clicked += () =>
-            {
-                activateBtn.SetEnabled(false);
-                statusLabel.text = "Activating…";
-                _ = license.ActivateAsync(keyField.value,
-                        UnityEngine.Application.unityVersion, UnityEngine.Application.platform.ToString())
-                    .ContinueWith(t =>
-                    {
-                        EditorApplication.delayCall += () =>
-                        {
-                            activateBtn.SetEnabled(true);
-                            if (t.IsCompletedSuccessfully &&
-                                t.Result.Outcome == Ryx.Sidekick.Editor.UseCases.Licensing.LicenseActivationOutcome.Success)
-                                RefreshStatus();
-                            else
-                                statusLabel.text = "Activation failed: " +
-                                    (t.IsCompletedSuccessfully ? t.Result.Outcome.ToString() : "error");
-                        };
-                    });
-            };
-
-            var installer = new Ryx.Sidekick.Editor.Infrastructure.Licensing.EditorPackageInstaller();
-            var downloader = new Ryx.Sidekick.Editor.Infrastructure.Net.UnityFileDownloader();
-            var update = new Ryx.Sidekick.Editor.UseCases.Licensing.UpdateService(
-                http, downloader, installer, fnBase + "/getDownloadUrl",
-                System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ryx-sidekick-update"));
-
-            var updateBtn = new UnityEngine.UIElements.Button { text = "Download & install latest Pro" };
-            updateBtn.clicked += () =>
-            {
-                var token = cache.Read();
-                if (string.IsNullOrEmpty(token)) { statusLabel.text = "Activate a license first."; return; }
-
-                // Route version selection through EntitledReleaseResolver: download the newest
-                // release whose releaseDate is within the support window (releaseDate <= supportUntil).
-                // The server stays the authority — out-of-window downloads are rejected with
-                // `update_window_expired` even if the client picks wrong.
-                var supportUntil = license.GetStatus().SupportUntil;
-                var remote = new Ryx.Sidekick.Editor.Infrastructure.Pro.RemoteConfigSource(
-                    http, new Ryx.Sidekick.Editor.Infrastructure.Pro.RemoteConfigCache(), null);
-                updateBtn.SetEnabled(false);
-                statusLabel.text = "Checking…";
-                _ = remote.RefreshAsync().ContinueWith(_ =>
-                {
-                    EditorApplication.delayCall += () =>
-                    {
-                        var pro = remote.Current?.Releases?.Pro;
-                        var entitled = Ryx.Sidekick.Editor.UseCases.Licensing.EntitledReleaseResolver.Resolve(
-                            pro?.Versions, supportUntil);
-
-                        string version;
-                        string suffix = "";
-                        if (!string.IsNullOrEmpty(entitled.Version))
-                        {
-                            // Newest entitled release inside the support window.
-                            version = entitled.Version;
-                            if (entitled.HasNewerOutOfWindow)
-                                suffix = " (newer version available — renew to update)";
-                        }
-                        else if (pro?.Versions != null && pro.Versions.Count > 0)
-                        {
-                            // Version metadata exists but nothing falls in the window → window ended.
-                            updateBtn.SetEnabled(true);
-                            statusLabel.text = "Update window ended — renew to get newer versions.";
-                            return;
-                        }
-                        else
-                        {
-                            // Old config without versions[] → fall back to `latest`; server still enforces the window.
-                            version = pro?.Latest;
-                        }
-
-                        if (string.IsNullOrEmpty(version))
-                        { updateBtn.SetEnabled(true); statusLabel.text = "No Pro release info."; return; }
-
-                        statusLabel.text = $"Downloading Pro {version}…";
-                        _ = update.DownloadAndInstallAsync("pro", version,
-                                new[] { "com.ryxinteractive.sidekick.pro" }, token)
-                            .ContinueWith(t =>
-                            {
-                                EditorApplication.delayCall += () =>
-                                {
-                                    updateBtn.SetEnabled(true);
-                                    statusLabel.text = t.IsCompletedSuccessfully
-                                        ? "Update: " + t.Result + suffix
-                                        : "Update failed";
-                                };
-                            });
-                    };
-                });
-            };
-
-            licenseSection.Add(SidekickSettingsSectionBuilder.FieldRow("License key", keyField,
-                "Offline-fallback Pro license key (only its hash is sent)."));
-            licenseSection.Add(SidekickSettingsSectionBuilder.FieldRow("Status", statusLabel, null));
-            licenseSection.Add(activateBtn);
-            licenseSection.Add(updateBtn);
-            root.Add(licenseSection);
-
-            // ── Sidekick Account ──────────────────────────────────────────────────
-            var accountSection = SidekickSettingsSectionBuilder.Section("Sidekick Account");
-
-            var manager = Ryx.Sidekick.Editor.Infrastructure.Auth.SidekickAccountManager.Instance;
-
-            var accountStatusLabel = new UnityEngine.UIElements.Label();
-            var accountSignInBtn = new UnityEngine.UIElements.Button { text = "Sign in" };
-            var accountSignOutBtn = new UnityEngine.UIElements.Button { text = "Sign out" };
-
-            void RefreshAccountStatus()
-            {
-                var st = manager.GetStatus();
-                if (st.IsSignedIn)
-                {
-                    var email = st.Profile?.Email ?? string.Empty;
-                    var plan = st.Profile?.Plan ?? string.Empty;
-                    accountStatusLabel.text = !string.IsNullOrEmpty(email)
-                        ? $"Signed in: {email} · {plan}"
-                        : $"Signed in · {plan}";
-                }
-                else
-                {
-                    accountStatusLabel.text = "Not signed in";
-                }
-                // Show only the relevant button for the current state.
-                accountSignInBtn.style.display = st.IsSignedIn ? DisplayStyle.None : DisplayStyle.Flex;
-                accountSignOutBtn.style.display = st.IsSignedIn ? DisplayStyle.Flex : DisplayStyle.None;
-            }
-            RefreshAccountStatus();
-
-            void OnAccountStatusChanged(Ryx.Sidekick.Editor.Domain.Account.SidekickAccountStatus _)
-            {
-                EditorApplication.delayCall += RefreshAccountStatus;
-            }
-            manager.OnStatusChanged += OnAccountStatusChanged;
-
-            accountSignInBtn.clicked += () =>
-            {
-                accountSignInBtn.SetEnabled(false);
-                accountStatusLabel.text = "Opening browser…";
-                _ = manager.StartLoginAsync(url => UnityEngine.Application.OpenURL(url))
-                    .ContinueWith(_ =>
-                    {
-                        EditorApplication.delayCall += () =>
-                        {
-                            accountSignInBtn.SetEnabled(true);
-                            RefreshAccountStatus();
-                        };
-                    });
-            };
-
-            accountSignOutBtn.clicked += () =>
-            {
-                _ = manager.SignOutAsync().ContinueWith(_ =>
-                {
-                    EditorApplication.delayCall += () =>
-                    {
-                        RefreshAccountStatus();
-                    };
-                });
-            };
-
-            accountSection.Add(SidekickSettingsSectionBuilder.FieldRow("Status", accountStatusLabel, null));
-            var accountButtonRow = SidekickSettingsSectionBuilder.HorizontalRow();
-            accountButtonRow.Add(accountSignInBtn);
-            accountButtonRow.Add(accountSignOutBtn);
-            accountSection.Add(accountButtonRow);
-            root.Add(accountSection);
-
-            // Unsubscribe from status changed when the settings page is disposed
-            rootElement.RegisterCallback<DetachFromPanelEvent>(_ =>
-            {
-                manager.OnStatusChanged -= OnAccountStatusChanged;
-            });
-
             // --- Actions ---
             var actionsSection = SidekickSettingsSectionBuilder.Section("Actions");
             root.Add(actionsSection);
@@ -361,13 +240,46 @@ namespace Ryx.Sidekick.Editor
                 text = "Run Setup Wizard Again"
             });
             actionsSection.Add(actions);
+
+            // Notify the Presentation bridge LAST so it can create a local modal layer for this
+            // page. Done after all page content is added so the page content stays the first
+            // child of rootElement (the modal layer's overlay root is absolute-positioned and
+            // brought to front on Show, so its sibling order does not affect paint order).
+            SidekickSettingsModalHost.NotifyActivated(rootElement);
+
+            void RefreshLicenseStatus()
+            {
+                var st = license.GetStatus();
+                if (st.State == UseCases.Licensing.LicenseState.Active)
+                {
+                    if (st is { EditionYear: > 0, SupportUntil: > 0 })
+                    {
+                        var windowEnd = DateTimeOffset.FromUnixTimeSeconds(st.SupportUntil).UtcDateTime;
+                        licenseStatusLabel.text = $"{st.Sku} {st.EditionYear} · updates until {windowEnd:yyyy-MM-dd}";
+                    }
+                    else
+                    {
+                        licenseStatusLabel.text = $"Active ({st.Sku})";
+                    }
+                }
+                else if (st.State == UseCases.Licensing.LicenseState.Expired)
+                {
+                    licenseStatusLabel.text = "Expired — Refresh to renew";
+                }
+                else
+                {
+                    licenseStatusLabel.text = manager.GetStatus().IsSignedIn
+                        ? "No Pro license"
+                        : "Sign in to sync your Pro license";
+                }
+            }
         }
 
         private static int ResolveActiveProviderIndex(SidekickSettings settings, System.Collections.Generic.IReadOnlyList<ICliProvider> providers)
         {
             for (var i = 0; i < providers.Count; i++)
             {
-                if (string.Equals(providers[i].Id, settings.ProviderId, System.StringComparison.Ordinal))
+                if (string.Equals(providers[i].Id, settings.ProviderId, StringComparison.Ordinal))
                 {
                     return i;
                 }

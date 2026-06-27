@@ -111,7 +111,7 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Platform
             };
         }
 
-        public ProcessStartInfo CreateDebugProcessStartInfo(string cliPath, string arguments, string workingDirectory)
+        public ProcessStartInfo CreateInteractiveTerminalStartInfo(string cliPath, string arguments, string workingDirectory)
         {
             var scriptPath = CreateCommandScript(cliPath, arguments, workingDirectory);
 

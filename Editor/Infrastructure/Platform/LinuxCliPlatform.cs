@@ -110,7 +110,7 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Platform
             };
         }
 
-        public ProcessStartInfo CreateDebugProcessStartInfo(string cliPath, string arguments, string workingDirectory)
+        public ProcessStartInfo CreateInteractiveTerminalStartInfo(string cliPath, string arguments, string workingDirectory)
         {
             // On Linux, try common terminal emulators in order of preference
             // Use x-terminal-emulator if available (Debian/Ubuntu default), fallback to gnome-terminal, xterm

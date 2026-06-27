@@ -34,10 +34,12 @@ namespace Ryx.Sidekick.Editor.Constants
         public static class PermissionModes
         {
             public const string Default = "default";
+            public const string AcceptEdits = "acceptEdits";
+            public const string Auto = "auto";
             public const string Plan = "plan";
             public const string BypassPermissions = "bypassPermissions";
 
-            public static readonly string[] All = { Default, Plan, BypassPermissions };
+            public static readonly string[] All = { Default, AcceptEdits, Auto, Plan, BypassPermissions };
         }
 
         public static class CollaborationModes

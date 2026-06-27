@@ -1,0 +1,69 @@
+/* ============================================
+   Sidekick Modal Layer
+   --------------------------------------------
+   Base scrim and content wrapper used by SidekickModalLayer.
+   ContentWrapperClass modifiers (sk-modal-paywall-content etc.)
+   cap the max-width for each specific modal variant.
+   ============================================ */
+
+/* Full-cover semi-transparent backdrop. flex + center aligns the wrapper.
+   Padding gives a safe-area gutter so the card never touches the window edges, even
+   when content forces it wider than its max-width (e.g. a long, non-wrapping headline). */
+.sk-modal-scrim {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+    /* Backdrop fade. The --closed state (toggled by SidekickModalLayer on a live panel)
+       drives the enter/exit animation; without a panel the class is removed synchronously. */
+    opacity: 1;
+    transition: opacity 0.18s ease-out;
+}
+
+/* Base content wrapper — centered, no extra sizing by default.
+   Specific modal variants add their own max-width class. */
+.sk-modal-content {
+    align-self: center;
+    justify-content: center;
+    align-items: stretch;
+    /* Subtle pop on enter/exit, in tandem with the scrim backdrop fade. */
+    opacity: 1;
+    scale: 1;
+    transition: opacity 0.18s ease-out, scale 0.18s ease-out;
+}
+
+/* Closed/animating state: backdrop transparent, card faded + slightly scaled down. */
+.sk-modal-scrim--closed {
+    opacity: 0;
+}
+
+.sk-modal-scrim--closed .sk-modal-content {
+    opacity: 0;
+    scale: 0.96;
+}
+
+/* Account modal — width cap + card surface. The reused .sk-login-screen card has no
+   background of its own (the background lived on .sk-login-overlay, which the modal does
+   not use), so give the wrapper an opaque surface, border and radius. */
+.sk-modal-account-content {
+    width: 100%;
+    max-width: 460px;
+    background-color: var(--sk-bg-secondary);
+    border-width: 1px;
+    border-color: var(--sk-border);
+    border-radius: 12px;
+}
+
+/* The shared .sk-login-title is sized (32px) for the full-screen provider login overlay;
+   in the compact account modal that overflows the 460px card, so scope it down here. */
+.sk-modal-account-content .sk-login-title {
+    font-size: 22px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}

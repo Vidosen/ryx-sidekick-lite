@@ -7,6 +7,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-06-27
+
+### Added
+
+- New **Open in Terminal** command (type `/` in the composer) that opens a real OS terminal at your project root and launches the active CLI — Claude, Codex, or Cursor — as a fresh interactive session, for when you want the full terminal experience alongside the in-editor chat.
+- Two new Claude permission modes — **Accept edits** (auto-accepts file edits but still asks before running commands) and **Auto** (a model classifier decides which actions to allow, erring toward asking) — alongside the existing **Ask before edits** and **Edit automatically**. The status-bar permission control is now a menu you pick from instead of a button that cycles one click at a time, and every mode is available in Plan mode too.
+
+### Changed
+
+- Redesigned how **Terminal / Bash** tool calls appear in chat. Each call is now a compact one-line card — a terminal glyph, the command's description, an output line-count, and a chevron — that's collapsed by default and expands on click. Expanding shows the command with its boilerplate prefix (e.g. `$(command -v git) -C /path`) dimmed so the real action stands out, the full output in a scrollable block, and **Copy command** / **Copy output** buttons. A running command shows an animated spinner and a failed one turns its card red. Stacked terminal calls (a typical push-and-open-PR flow) now read as a few tidy lines instead of a wall of text.
+- Redesigned how **MCP tool** calls (from connected MCP servers) appear in chat. Each call is now a compact one-line card carrying a purple **MCP** badge, collapsed by default. When the call's arguments include a human-readable title (e.g. a `title` or `description` field) the header leads with that and tucks the technical `server.tool` name inside; otherwise it shows `server.tool` in monospace. Expanding reveals the call's **Input** (the arguments, shown first) and **Output** as separate foldable sections with syntax-coloured JSON, so it's easy to scan what was sent and returned. A running call shows an animated spinner and a failed one turns its card red with the error highlighted.
+- The collaboration mode formerly labelled **Default mode** is now **Act mode**, making its role clearer as the counterpart to **Plan mode**.
+- Claude now runs as a single persistent session that stays alive between messages, so changing the permission mode (or model) takes effect **mid-conversation without interrupting the assistant or restarting the CLI** — switching how edits are approved no longer cancels the current turn. Your chosen permission mode now persists across Plan and execution, and is only reset to **Ask before edits** when you explicitly accept a plan with manual approval.
+- Pop-ups — sign-in, the Pro paywall, the first-run setup wizard, and confirmation dialogs — now open as centered cards over a dimmed backdrop with a smooth fade, and close on Esc or an outside click. Sign-in deliberately stays put while a browser login is in progress so it can't be dismissed by accident.
+- Your Sidekick account and Pro upsells now open **in place inside Project Settings** (Project Settings ▸ Sidekick — "Manage account", and the MCP page's upgrade prompt) instead of switching focus to the chat window.
+- Project Settings ▸ Sidekick now shows a single **Sidekick Account** section at the top with both your sign-in and Pro-license status, plus a **Refresh** button that re-syncs your license through your account without signing out and back in. License purchases now live entirely on the web; the in-editor license-key field and the manual "Download & install latest Pro" button have been removed — installing and updating Pro is handled by the upgrade prompt and the status-bar chip.
+
+### Fixed
+
+- The **Project Refresh** dropdown in Project Settings ▸ Sidekick now uses the same styling as the other Sidekick dropdowns instead of falling back to the default editor look.
+- Stopping Claude mid-turn now interrupts the assistant over the live session instead of killing the CLI process, so the persistent session stays alive and your next message continues the same conversation without a cold restart. Stopping also no longer appends a "[Stopped by user]" note to the interrupted reply — it simply stops where it was.
+- The account panel opened from the status-bar **Update** chip no longer splits the chat window into two panes with no way to close it — it now appears as a dismissable pop-up over the chat.
+- The account sign-in pop-up now closes itself the moment sign-in completes, so returning to the editor no longer lands you on the **Sign out** button by reflex.
+- Starting sign-in from Project Settings no longer also pops the "Continue in your browser…" dialog in the chat window — the sign-in pop-up now appears only where you opened it.
+
 ## [2.4.2] - 2026-06-22
 
 ### Changed

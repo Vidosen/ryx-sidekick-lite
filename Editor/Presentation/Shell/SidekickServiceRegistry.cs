@@ -44,6 +44,16 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             services.AddSingleton<IToolRendererRegistry, ToolRendererRegistry>();
             services.AddSingleton<IAttachmentElementFactory, AttachmentElementFactory>();
             services.AddSingleton<IProviderCatalog, CliProviderCatalogAdapter>();
+            // Agent Host (out-of-process CLI ownership; feature-flagged by SidekickSettings.UseAgentHost,
+            // default OFF). The real Phase 4 connector materializes the shipped daemon payload, resolves
+            // the bundled .NET runtime, and reuses-or-spawns the per-project daemon — but ONLY when the
+            // flag is ON (DefaultProcessHostFactory short-circuits on the flag, so TryConnect is never
+            // called with the flag OFF). Any connector failure returns IsValid=false ⇒ the factory falls
+            // back to the in-process CliProcessHost (zero regression). WindowScopedRuntimeLeaseManager
+            // receives the factory via constructor injection and threads it into ProcessManager (no
+            // global statics — CLAUDE.md).
+            services.AddSingleton<IAgentHostConnector, AgentHostConnector>();
+            services.AddSingleton<IProcessHostFactory, DefaultProcessHostFactory>();
             services.AddSingleton<IRuntimeLeaseManager, WindowScopedRuntimeLeaseManager>();
             services.AddSingleton<IResumeStateStore, SessionStateResumeStateStore>();
             services.AddSingleton<ILogger, UnitySidekickLogger>();

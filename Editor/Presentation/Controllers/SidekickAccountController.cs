@@ -18,6 +18,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Controllers
         private readonly IEditorScheduler _scheduler;
         private ISidekickAccountLoginView _view;
         private bool _overlayVisible;
+        private SidekickAccountState _lastNotifiedState = SidekickAccountState.SignedOut;
         private bool _disposed;
 
         public SidekickAccountController(
@@ -117,10 +118,26 @@ namespace Ryx.Sidekick.Editor.Presentation.Controllers
 
             _scheduler.Schedule(() =>
             {
-                if (!_disposed)
+                if (_disposed)
                 {
-                    RenderFromStatus(status);
+                    return;
                 }
+
+                var newState = status?.State ?? SidekickAccountState.SignedOut;
+
+                // When a sign-in flow just completed (SigningIn → SignedIn), close the overlay
+                // automatically. A returning user otherwise tends to reflexively click the only
+                // prominent button — "Sign out" — mistaking it for "Continue"/"Done". Opening the
+                // overlay while already signed in (to inspect the plan) does not pass through
+                // SigningIn, so that case stays open.
+                if (_lastNotifiedState == SidekickAccountState.SigningIn &&
+                    newState == SidekickAccountState.SignedIn)
+                {
+                    _overlayVisible = false;
+                }
+
+                _lastNotifiedState = newState;
+                RenderFromStatus(status);
             });
         }
 
@@ -138,9 +155,13 @@ namespace Ryx.Sidekick.Editor.Presentation.Controllers
         {
             var screen = MapScreen(status);
 
-            // Auto-hide the overlay once signed-in, unless the caller explicitly wants it
-            // visible (e.g. the user opened it from the menu while already signed in to inspect their plan).
-            var visible = forceVisible || screen == SidekickAccountScreen.SigningIn;
+            // Visibility follows the per-controller overlay flag only. A sign-in flow is global
+            // (one OAuth session in the process-singleton manager), so multiple bound views share
+            // the same status. Showing the SigningIn screen wherever the status is SigningIn would
+            // pop the modal in windows the user never opened it in (e.g. the chat window when sign-in
+            // was started from Project Settings). Only the controller whose overlay was opened via
+            // ShowSignIn() (which sets _overlayVisible) shows the in-progress UI.
+            var visible = forceVisible;
 
             return new SidekickAccountLoginViewState(
                 isVisible: visible,

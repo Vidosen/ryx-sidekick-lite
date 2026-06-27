@@ -152,7 +152,8 @@ namespace Ryx.Sidekick.Editor.Domain.Models
         ExitPlanMode,
         WebFetch,
         WebSearch,
-        Delete
+        Delete,
+        Mcp
     }
 
     internal enum TerminalInputEventKind

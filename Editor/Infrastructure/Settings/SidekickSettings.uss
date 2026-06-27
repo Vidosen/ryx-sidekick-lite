@@ -120,7 +120,8 @@
 }
 
 .sk-settings-page .unity-base-text-field,
-.sk-settings-page .unity-base-popup-field {
+.sk-settings-page .unity-base-popup-field,
+.sk-settings-page .unity-enum-field {
     min-height: 30px;
 }
 
@@ -143,7 +144,8 @@
     border-color: var(--sk-accent);
 }
 
-.sk-settings-page .unity-base-popup-field__input {
+.sk-settings-page .unity-base-popup-field__input,
+.sk-settings-page .unity-enum-field__input {
     background-color: var(--sk-bg-tertiary);
     border-width: 1px;
     border-color: var(--sk-border);
@@ -153,7 +155,8 @@
     color: var(--sk-text-primary);
 }
 
-.sk-settings-page .unity-base-popup-field__input:hover {
+.sk-settings-page .unity-base-popup-field__input:hover,
+.sk-settings-page .unity-enum-field__input:hover {
     border-color: var(--sk-border-light);
 }
 

@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Ryx.Sidekick.Editor.Presentation.Constants;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using Ryx.Sidekick.Editor.Presentation.Views;
 
 namespace Ryx.Sidekick.Editor.Presentation.Shell
@@ -120,7 +121,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
         public VisualElement ImageOverlayViewport { get; }
         public Image ImageOverlayImage { get; }
 
-        // Onboarding overlay content fragment (cached off-tree until shown via Modal).
+        // Onboarding overlay content fragment (cached off-tree until shown via the modal layer).
         private readonly VisualElement _onboardingContentFragment;
 
         // Notification presenter — owns transient toasts on the App UI notification layer
@@ -224,6 +225,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             // Onboarding overlay (content fragment owned by SidekickWindowView; child refs
             // are cached internally by OnboardingView, not re-exposed here)
             VisualElement onboardingContentFragment,
+            SidekickModalLayer modalLayer = null,
             ListView messageListView = null,
             VisualElement historyStatusHost = null,
             VisualElement permissionBannerHost = null)
@@ -390,6 +392,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 SidekickUiConstants.ProviderPopoverContentUxmlPath);
             var modelPopoverTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 SidekickUiConstants.ModelPopoverContentUxmlPath);
+            var permissionModePopoverTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                SidekickUiConstants.PermissionModePopoverContentUxmlPath);
             var attachmentMenuTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 SidekickUiConstants.AttachmentMenuContentUxmlPath);
 
@@ -401,13 +405,14 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 CollaborationModeButton,
                 CollaborationModeLabel,
                 PermissionModeButton,
-                PermissionModeLabel);
+                PermissionModeLabel,
+                permissionModePopoverTemplate);
             AttachmentMenu = new AttachmentMenuView(
                 AddContextButton,
                 attachmentMenuTemplate);
-            // Reference view = Root, so Modal.FindSuitableParent climbs to the App UI Panel.
+            // modalLayer is the SidekickModalLayer created by SidekickWindowPresenter before TryCreate.
             // contentFragment is the cached onboarding UXML instance owned by SidekickWindowView.
-            Onboarding = new OnboardingView(Root, _onboardingContentFragment);
+            Onboarding = new OnboardingView(modalLayer, _onboardingContentFragment);
             ImageOverlayView = new ImageOverlayView(
                 ImageOverlay,
                 ImageOverlayBackdrop,
@@ -426,7 +431,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             string onboardingOverlayUxmlPath,
             string logoAssetPath,
             string assetsPath,
-            out SidekickWindowView view)
+            out SidekickWindowView view,
+            SidekickModalLayer modalLayer = null)
         {
             view = null;
             if (root == null) return false;
@@ -590,7 +596,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
             var askSubmitBtn = askContainer?.Q<Button>("ask-submit-btn");
 
             // Onboarding overlay content fragment — instantiated from template; lives off-tree
-            // until the App UI Modal mounts it on Show(). OnboardingView caches its own child
+            // until the modal layer mounts it on Show(). OnboardingView caches its own child
             // element references via Q<>; SidekickWindowView only retains the fragment root.
             var onboardingContentInstance = onboardingOverlayTemplate?.Instantiate();
             var onboardingContent = onboardingContentInstance?.contentContainer ?? onboardingContentInstance;
@@ -686,6 +692,8 @@ namespace Ryx.Sidekick.Editor.Presentation.Shell
                 askSubmitBtn,
                 // Onboarding overlay content fragment
                 onboardingContent,
+                // Modal layer (passed from SidekickWindowPresenter; null in tests without a live panel)
+                modalLayer,
                 // ListView path elements
                 messageListView,
                 historyStatusHost,

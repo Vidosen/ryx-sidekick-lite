@@ -10,7 +10,8 @@
     <Style src="Styles/SidekickWindow.CommandPalette.uss" />
     <Style src="Styles/SidekickWindow.Onboarding.uss" />
     <Style src="Styles/SidekickWindow.ConfirmDialog.uss" />
-    
+    <Style src="Styles/SidekickWindow.Modal.uss" />
+
     <ui:VisualElement name="main-container" class="sk-main-container">
         
         <!-- Center - Chat Panel (now full width) -->
@@ -83,7 +84,7 @@
                             <ui:VisualElement class="sk-input-toolbar-left">
                                 <ui:Button name="collaboration-mode-btn" class="sk-edit-mode-btn">
                                     <ui:Label text="" class="sk-edit-mode-icon" />
-                                    <ui:Label name="collaboration-mode-label" text="Default mode" class="sk-edit-mode-text" />
+                                    <ui:Label name="collaboration-mode-label" text="Act mode" class="sk-edit-mode-text" />
                                 </ui:Button>
                                 <ui:Button name="edit-mode-btn" class="sk-edit-mode-btn">
                                     <ui:Label text="" class="sk-edit-mode-icon" />

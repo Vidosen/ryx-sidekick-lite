@@ -14,6 +14,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
     internal static class ProPaywallLauncher
     {
         private static string _pendingFeatureId;
+        private static Func<bool> _inPlaceHandler;
 
         /// <summary>Raised whenever a surface requests the paywall. Subscribers: the window-open bridge and the live window presenter.</summary>
         public static event Action OpenRequested;
@@ -22,6 +23,7 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
         public static void Request(string highlightFeatureId = null)
         {
             _pendingFeatureId = highlightFeatureId;
+            if (_inPlaceHandler != null && _inPlaceHandler()) return;
             OpenRequested?.Invoke();
         }
 
@@ -31,6 +33,32 @@ namespace Ryx.Sidekick.Editor.UseCases.Pro
             var id = _pendingFeatureId;
             _pendingFeatureId = null;
             return id;
+        }
+
+        /// <summary>
+        /// Registers a handler that intercepts <see cref="Request"/> in-place (e.g. from Settings).
+        /// If the handler returns <c>true</c>, <see cref="OpenRequested"/> is NOT raised.
+        /// Returns an <see cref="IDisposable"/> that unregisters the handler on disposal.
+        /// </summary>
+        public static IDisposable RegisterInPlaceHandler(Func<bool> handler)
+        {
+            _inPlaceHandler = handler;
+            return new Registration(handler);
+        }
+
+        private sealed class Registration : IDisposable
+        {
+            private readonly Func<bool> _handler;
+
+            public Registration(Func<bool> handler) => _handler = handler;
+
+            // Only clear if we're still the active handler — disposing a stale token must not
+            // clobber a newer registration.
+            public void Dispose()
+            {
+                if (_inPlaceHandler == _handler)
+                    _inPlaceHandler = null;
+            }
         }
     }
 }

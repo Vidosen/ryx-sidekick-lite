@@ -106,7 +106,7 @@ namespace Ryx.Sidekick.Editor.Infrastructure.Platform
             };
         }
 
-        public ProcessStartInfo CreateDebugProcessStartInfo(string cliPath, string arguments, string workingDirectory)
+        public ProcessStartInfo CreateInteractiveTerminalStartInfo(string cliPath, string arguments, string workingDirectory)
         {
             // On Windows, open cmd.exe in a visible window with /K to keep it open after execution
             var escapedCliPath = cliPath.Replace("\"", "\\\"");

@@ -89,6 +89,16 @@ namespace Ryx.Sidekick.Editor.Providers
             IReadOnlyDictionary<string, JObject> mcpServers = null);
 
         void SendApprovalResponse(PendingPermission permission, bool allow, string message = null, bool remember = false);
+
+        /// <summary>
+        /// Writes a control_response carrying caller-supplied <paramref name="updatedInput"/> (e.g. an
+        /// AskUserQuestion answer) to the LIVE session process stdin. Distinct from
+        /// <see cref="SendApprovalResponse"/>, which builds the response from the permission's ORIGINAL
+        /// input — this overload forwards <paramref name="updatedInput"/> verbatim so the user's answers
+        /// reach the CLI. No-op for providers that do not use a stdin control_response channel.
+        /// </summary>
+        void SendControlResponse(string requestId, string toolUseId, bool allow, JToken updatedInput, string message);
+
         void SendUserInputResponse(PendingPermission permission, JObject response);
         Task InterruptAsync();
         void Stop();
@@ -276,6 +286,7 @@ namespace Ryx.Sidekick.Editor.Providers
                 ToolKind.WebSearch => "tool-search",
                 ToolKind.ImplementPlan => "mode-plan",
                 ToolKind.ExitPlanMode => "mode-plan",
+                ToolKind.Mcp => "tool-mcp",
                 _ => "tool-default"
             };
         }
@@ -304,6 +315,11 @@ namespace Ryx.Sidekick.Editor.Providers
 
         public static string ResolveCanonicalOrFallbackName(ToolKind kind, string rawTitle, string rawName)
         {
+            if (kind == ToolKind.Mcp)
+            {
+                return FormatMcpName(ResolveRawFallbackName(rawTitle, rawName));
+            }
+
             return kind == ToolKind.Unknown
                 ? ResolveRawFallbackName(rawTitle, rawName)
                 : GetCanonicalName(kind);
@@ -331,7 +347,9 @@ namespace Ryx.Sidekick.Editor.Providers
                 ? "unknown"
                 : providerId.Trim().ToLowerInvariant();
 
-            if (kind != ToolKind.Unknown)
+            // MCP tools share a single kind but must keep per-tool decision keys (each server/tool
+            // is a distinct permission), so fall through to the raw-name key like Unknown does.
+            if (kind != ToolKind.Unknown && kind != ToolKind.Mcp)
             {
                 return $"{normalizedProviderId}:{kind.ToString().ToLowerInvariant()}";
             }
@@ -360,8 +378,61 @@ namespace Ryx.Sidekick.Editor.Providers
             return false;
         }
 
+        /// <summary>True when the tool name follows the MCP convention <c>mcp__server__tool</c>.</summary>
+        public static bool IsMcpName(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value)
+                && value.TrimStart().StartsWith("mcp__", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Formats an MCP tool name <c>mcp__server__tool</c> as <c>server.tool</c> for display.
+        /// Falls back gracefully for malformed names (missing tool segment, extra separators).
+        /// </summary>
+        public static string FormatMcpName(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return "MCP tool";
+            }
+
+            var trimmed = raw.Trim();
+            if (!trimmed.StartsWith("mcp__", StringComparison.OrdinalIgnoreCase))
+            {
+                return trimmed;
+            }
+
+            var rest = trimmed.Substring("mcp__".Length);
+            var parts = rest.Split(new[] { "__" }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0)
+            {
+                return "MCP tool";
+            }
+            if (parts.Length == 1)
+            {
+                return parts[0];
+            }
+
+            var server = parts[0];
+            var tool = string.Join("__", parts, 1, parts.Length - 1);
+            return $"{server}.{tool}";
+        }
+
+        /// <summary>The formatted <c>server.tool</c> address for an MCP tool call.</summary>
+        public static string ResolveMcpDisplayName(ToolUse toolUse)
+        {
+            return toolUse == null
+                ? "MCP tool"
+                : FormatMcpName(ResolveRawFallbackName(toolUse.RawName, toolUse.RawTitle, toolUse.Name));
+        }
+
         public static ToolKind InferKind(string rawTitle, string rawName, string displayName, JToken input)
         {
+            if (IsMcpName(rawName) || IsMcpName(rawTitle) || IsMcpName(displayName))
+            {
+                return ToolKind.Mcp;
+            }
+
             if (LooksLikeTodoInput(input))
             {
                 return ToolKind.Todo;
@@ -576,7 +647,7 @@ namespace Ryx.Sidekick.Editor.Providers
         /// <summary>
         /// Creates a ProcessStartInfo for launching the CLI.
         /// </summary>
-        ProcessStartInfo CreateProcessStartInfo(string cliPath, string arguments, string workingDirectory, bool debugMode, bool useBedrock);
+        ProcessStartInfo CreateProcessStartInfo(CliLaunchRequest request);
 
         /// <summary>
         /// Returns onboarding metadata (card description, auth variant, status check info).

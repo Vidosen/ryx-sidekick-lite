@@ -7,10 +7,10 @@ using Ryx.Sidekick.Editor.Domain.Models;
 using Ryx.Sidekick.Editor.Domain.Updates;
 using Ryx.Sidekick.Editor.Presentation.Controllers;
 using Ryx.Sidekick.Editor.Presentation.Shell;
+using Ryx.Sidekick.Editor.Presentation.Shell.Modals;
 using Ryx.Sidekick.Editor.Presentation.ViewModels;
 using Ryx.Sidekick.Editor.Presentation.Views;
 using Ryx.Sidekick.Editor.UseCases.Attachments;
-using Ryx.Sidekick.Editor.UseCases.Contracts;
 using Ryx.Sidekick.Editor.UseCases.Pro;
 using UnityEngine.UIElements;
 
@@ -18,6 +18,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
 {
     internal sealed class WindowViewBindingPresenter : IDisposable
     {
+        private readonly SidekickModalLayer _modalLayer;
         private SidekickWindowView _view;
         private SidekickWindowScopeGraph _windowScopeGraph;
         private ConversationController _conversationController;
@@ -41,6 +42,11 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
 
         private const string LiteId = "com.ryxinteractive.sidekick";
         private const string ProId = "com.ryxinteractive.sidekick.pro";
+
+        public WindowViewBindingPresenter(SidekickModalLayer modalLayer = null)
+        {
+            _modalLayer = modalLayer;
+        }
 
         public IComposerView ComposerView => _view?.Composer;
 
@@ -167,7 +173,7 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             // Bind paywall once — _paywallModalView is set on first successful bind.
             if (_paywallModalView == null)
             {
-                BindPaywall(_view.Root, _windowScopeGraph);
+                BindPaywall(_windowScopeGraph);
             }
 
             // Bind update-notification once — constructs UpdateNotifier + UpdateNotificationViewModel
@@ -178,15 +184,15 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
             }
         }
 
-        private void BindPaywall(VisualElement referenceView, SidekickWindowScopeGraph scopeGraph)
+        private void BindPaywall(SidekickWindowScopeGraph scopeGraph)
         {
             var paywallVm = scopeGraph?.PaywallViewModel;
-            if (paywallVm == null)
+            if (paywallVm == null || _modalLayer == null)
             {
                 return;
             }
 
-            _paywallModalView = new PaywallModalView(referenceView);
+            _paywallModalView = new PaywallModalView(_modalLayer);
             paywallVm.BindView(_paywallModalView);
 
             // Entitlement- and update-aware chip: see RefreshProChip / ProChipDecider for the matrix.
@@ -212,19 +218,14 @@ namespace Ryx.Sidekick.Editor.Presentation.Presenters
                 _accountStatusSubscribed = true;
             }
 
-            // Auto-show the full-screen "you own Pro → install it" nudge once per session.
-            // Deferred via schedule so the panel is live before Modal.Show() runs (bind time may
-            // precede attachment to the App UI panel).
+            // Auto-show the "you own Pro → install it" nudge once per session.
             if (access == ProAccessState.OwnedNotInstalled && !_installNudgeShownThisSession)
             {
                 _installNudgeShownThisSession = true;
-                referenceView?.schedule.Execute(() =>
+                if (!_disposed)
                 {
-                    if (!_disposed)
-                    {
-                        _windowScopeGraph?.PaywallViewModel?.Open(null);
-                    }
-                });
+                    _windowScopeGraph?.PaywallViewModel?.Open(null);
+                }
             }
         }
 
